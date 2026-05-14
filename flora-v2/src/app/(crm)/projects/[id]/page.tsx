@@ -1,0 +1,81 @@
+import { db } from "@/lib/db";
+import { notFound } from "next/navigation";
+import { PaymentLedger } from "@/components/crm/PaymentLedger";
+
+export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+  const project = await db.project.findUnique({
+    where:   { id: params.id },
+    include: {
+      enquiry:   { include: { contact: true, company: true } },
+      quotation: true,
+      payments:  { orderBy: { paidAt: "asc" } },
+      tasks:     { orderBy: { dueDate: "asc" } },
+    },
+  });
+  if (!project) notFound();
+
+  const { contact, company } = project.enquiry;
+
+  const statusColors: Record<string, string> = {
+    NOT_STARTED: "#8B8178", IN_PROGRESS: "#185FA5", INSTALLATION: "#854D0E",
+    SNAGGING: "#7F77DD", COMPLETED: "#166534", ON_HOLD: "#991B1B",
+  };
+
+  return (
+    <div className="max-w-4xl">
+      <h1 className="text-2xl font-extrabold tracking-tight mb-1">{contact.name}</h1>
+      {company && <p className="text-[#6B625A] text-sm">{company.tradeName}</p>}
+      <p className="text-[#6B625A] text-sm mb-6">{project.enquiry.serviceWanted}</p>
+
+      {/* Status + Key Info */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
+          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Project Info</h3>
+          <dl className="space-y-2 text-sm">
+            {[
+              { label: "Status",         value: <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: `${statusColors[project.status]}18`, color: statusColors[project.status] }}>{project.status.replace(/_/g, " ")}</span> },
+              { label: "Contract Value", value: `AED ${project.totalContractValue.toLocaleString()}` },
+              { label: "Start Date",     value: project.startDate ? new Date(project.startDate).toLocaleDateString("en-AE") : "—" },
+              { label: "Installation",   value: project.installationDate ? new Date(project.installationDate).toLocaleDateString("en-AE") : "—" },
+              { label: "PO Number",      value: project.poNumber ?? "—" },
+              { label: "Site",           value: project.siteAddress ?? "—" },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex gap-2 items-center">
+                <dt className="text-[#6B625A] w-32 shrink-0">{label}</dt>
+                <dd className="font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {/* Tasks */}
+        <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
+          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Tasks</h3>
+          {project.tasks.length === 0 ? (
+            <p className="text-sm text-[#6B625A]">No tasks.</p>
+          ) : (
+            <div className="space-y-2">
+              {project.tasks.map(t => (
+                <div key={t.id} className="flex items-center gap-3 text-sm">
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${t.done ? "bg-green-500" : "bg-[#5A0E12]"}`} />
+                  <span className={t.done ? "line-through text-[#6B625A]" : ""}>{t.title}</span>
+                  {t.dueDate && <span className="text-xs text-[#6B625A] ml-auto">{new Date(t.dueDate).toLocaleDateString("en-AE")}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Payment Ledger */}
+      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-5 text-[#5A0E12]">Payment Ledger</h3>
+        <PaymentLedger
+          projectId={project.id}
+          totalContractValue={project.totalContractValue}
+          payments={project.payments}
+        />
+      </div>
+    </div>
+  );
+}

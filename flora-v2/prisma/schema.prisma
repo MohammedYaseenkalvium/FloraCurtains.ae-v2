@@ -1,0 +1,310 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum CustomerType {
+  B2C   // individual homeowner
+  B2B   // company / firm / hotel etc.
+}
+
+enum CompanyType {
+  INTERIOR_FIRM
+  HOTEL
+  HOSPITAL
+  GOVERNMENT
+  CONTRACTOR
+  REAL_ESTATE
+  OTHER
+}
+
+enum ContactRole {
+  OWNER
+  MANAGER
+  INTERIOR_DESIGNER
+  PROCUREMENT
+  SITE_ENGINEER
+  OTHER
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  VISIT_SCHEDULED
+  QUOTED
+  NEGOTIATING
+  WON
+  LOST
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+  REVISED
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  INSTALLATION
+  SNAGGING     // B2B projects often have a snagging/punch-list phase
+  COMPLETED
+  ON_HOLD
+}
+
+enum PaymentType {
+  ADVANCE
+  INSTALLMENT
+  BALANCE
+  RETENTION    // common in B2B — client holds back 5-10% until sign-off
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  CHEQUE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum CustomerSource {
+  CALL
+  WALK_IN
+  REFERRAL
+  INSTAGRAM
+  WEBSITE
+  WHATSAPP
+  EXISTING_CLIENT  // B2B repeat business
+  TENDER           // B2B — responded to a formal tender
+}
+
+// ── Company ───────────────────────────────────────────────────────────────────
+// Only exists for B2B. B2C contacts have no company.
+
+model Company {
+  id           String      @id @default(cuid())
+  tradeName    String                        // "Al Noor Interiors"
+  legalName    String?                       // full legal name for invoices
+  type         CompanyType @default(OTHER)
+  trn          String?                       // UAE Tax Registration Number
+  address      String?
+  website      String?
+  creditTerms  Int         @default(0)       // payment days allowed, e.g. 30
+  notes        String?
+
+  contacts     Contact[]
+  enquiries    Enquiry[]
+  projects     Project[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("companies")
+}
+
+// ── Contact ───────────────────────────────────────────────────────────────────
+// Every customer — B2C or B2B — is a Contact.
+// B2C:  companyId is null
+// B2B:  companyId points to their employer
+
+model Contact {
+  id           String       @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  whatsapp     String?      // sometimes different from phone
+  role         ContactRole  @default(OTHER)
+  source       CustomerSource @default(CALL)
+  notes        String?
+
+  // B2B link — null for B2C
+  companyId    String?
+  company      Company?     @relation(fields: [companyId], references: [id])
+
+  enquiries    Enquiry[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("contacts")
+}
+
+// ── Enquiry ───────────────────────────────────────────────────────────────────
+
+model Enquiry {
+  id             String         @id @default(cuid())
+
+  // Who called / walked in
+  contactId      String
+  contact        Contact        @relation(fields: [contactId], references: [id])
+
+  // If B2B, which company they represent
+  companyId      String?
+  company        Company?       @relation(fields: [companyId], references: [id])
+
+  customerType   CustomerType   @default(B2C)
+
+  // What they want
+  serviceWanted  String
+  remarks        String?        // verbatim call notes
+  desiredBudget  Float?
+  interestLevel  Int            @default(3) // 1–5
+
+  // Workflow
+  status         EnquiryStatus  @default(NEW)
+  assignedTo     String?
+  followUpDate   DateTime?
+
+  // B2B specific
+  projectName    String?        // "Marriott Hotel Room Renovation"
+  siteAddress    String?        // delivery / installation address
+
+  quotations     Quotation[]
+  project        Project?
+  tasks          Task[]
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("enquiries")
+}
+
+// ── Quotation ─────────────────────────────────────────────────────────────────
+
+model Quotation {
+  id             String          @id @default(cuid())
+  enquiryId      String
+  enquiry        Enquiry         @relation(fields: [enquiryId], references: [id])
+
+  quoteNumber    String          @unique  // e.g. "FLR-2024-0042"
+
+  // Line items: [{ description, qty, unitPrice, discount, unit }]
+  items          Json
+
+  subtotal       Float
+  vatRate        Float           @default(5)
+  vatAmount      Float
+  totalAmount    Float
+
+  status         QuotationStatus @default(DRAFT)
+  validUntil     DateTime?
+
+  // B2B billing details (copied at quote time — don't rely on live company data)
+  billedToName   String?         // company legal name or contact name
+  billedToTrn    String?         // company TRN if B2B
+  billedToAddr   String?
+
+  notes          String?
+  internalNotes  String?         // not shown on PDF
+
+  project        Project?
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("quotations")
+}
+
+// ── Project ───────────────────────────────────────────────────────────────────
+
+model Project {
+  id                 String        @id @default(cuid())
+  enquiryId          String        @unique
+  enquiry            Enquiry       @relation(fields: [enquiryId], references: [id])
+  quotationId        String?       @unique
+  quotation          Quotation?    @relation(fields: [quotationId], references: [id])
+
+  // B2B only — purchase order from the client
+  poNumber           String?
+  poDate             DateTime?
+
+  // Also link directly to company for B2B repeat-project queries
+  companyId          String?
+  company            Company?      @relation(fields: [companyId], references: [id])
+
+  totalContractValue Float
+  status             ProjectStatus @default(NOT_STARTED)
+
+  startDate          DateTime?
+  endDate            DateTime?
+  installationDate   DateTime?
+  siteAddress        String?
+
+  notes              String?
+
+  payments           Payment[]
+  tasks              Task[]
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("projects")
+}
+
+// ── Payment ───────────────────────────────────────────────────────────────────
+
+model Payment {
+  id          String        @id @default(cuid())
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id])
+
+  amount      Float
+  type        PaymentType
+  method      PaymentMethod @default(CASH)
+  reference   String?       // cheque number, bank ref, receipt no.
+  paidAt      DateTime      @default(now())
+  notes       String?
+
+  createdAt   DateTime      @default(now())
+
+  @@map("payments")
+}
+
+// ── Task ──────────────────────────────────────────────────────────────────────
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+
+  enquiryId   String?
+  enquiry     Enquiry?     @relation(fields: [enquiryId], references: [id])
+  projectId   String?
+  project     Project?     @relation(fields: [projectId], references: [id])
+
+  assignedTo  String?
+  dueDate     DateTime?
+  priority    TaskPriority @default(MEDIUM)
+  done        Boolean      @default(false)
+  doneAt      DateTime?
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("tasks")
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String
+  role     String @default("STAFF")
+  createdAt DateTime @default(now())
+  @@map("users")
+}
