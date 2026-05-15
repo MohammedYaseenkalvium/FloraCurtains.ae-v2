@@ -2,11 +2,16 @@ import { db } from "@/lib/db";
 import { QuotationBuilder } from "@/components/crm/QuotationBuilder";
 import { notFound } from "next/navigation";
 
-export default async function NewQuotationPage({ searchParams }: { searchParams: { enquiryId?: string } }) {
-  if (!searchParams.enquiryId) notFound();
+export default async function NewQuotationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ enquiryId?: string }>;
+}) {
+  const { enquiryId } = await searchParams;
+  if (!enquiryId) notFound();
 
   const enquiry = await db.enquiry.findUnique({
-    where:   { id: searchParams.enquiryId },
+    where:   { id: enquiryId },
     include: { contact: true, company: true },
   });
   if (!enquiry) notFound();

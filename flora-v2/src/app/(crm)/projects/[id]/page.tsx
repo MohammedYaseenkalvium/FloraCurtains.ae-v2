@@ -2,9 +2,15 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { PaymentLedger } from "@/components/crm/PaymentLedger";
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProjectDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const project = await db.project.findUnique({
-    where:   { id: params.id },
+    where:   { id },
     include: {
       enquiry:   { include: { contact: true, company: true } },
       quotation: true,
@@ -27,7 +33,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       {company && <p className="text-[#6B625A] text-sm">{company.tradeName}</p>}
       <p className="text-[#6B625A] text-sm mb-6">{project.enquiry.serviceWanted}</p>
 
-      {/* Status + Key Info */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
           <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Project Info</h3>
@@ -48,7 +53,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           </dl>
         </div>
 
-        {/* Tasks */}
         <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
           <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Tasks</h3>
           {project.tasks.length === 0 ? (
@@ -67,7 +71,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         </div>
       </div>
 
-      {/* Payment Ledger */}
       <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
         <h3 className="font-semibold text-sm mb-5 text-[#5A0E12]">Payment Ledger</h3>
         <PaymentLedger

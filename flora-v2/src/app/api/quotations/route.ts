@@ -13,7 +13,26 @@ function calcTotals(items: QuotationLineItem[], vatRate: number) {
   return { subtotal, vatAmount, totalAmount };
 }
 
-let quoteCounter = 1000; // In production, store this in DB
+async function generateQuoteNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `FLR-${year}-`;
+
+  const latest = await db.quotation.findFirst({
+    where: { quoteNumber: { startsWith: prefix } },
+    orderBy: { quoteNumber: "desc" },
+  });
+
+  let counter = 1000;
+  if (latest) {
+    const match = latest.quoteNumber.match(/-\d{4}$/);
+    if (match) {
+      counter = Math.max(counter, parseInt(match[0].slice(1)));
+    }
+  }
+  counter++;
+
+  return `${prefix}${String(counter).padStart(4, "0")}`;
+}
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -25,8 +44,7 @@ export async function POST(req: NextRequest) {
 
   const v       = parsed.data;
   const totals  = calcTotals(v.items, v.vatRate);
-  quoteCounter++;
-  const quoteNumber = `FLR-${new Date().getFullYear()}-${String(quoteCounter).padStart(4, "0")}`;
+  const quoteNumber = await generateQuoteNumber();
 
   const quotation = await db.quotation.create({
     data: {
@@ -45,7 +63,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Also bump enquiry status to QUOTED
   await db.enquiry.update({ where: { id: v.enquiryId }, data: { status: "QUOTED" } });
 
   return NextResponse.json(quotation, { status: 201 });

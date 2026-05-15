@@ -1,31 +1,13 @@
 -- CreateEnum
 CREATE TYPE "CustomerType" AS ENUM ('B2C', 'B2B');
-
--- CreateEnum
 CREATE TYPE "CompanyType" AS ENUM ('INTERIOR_FIRM', 'HOTEL', 'HOSPITAL', 'GOVERNMENT', 'CONTRACTOR', 'REAL_ESTATE', 'OTHER');
-
--- CreateEnum
 CREATE TYPE "ContactRole" AS ENUM ('OWNER', 'MANAGER', 'INTERIOR_DESIGNER', 'PROCUREMENT', 'SITE_ENGINEER', 'OTHER');
-
--- CreateEnum
 CREATE TYPE "EnquiryStatus" AS ENUM ('NEW', 'CONTACTED', 'VISIT_SCHEDULED', 'QUOTED', 'NEGOTIATING', 'WON', 'LOST');
-
--- CreateEnum
 CREATE TYPE "QuotationStatus" AS ENUM ('DRAFT', 'SENT', 'APPROVED', 'REJECTED', 'REVISED');
-
--- CreateEnum
 CREATE TYPE "ProjectStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'INSTALLATION', 'SNAGGING', 'COMPLETED', 'ON_HOLD');
-
--- CreateEnum
 CREATE TYPE "PaymentType" AS ENUM ('ADVANCE', 'INSTALLMENT', 'BALANCE', 'RETENTION');
-
--- CreateEnum
 CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CARD', 'BANK_TRANSFER', 'CHEQUE');
-
--- CreateEnum
 CREATE TYPE "TaskPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
-
--- CreateEnum
 CREATE TYPE "CustomerSource" AS ENUM ('CALL', 'WALK_IN', 'REFERRAL', 'INSTAGRAM', 'WEBSITE', 'WHATSAPP', 'EXISTING_CLIENT', 'TENDER');
 
 -- CreateTable
@@ -41,7 +23,6 @@ CREATE TABLE "companies" (
     "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "companies_pkey" PRIMARY KEY ("id")
 );
 
@@ -58,7 +39,6 @@ CREATE TABLE "contacts" (
     "companyId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "contacts_pkey" PRIMARY KEY ("id")
 );
 
@@ -79,7 +59,6 @@ CREATE TABLE "enquiries" (
     "siteAddress" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "enquiries_pkey" PRIMARY KEY ("id")
 );
 
@@ -102,7 +81,6 @@ CREATE TABLE "quotations" (
     "internalNotes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "quotations_pkey" PRIMARY KEY ("id")
 );
 
@@ -123,7 +101,6 @@ CREATE TABLE "projects" (
     "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
 
@@ -138,7 +115,6 @@ CREATE TABLE "payments" (
     "paidAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
 );
 
@@ -156,45 +132,34 @@ CREATE TABLE "tasks" (
     "doneAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "tasks_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "users" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'STAFF',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "users_email_key" UNIQUE ("email")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "quotations_quoteNumber_key" ON "quotations"("quoteNumber");
-
--- CreateIndex
 CREATE UNIQUE INDEX "projects_enquiryId_key" ON "projects"("enquiryId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "projects_quotationId_key" ON "projects"("quotationId");
 
 -- AddForeignKey
 ALTER TABLE "contacts" ADD CONSTRAINT "contacts_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "enquiries" ADD CONSTRAINT "enquiries_contactId_fkey" FOREIGN KEY ("contactId") REFERENCES "contacts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "enquiries" ADD CONSTRAINT "enquiries_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "quotations" ADD CONSTRAINT "quotations_enquiryId_fkey" FOREIGN KEY ("enquiryId") REFERENCES "enquiries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_enquiryId_fkey" FOREIGN KEY ("enquiryId") REFERENCES "enquiries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_quotationId_fkey" FOREIGN KEY ("quotationId") REFERENCES "quotations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_enquiryId_fkey" FOREIGN KEY ("enquiryId") REFERENCES "enquiries"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "projects"("id") ON DELETE SET NULL ON UPDATE CASCADE;

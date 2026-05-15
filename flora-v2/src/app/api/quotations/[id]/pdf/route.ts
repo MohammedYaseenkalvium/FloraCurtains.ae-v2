@@ -5,12 +5,17 @@ import { renderToStream } from "@react-pdf/renderer";
 import { QuotationPDF } from "@/lib/pdf";
 import React from "react";
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  _: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
+
   const quotation = await db.quotation.findUnique({
-    where:   { id: params.id },
+    where:   { id },
     include: { enquiry: { include: { contact: true, company: true } } },
   });
   if (!quotation) return NextResponse.json({ error: "Not found" }, { status: 404 });

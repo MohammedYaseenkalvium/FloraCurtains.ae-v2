@@ -5,21 +5,22 @@ import type { EnquiryStatus } from "@prisma/client";
 export default async function EnquiriesPage({
   searchParams,
 }: {
-  searchParams: { status?: string; page?: string };
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const status   = searchParams.status as EnquiryStatus | undefined;
-  const page     = parseInt(searchParams.page ?? "1");
+  const { status, page: pageParam } = await searchParams;
+  const enquiryStatus = status as EnquiryStatus | undefined;
+  const page     = parseInt(pageParam ?? "1");
   const pageSize = 20;
 
   const [data, total] = await Promise.all([
     db.enquiry.findMany({
-      where:   status ? { status } : undefined,
+      where:   enquiryStatus ? { status: enquiryStatus } : undefined,
       include: { contact: true, company: true },
       orderBy: { createdAt: "desc" },
       skip:    (page - 1) * pageSize,
       take:    pageSize,
     }),
-    db.enquiry.count({ where: status ? { status } : undefined }),
+    db.enquiry.count({ where: enquiryStatus ? { status: enquiryStatus } : undefined }),
   ]);
 
   const statuses: EnquiryStatus[] = ["NEW","CONTACTED","VISIT_SCHEDULED","QUOTED","NEGOTIATING","WON","LOST"];
@@ -37,21 +38,19 @@ export default async function EnquiriesPage({
         </Link>
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex gap-2 mb-5 flex-wrap">
         <Link href="/enquiries"
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${!status ? "bg-[#5A0E12] text-white border-[#5A0E12]" : "bg-white border-[#D8C9BC] text-[#6B625A] hover:border-[#5A0E12]"}`}>
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${!enquiryStatus ? "bg-[#5A0E12] text-white border-[#5A0E12]" : "bg-white border-[#D8C9BC] text-[#6B625A] hover:border-[#5A0E12]"}`}>
           All ({total})
         </Link>
         {statuses.map(s => (
           <Link key={s} href={`/enquiries?status=${s}`}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${status === s ? "bg-[#5A0E12] text-white border-[#5A0E12]" : "bg-white border-[#D8C9BC] text-[#6B625A]"}`}>
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${enquiryStatus === s ? "bg-[#5A0E12] text-white border-[#5A0E12]" : "bg-white border-[#D8C9BC] text-[#6B625A]"}`}>
             {s.replace(/_/g, " ")}
           </Link>
         ))}
       </div>
 
-      {/* Table */}
       <div className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -97,12 +96,11 @@ export default async function EnquiriesPage({
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm text-[#6B625A]">
         <span>Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, total)} of {total}</span>
         <div className="flex gap-2">
-          {page > 1 && <Link href={`/enquiries?page=${page - 1}${status ? `&status=${status}` : ""}`} className="px-3 py-1 border border-[#D8C9BC] rounded-lg hover:bg-[#EFE7DF]">← Prev</Link>}
-          {page * pageSize < total && <Link href={`/enquiries?page=${page + 1}${status ? `&status=${status}` : ""}`} className="px-3 py-1 border border-[#D8C9BC] rounded-lg hover:bg-[#EFE7DF]">Next →</Link>}
+          {page > 1 && <Link href={`/enquiries?page=${page - 1}${enquiryStatus ? `&status=${enquiryStatus}` : ""}`} className="px-3 py-1 border border-[#D8C9BC] rounded-lg hover:bg-[#EFE7DF]">← Prev</Link>}
+          {page * pageSize < total && <Link href={`/enquiries?page=${page + 1}${enquiryStatus ? `&status=${enquiryStatus}` : ""}`} className="px-3 py-1 border border-[#D8C9BC] rounded-lg hover:bg-[#EFE7DF]">Next →</Link>}
         </div>
       </div>
     </div>

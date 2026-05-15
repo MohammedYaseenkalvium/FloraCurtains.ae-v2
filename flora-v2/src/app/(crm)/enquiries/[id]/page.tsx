@@ -2,9 +2,15 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-export default async function EnquiryDetailPage({ params }: { params: { id: string } }) {
+export default async function EnquiryDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const enquiry = await db.enquiry.findUnique({
-    where:   { id: params.id },
+    where:   { id },
     include: { contact: true, company: true, quotations: true, project: { include: { payments: true } }, tasks: true },
   });
   if (!enquiry) notFound();
@@ -16,14 +22,12 @@ export default async function EnquiryDetailPage({ params }: { params: { id: stri
 
   return (
     <div className="max-w-4xl">
-      {/* Breadcrumb */}
       <div className="text-sm text-[#6B625A] mb-5">
         <Link href="/enquiries" className="hover:underline">Enquiries</Link>
         <span className="mx-2">›</span>
         <span>{enquiry.contact.name}</span>
       </div>
 
-      {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">{enquiry.contact.name}</h1>
@@ -42,7 +46,6 @@ export default async function EnquiryDetailPage({ params }: { params: { id: stri
         </div>
       </div>
 
-      {/* Detail Grid */}
       <div className="grid grid-cols-2 gap-6 mb-6">
         <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
           <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Enquiry Details</h3>
@@ -80,7 +83,6 @@ export default async function EnquiryDetailPage({ params }: { params: { id: stri
         </div>
       </div>
 
-      {/* Quotations */}
       <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-sm text-[#5A0E12]">Quotations</h3>
@@ -109,7 +111,6 @@ export default async function EnquiryDetailPage({ params }: { params: { id: stri
         )}
       </div>
 
-      {/* Tasks */}
       <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
         <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Tasks</h3>
         {enquiry.tasks.length === 0 ? (

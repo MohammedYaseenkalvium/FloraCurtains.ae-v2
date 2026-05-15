@@ -98,7 +98,7 @@ enum CustomerSource {
 
 model Company {
   id           String      @id @default(cuid())
-  tradeName    String                        // "Al Noor Interiors"
+  tradeName    String      @unique
   legalName    String?                       // full legal name for invoices
   type         CompanyType @default(OTHER)
   trn          String?                       // UAE Tax Registration Number
@@ -125,7 +125,7 @@ model Company {
 model Contact {
   id           String       @id @default(cuid())
   name         String
-  phone        String
+  phone        String       @unique
   email        String?
   whatsapp     String?      // sometimes different from phone
   role         ContactRole  @default(OTHER)

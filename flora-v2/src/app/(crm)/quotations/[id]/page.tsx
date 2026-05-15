@@ -2,9 +2,15 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-export default async function QuotationDetailPage({ params }: { params: { id: string } }) {
+export default async function QuotationDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const q = await db.quotation.findUnique({
-    where:   { id: params.id },
+    where:   { id },
     include: { enquiry: { include: { contact: true, company: true } } },
   });
   if (!q) notFound();
@@ -26,7 +32,6 @@ export default async function QuotationDetailPage({ params }: { params: { id: st
         </div>
       </div>
 
-      {/* Line Items */}
       <div className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden mb-4">
         <table className="w-full text-sm">
           <thead>
@@ -53,7 +58,6 @@ export default async function QuotationDetailPage({ params }: { params: { id: st
         </table>
       </div>
 
-      {/* Totals */}
       <div className="flex justify-end mb-6">
         <div className="w-64 space-y-1.5 text-sm">
           <div className="flex justify-between"><span className="text-[#6B625A]">Subtotal</span><span>AED {q.subtotal.toLocaleString("en-AE", { minimumFractionDigits: 2 })}</span></div>

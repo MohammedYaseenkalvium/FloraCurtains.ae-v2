@@ -36,34 +36,47 @@ export async function POST(req: NextRequest) {
 
   const v = parsed.data;
 
-  // Upsert company (B2B only)
   let companyId: string | undefined;
   if (v.customerType === "B2B" && v.companyName) {
-    const company = await db.company.upsert({
-      where:  { tradeName: v.companyName } as any,
-      update: {},
-      create: {
-        tradeName:  v.companyName,
-        type:       v.companyType ?? "OTHER",
-        trn:        v.companyTrn,
-      },
+    const existingCompany = await db.company.findFirst({
+      where: { tradeName: v.companyName },
     });
-    companyId = company.id;
+
+    if (existingCompany) {
+      companyId = existingCompany.id;
+    } else {
+      const newCompany = await db.company.create({
+        data: {
+          tradeName: v.companyName,
+          type:      v.companyType ?? "OTHER",
+          trn:       v.companyTrn,
+        },
+      });
+      companyId = newCompany.id;
+    }
   }
 
-  // Upsert contact (by phone)
-  const contact = await db.contact.upsert({
-    where:  { phone: v.contactPhone } as any,
-    update: { name: v.contactName, email: v.contactEmail || undefined, companyId },
-    create: {
-      name:      v.contactName,
-      phone:     v.contactPhone,
-      email:     v.contactEmail || undefined,
-      source:    v.contactSource,
-      role:      v.contactRole ?? "OTHER",
-      companyId,
-    },
+  let contact = await db.contact.findFirst({
+    where: { phone: v.contactPhone },
   });
+
+  if (contact) {
+    contact = await db.contact.update({
+      where:  { id: contact.id },
+      data:   { name: v.contactName, email: v.contactEmail || undefined, companyId },
+    });
+  } else {
+    contact = await db.contact.create({
+      data: {
+        name:      v.contactName,
+        phone:     v.contactPhone,
+        email:     v.contactEmail || undefined,
+        source:    v.contactSource,
+        role:      v.contactRole ?? "OTHER",
+        companyId,
+      },
+    });
+  }
 
   const enquiry = await db.enquiry.create({
     data: {
