@@ -56,7 +56,7 @@ export function QuotationPDF({ quotation }: Props) {
             <Image src="/images/logo.png" style={s.logoImg} />
             <View>
               <Text style={s.logoText}>FLORA</Text>
-              <Text style={s.logoSub}>INTERIOR OPERATIONS</Text>
+              <Text style={s.logoSub}>Curtains</Text>
               <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Dubai, UAE · www.flora-interiors.com</Text>
             </View>
           </View>
