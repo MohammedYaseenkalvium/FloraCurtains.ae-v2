@@ -308,3 +308,16 @@ model User {
   createdAt DateTime @default(now())
   @@map("users")
 }
+
+model AppSettings {
+  id            String   @id @default(cuid())
+  companyName   String   @default("Flora Interior Operations")
+  vatNumber     String   @default("100000000000003")
+  currency      String   @default("AED")
+  defaultVatRate Float   @default(5)
+  quoteValidityDays Int  @default(30)
+  logoUrl       String   @default("/images/logo.png")
+  updatedAt     DateTime @updatedAt
+
+  @@map("app_settings")
+}
