@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ConvertToProject } from "@/components/crm/ConvertToProject";
+import { EnquiryEditForm } from "@/components/crm/EnquiryEditForm";
+import { TaskManager } from "@/components/crm/TaskManager";
 
 export default async function EnquiryDetailPage({
   params,
@@ -19,6 +22,9 @@ export default async function EnquiryDetailPage({
     NEW: "#8B8178", CONTACTED: "#185FA5", VISIT_SCHEDULED: "#854D0E",
     QUOTED: "#0F6E56", NEGOTIATING: "#7F77DD", WON: "#166534", LOST: "#991B1B",
   };
+
+  const hasWonOrLost = enquiry.status === "WON" || enquiry.status === "LOST";
+  const hasProject = !!enquiry.project;
 
   return (
     <div className="max-w-4xl">
@@ -39,11 +45,27 @@ export default async function EnquiryDetailPage({
             style={{ background: `${statusColors[enquiry.status]}18`, color: statusColors[enquiry.status] }}>
             {enquiry.status.replace(/_/g, " ")}
           </span>
-          <Link href={`/quotations/new?enquiryId=${enquiry.id}`}
-            className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22]">
-            + Create Quote
-          </Link>
+          {!hasWonOrLost && (
+            <Link href={`/quotations/new?enquiryId=${enquiry.id}`}
+              className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22]">
+              + Create Quote
+            </Link>
+          )}
         </div>
+      </div>
+
+      {!hasProject && (enquiry.status === "WON" || enquiry.status === "NEGOTIATING" || enquiry.status === "QUOTED") && (
+        <div className="mb-6">
+          <ConvertToProject
+            enquiryId={enquiry.id}
+            quoteTotal={enquiry.quotations.find(q => q.status === "APPROVED")?.totalAmount}
+          />
+        </div>
+      )}
+
+      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
+        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Edit Enquiry</h3>
+        <EnquiryEditForm enquiry={enquiry} />
       </div>
 
       <div className="grid grid-cols-2 gap-6 mb-6">
@@ -86,7 +108,9 @@ export default async function EnquiryDetailPage({
       <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-sm text-[#5A0E12]">Quotations</h3>
-          <Link href={`/quotations/new?enquiryId=${enquiry.id}`} className="text-xs text-[#5A0E12] hover:underline">+ New Quote</Link>
+          {!hasWonOrLost && (
+            <Link href={`/quotations/new?enquiryId=${enquiry.id}`} className="text-xs text-[#5A0E12] hover:underline">+ New Quote</Link>
+          )}
         </div>
         {enquiry.quotations.length === 0 ? (
           <p className="text-sm text-[#6B625A]">No quotations yet.</p>
@@ -113,19 +137,7 @@ export default async function EnquiryDetailPage({
 
       <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
         <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Tasks</h3>
-        {enquiry.tasks.length === 0 ? (
-          <p className="text-sm text-[#6B625A]">No tasks.</p>
-        ) : (
-          <div className="space-y-2">
-            {enquiry.tasks.map(t => (
-              <div key={t.id} className="flex items-center gap-3 text-sm">
-                <div className={`w-2 h-2 rounded-full ${t.done ? "bg-green-500" : "bg-[#5A0E12]"}`} />
-                <span className={t.done ? "line-through text-[#6B625A]" : ""}>{t.title}</span>
-                {t.dueDate && <span className="text-xs text-[#6B625A] ml-auto">{new Date(t.dueDate).toLocaleDateString("en-AE")}</span>}
-              </div>
-            ))}
-          </div>
-        )}
+        <TaskManager enquiryId={enquiry.id} initialTasks={enquiry.tasks} />
       </div>
     </div>
   );

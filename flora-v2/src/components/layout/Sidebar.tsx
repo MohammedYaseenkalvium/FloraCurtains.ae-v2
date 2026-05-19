@@ -18,18 +18,23 @@ const nav = [
 
 const burgundy = "#5A0E12";
 
+function isActive(path: string, href: string): boolean {
+  const baseHref = href.split("?")[0];
+  if (path === baseHref) return true;
+  if (path.startsWith(baseHref + "/")) return true;
+  return false;
+}
+
 export function Sidebar() {
   const path = usePathname();
 
   return (
     <aside className="w-64 min-w-64 bg-white/70 backdrop-blur-xl border-r border-black/5 flex flex-col z-10">
-      {/* Logo */}
       <div className="px-6 pt-7 pb-5">
         <div className="text-xl font-bold tracking-[0.08em]" style={{ color: burgundy }}>FLORA</div>
         <div className="text-[9px] text-[#6B625A] tracking-[0.18em] uppercase mt-1">Interior Operations</div>
       </div>
 
-      {/* Search */}
       <div className="px-4 pb-4">
         <div className="flex items-center gap-2 bg-[#EFE7DF] border border-[#D8C9BC] rounded-lg px-3 py-2">
           <span className="text-[#6B625A] text-sm">⌕</span>
@@ -37,11 +42,10 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="px-3 flex-1 space-y-0.5">
         <p className="text-[9px] text-[#6B625A] tracking-[0.14em] uppercase px-3 py-1">Main</p>
         {nav.map(({ label, href, icon: Icon }) => {
-          const active = path === href || path.startsWith(href.split("?")[0] + "/");
+          const active = isActive(path, href);
           return (
             <Link key={label} href={href}
               className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all"
@@ -67,7 +71,6 @@ export function Sidebar() {
         </Link>
       </nav>
 
-      {/* Bottom */}
       <div className="px-3 pb-5 space-y-0.5">
         <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-[#6B625A]">
           <Settings size={15} /> Settings

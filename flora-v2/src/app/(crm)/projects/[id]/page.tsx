@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { PaymentLedger } from "@/components/crm/PaymentLedger";
+import { TaskManager } from "@/components/crm/TaskManager";
 
 export default async function ProjectDetailPage({
   params,
@@ -55,19 +56,7 @@ export default async function ProjectDetailPage({
 
         <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
           <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Tasks</h3>
-          {project.tasks.length === 0 ? (
-            <p className="text-sm text-[#6B625A]">No tasks.</p>
-          ) : (
-            <div className="space-y-2">
-              {project.tasks.map(t => (
-                <div key={t.id} className="flex items-center gap-3 text-sm">
-                  <div className={`w-2 h-2 rounded-full shrink-0 ${t.done ? "bg-green-500" : "bg-[#5A0E12]"}`} />
-                  <span className={t.done ? "line-through text-[#6B625A]" : ""}>{t.title}</span>
-                  {t.dueDate && <span className="text-xs text-[#6B625A] ml-auto">{new Date(t.dueDate).toLocaleDateString("en-AE")}</span>}
-                </div>
-              ))}
-            </div>
-          )}
+          <TaskManager projectId={project.id} initialTasks={project.tasks} />
         </div>
       </div>
 
