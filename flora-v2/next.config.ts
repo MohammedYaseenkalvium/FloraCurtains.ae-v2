@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    unoptimized: true, // Required for @react-pdf Image to read from public/
+  },
 };
 
 export default nextConfig;
