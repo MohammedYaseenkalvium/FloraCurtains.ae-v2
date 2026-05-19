@@ -1,5 +1,5 @@
 import {
-  Document, Page, Text, View, StyleSheet, Font
+  Document, Page, Text, View, StyleSheet, Font, Image
 } from "@react-pdf/renderer";
 import type { Quotation, Contact, Company } from "@prisma/client";
 import type { QuotationLineItem } from "@/types";
@@ -16,8 +16,10 @@ const burgundy = "#5A0E12";
 
 const s = StyleSheet.create({
   page:       { fontFamily: "Inter", fontSize: 9, color: "#1A1A1A", padding: "40 48" },
-  header:     { flexDirection: "row", justifyContent: "space-between", marginBottom: 28 },
-  logo:       { fontSize: 22, fontWeight: 700, color: burgundy, letterSpacing: 2 },
+  header:     { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 },
+  logoBox:    { flexDirection: "row", alignItems: "center", gap: 10 },
+  logoImg:    { width: 100, height: 30 }, // scaled from 500x152
+  logoText:   { fontSize: 22, fontWeight: 700, color: burgundy, letterSpacing: 2 },
   logoSub:    { fontSize: 7, color: "#6B625A", letterSpacing: 3, marginTop: 2 },
   quoteNo:    { fontSize: 18, fontWeight: 700, color: burgundy, textAlign: "right" },
   section:    { marginBottom: 16 },
@@ -34,6 +36,7 @@ const s = StyleSheet.create({
   grand:      { fontWeight: 700, fontSize: 11, color: burgundy },
   footer:     { position: "absolute", bottom: 32, left: 48, right: 48, fontSize: 7, color: "#6B625A", textAlign: "center" },
   divider:    { borderTop: "1 solid #D8C9BC", marginVertical: 12 },
+  watermark:  { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03 },
 });
 
 type Props = {
@@ -47,12 +50,15 @@ export function QuotationPDF({ quotation }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {/* Header */}
+        {/* Header with Logo */}
         <View style={s.header}>
-          <View>
-            <Text style={s.logo}>FLORA</Text>
-            <Text style={s.logoSub}>INTERIOR OPERATIONS</Text>
-            <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Dubai, UAE · www.flora-interiors.com</Text>
+          <View style={s.logoBox}>
+            <Image src="/images/logo.png" style={s.logoImg} />
+            <View>
+              <Text style={s.logoText}>FLORA</Text>
+              <Text style={s.logoSub}>INTERIOR OPERATIONS</Text>
+              <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Dubai, UAE · www.flora-interiors.com</Text>
+            </View>
           </View>
           <View>
             <Text style={s.quoteNo}>{quotation.quoteNumber}</Text>
