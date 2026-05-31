@@ -12,8 +12,8 @@ datasource db {
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
 enum CustomerType {
-  B2C   // individual homeowner
-  B2B   // company / firm / hotel etc.
+  B2C
+  B2B
 }
 
 enum CompanyType {
@@ -57,7 +57,7 @@ enum ProjectStatus {
   NOT_STARTED
   IN_PROGRESS
   INSTALLATION
-  SNAGGING     // B2B projects often have a snagging/punch-list phase
+  SNAGGING
   COMPLETED
   ON_HOLD
 }
@@ -66,7 +66,7 @@ enum PaymentType {
   ADVANCE
   INSTALLMENT
   BALANCE
-  RETENTION    // common in B2B — client holds back 5-10% until sign-off
+  RETENTION
 }
 
 enum PaymentMethod {
@@ -89,22 +89,21 @@ enum CustomerSource {
   INSTAGRAM
   WEBSITE
   WHATSAPP
-  EXISTING_CLIENT  // B2B repeat business
-  TENDER           // B2B — responded to a formal tender
+  EXISTING_CLIENT
+  TENDER
 }
 
 // ── Company ───────────────────────────────────────────────────────────────────
-// Only exists for B2B. B2C contacts have no company.
 
 model Company {
   id           String      @id @default(cuid())
   tradeName    String      @unique
-  legalName    String?                       // full legal name for invoices
+  legalName    String?
   type         CompanyType @default(OTHER)
-  trn          String?                       // UAE Tax Registration Number
+  trn          String?
   address      String?
   website      String?
-  creditTerms  Int         @default(0)       // payment days allowed, e.g. 30
+  creditTerms  Int         @default(0)
   notes        String?
 
   contacts     Contact[]
@@ -118,21 +117,17 @@ model Company {
 }
 
 // ── Contact ───────────────────────────────────────────────────────────────────
-// Every customer — B2C or B2B — is a Contact.
-// B2C:  companyId is null
-// B2B:  companyId points to their employer
 
 model Contact {
   id           String       @id @default(cuid())
   name         String
   phone        String       @unique
   email        String?
-  whatsapp     String?      // sometimes different from phone
+  whatsapp     String?
   role         ContactRole  @default(OTHER)
   source       CustomerSource @default(CALL)
   notes        String?
 
-  // B2B link — null for B2C
   companyId    String?
   company      Company?     @relation(fields: [companyId], references: [id])
 
@@ -148,31 +143,20 @@ model Contact {
 
 model Enquiry {
   id             String         @id @default(cuid())
-
-  // Who called / walked in
   contactId      String
   contact        Contact        @relation(fields: [contactId], references: [id])
-
-  // If B2B, which company they represent
   companyId      String?
   company        Company?       @relation(fields: [companyId], references: [id])
-
   customerType   CustomerType   @default(B2C)
-
-  // What they want
   serviceWanted  String
-  remarks        String?        // verbatim call notes
+  remarks        String?
   desiredBudget  Float?
-  interestLevel  Int            @default(3) // 1–5
-
-  // Workflow
+  interestLevel  Int            @default(3)
   status         EnquiryStatus  @default(NEW)
   assignedTo     String?
   followUpDate   DateTime?
-
-  // B2B specific
-  projectName    String?        // "Marriott Hotel Room Renovation"
-  siteAddress    String?        // delivery / installation address
+  projectName    String?
+  siteAddress    String?
 
   quotations     Quotation[]
   project        Project?
@@ -190,30 +174,21 @@ model Quotation {
   id             String          @id @default(cuid())
   enquiryId      String
   enquiry        Enquiry         @relation(fields: [enquiryId], references: [id])
-
-  quoteNumber    String          @unique  // e.g. "FLR-2024-0042"
-
-  // Line items: [{ description, qty, unitPrice, discount, unit }]
+  quoteNumber    String          @unique
   items          Json
-
   subtotal       Float
   vatRate        Float           @default(5)
   vatAmount      Float
   totalAmount    Float
-
   status         QuotationStatus @default(DRAFT)
   validUntil     DateTime?
-
-  // B2B billing details (copied at quote time — don't rely on live company data)
-  billedToName   String?         // company legal name or contact name
-  billedToTrn    String?         // company TRN if B2B
+  billedToName   String?
+  billedToTrn    String?
   billedToAddr   String?
-
   notes          String?
-  internalNotes  String?         // not shown on PDF
-
+  internalNotes  String?
   project        Project?
-
+  payments       Payment[]       // ← THIS IS ALREADY CORRECTLY PLACED
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
@@ -228,25 +203,17 @@ model Project {
   enquiry            Enquiry       @relation(fields: [enquiryId], references: [id])
   quotationId        String?       @unique
   quotation          Quotation?    @relation(fields: [quotationId], references: [id])
-
-  // B2B only — purchase order from the client
   poNumber           String?
   poDate             DateTime?
-
-  // Also link directly to company for B2B repeat-project queries
   companyId          String?
   company            Company?      @relation(fields: [companyId], references: [id])
-
   totalContractValue Float
   status             ProjectStatus @default(NOT_STARTED)
-
   startDate          DateTime?
   endDate            DateTime?
   installationDate   DateTime?
   siteAddress        String?
-
   notes              String?
-
   payments           Payment[]
   tasks              Task[]
 
@@ -260,16 +227,16 @@ model Project {
 
 model Payment {
   id          String        @id @default(cuid())
-  projectId   String
-  project     Project       @relation(fields: [projectId], references: [id])
-
+  projectId   String?
+  project     Project?      @relation(fields: [projectId], references: [id])
+  quotationId String?
+  quotation   Quotation?    @relation(fields: [quotationId], references: [id])
   amount      Float
   type        PaymentType
   method      PaymentMethod @default(CASH)
-  reference   String?       // cheque number, bank ref, receipt no.
+  reference   String?
   paidAt      DateTime      @default(now())
   notes       String?
-
   createdAt   DateTime      @default(now())
 
   @@map("payments")
@@ -281,12 +248,10 @@ model Task {
   id          String       @id @default(cuid())
   title       String
   description String?
-
   enquiryId   String?
   enquiry     Enquiry?     @relation(fields: [enquiryId], references: [id])
   projectId   String?
   project     Project?     @relation(fields: [projectId], references: [id])
-
   assignedTo  String?
   dueDate     DateTime?
   priority    TaskPriority @default(MEDIUM)
@@ -318,6 +283,5 @@ model AppSettings {
   quoteValidityDays Int  @default(30)
   logoUrl       String   @default("/images/logo.png")
   updatedAt     DateTime @updatedAt
-
   @@map("app_settings")
 }
