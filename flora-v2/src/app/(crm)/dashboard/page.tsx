@@ -33,7 +33,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
           <p className="text-[#6B625A] text-sm mt-1">
-            {new Date().toLocaleDateString("en-AE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} · Dubai, UAE
+            {new Date().toLocaleDateString("en-AE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} · Abu Dhabi, UAE
           </p>
         </div>
         <div className="flex gap-3">
