@@ -1,24 +1,30 @@
 import {
-  Document, Page, Text, View, StyleSheet, Font, Image
+  Document, Page, Text, View, StyleSheet, Image
 } from "@react-pdf/renderer";
 import type { Quotation, Contact, Company } from "@prisma/client";
 import type { QuotationLineItem } from "@/types";
+import fs from "fs";
+import path from "path";
 
-Font.register({
-  family: "Inter",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiJ-Ek-_EeA.woff2", fontWeight: 700 },
-  ],
-});
+// --- LAZY LOGO LOADER ---
+let logoSrc: string | undefined;
+
+function getLogoSrc(): string {
+  if (!logoSrc) {
+    const logoPath = path.join(process.cwd(), "public", "images", "logo.png");
+    const logoBase64 = fs.readFileSync(logoPath).toString("base64");
+    logoSrc = `data:image/png;base64,${logoBase64}`;
+  }
+  return logoSrc;
+}
 
 const burgundy = "#5A0E12";
 
 const s = StyleSheet.create({
-  page:       { fontFamily: "Inter", fontSize: 9, color: "#1A1A1A", padding: "40 48" },
+  page:       { fontFamily: "Helvetica", fontSize: 9, color: "#1A1A1A", padding: "40 48" },
   header:     { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 },
   logoBox:    { flexDirection: "row", alignItems: "center", gap: 10 },
-  logoImg:    { width: 100, height: 30 }, // scaled from 500x152
+  logoImg:    { width: 100, height: 30 },
   logoText:   { fontSize: 22, fontWeight: 700, color: burgundy, letterSpacing: 2 },
   logoSub:    { fontSize: 7, color: "#6B625A", letterSpacing: 3, marginTop: 2 },
   quoteNo:    { fontSize: 18, fontWeight: 700, color: burgundy, textAlign: "right" },
@@ -28,13 +34,13 @@ const s = StyleSheet.create({
   table:      { marginTop: 16 },
   tHead:      { flexDirection: "row", backgroundColor: "#F8F5F2", padding: "6 8", borderRadius: 4 },
   tRow:       { flexDirection: "row", padding: "8 8", borderBottom: "1 solid #EFE7DF" },
-  col_desc:   { flex: 3 },
+  col_desc:   { flex: 4 },
   col_num:    { flex: 1, textAlign: "right" },
   total_row:  { flexDirection: "row", justifyContent: "flex-end", marginTop: 8 },
   total_label:{ fontSize: 9, color: "#6B625A", marginRight: 40, width: 100, textAlign: "right" },
   total_value:{ width: 80, textAlign: "right", fontSize: 9 },
   grand:      { fontWeight: 700, fontSize: 11, color: burgundy },
-  footer:     { position: "absolute", bottom: 32, left: 48, right: 48, fontSize: 7, color: "#6B625A", textAlign: "center" },
+  footer:     { position: "absolute", bottom: 20, left: 48, right: 48, fontSize: 7, color: "#6B625A", textAlign: "center" },
   divider:    { borderTop: "1 solid #D8C9BC", marginVertical: 12 },
   watermark:  { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03 },
 });
@@ -50,14 +56,13 @@ export function QuotationPDF({ quotation }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {/* Header with Logo */}
         <View style={s.header}>
           <View style={s.logoBox}>
-            <Image src="/images/logo.png" style={s.logoImg} />
+            <Image src={getLogoSrc()} style={s.logoImg} />
             <View>
               <Text style={s.logoText}>FLORA</Text>
               <Text style={s.logoSub}>Curtains</Text>
-              <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Dubai, UAE · www.flora-interiors.com</Text>
+              <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Abu Dhabi, UAE · www.floracurtains.com</Text>
             </View>
           </View>
           <View>
@@ -75,7 +80,6 @@ export function QuotationPDF({ quotation }: Props) {
 
         <View style={s.divider} />
 
-        {/* Bill To */}
         <View style={s.section}>
           <Text style={s.label}>Billed To</Text>
           <Text style={[s.value, { fontWeight: 700 }]}>
@@ -88,13 +92,11 @@ export function QuotationPDF({ quotation }: Props) {
           <Text style={s.value}>{contact.phone}</Text>
         </View>
 
-        {/* Line Items Table */}
         <View style={s.table}>
           <View style={s.tHead}>
             <Text style={[s.col_desc, { fontWeight: 700, fontSize: 8 }]}>Description</Text>
             <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Qty</Text>
             <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Unit Price</Text>
-            <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Disc%</Text>
             <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Total</Text>
           </View>
           {items.map((item, i) => {
@@ -104,14 +106,12 @@ export function QuotationPDF({ quotation }: Props) {
                 <Text style={s.col_desc}>{item.description} ({item.unit})</Text>
                 <Text style={s.col_num}>{item.qty}</Text>
                 <Text style={s.col_num}>AED {Number(item.unitPrice).toLocaleString()}</Text>
-                <Text style={s.col_num}>{item.discount}%</Text>
                 <Text style={s.col_num}>AED {lineTotal.toLocaleString("en-AE", { minimumFractionDigits: 2 })}</Text>
               </View>
             );
           })}
         </View>
 
-        {/* Totals */}
         <View style={{ marginTop: 12 }}>
           {[
             { label: "Subtotal", value: `AED ${Number(quotation.subtotal).toLocaleString("en-AE", { minimumFractionDigits: 2 })}` },
@@ -139,7 +139,10 @@ export function QuotationPDF({ quotation }: Props) {
         )}
 
         <Text style={s.footer}>
-          Flora Interior Operations · This is a computer-generated document · VAT Registration: 100000000000003
+          Flora Curtains LLC · Murur Road, Opp. Mubadala Tower, Abu Dhabi, UAE · P.O Box 25766
+          · Phone: +971 2 586 4545 · Mobile: +971 50 511 9982 / +971 50 811 6299
+          · sayedflora1@gmail.com · info@floracurtains.com
+          · This is a computer-generated document
         </Text>
       </Page>
     </Document>

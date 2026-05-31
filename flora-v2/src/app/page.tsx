@@ -26,9 +26,10 @@ export default function Home() {
             <span className="text-[#5A0E12]">Simplified.</span>
           </h1>
           <p className="text-lg text-[#6B625A] mb-10 leading-relaxed">
-            From first enquiry to final installation — manage curtains, blinds, 
-            and soft furnishings for B2B and B2C clients across the UAE.
-          </p>
+  Transforming spaces with style, comfort & elegance since 1997. 
+  Premium curtains, upholstery, flooring & complete interior solutions 
+  for villas, apartments, offices & commercial spaces across the UAE.
+</p>
           <div className="flex gap-4 justify-center">
             <Link 
               href="/login"
@@ -48,8 +49,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="px-8 py-6 text-center text-xs text-[#6B625A]">
-        © 2026 Flora Curtains · Abu Dhabi, UAE
-      </footer>
+  © 2026 Flora Curtains LLC · Murur Road, Opp. Mubadala Tower, Abu Dhabi, UAE · P.O Box 25766
+</footer>
     </div>
   );
 }

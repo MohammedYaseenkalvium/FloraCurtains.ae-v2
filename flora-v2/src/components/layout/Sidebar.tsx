@@ -1,19 +1,22 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, FileText, FolderOpen,
-  ClipboardList, Wrench, CheckSquare, Settings, LogOut
+  ClipboardList, Wrench, CheckSquare, Settings, LogOut,
+  Banknote // ← ADD THIS IMPORT
 } from "lucide-react";
 
 const nav = [
-  { label: "Dashboard",    href: "/dashboard",  icon: LayoutDashboard },
-  { label: "Enquiries",    href: "/enquiries",  icon: FileText },
-  { label: "Quotations",   href: "/quotations", icon: ClipboardList },
-  { label: "Projects",     href: "/projects",   icon: FolderOpen },
-  { label: "Installations",href: "/projects?status=INSTALLATION", icon: Wrench },
-  { label: "Tasks",        href: "/tasks",      icon: CheckSquare },
+  { label: "Dashboard",     href: "/dashboard",  icon: LayoutDashboard },
+  { label: "Enquiries",     href: "/enquiries",  icon: FileText },
+  { label: "Quotations",    href: "/quotations", icon: ClipboardList },
+  { label: "Projects",      href: "/projects",   icon: FolderOpen },
+  { label: "Installations", href: "/projects?status=INSTALLATION", icon: Wrench },
+  { label: "Tasks",         href: "/tasks",      icon: CheckSquare },
+  { label: "Payment Details", href: "/payments", icon: Banknote }, // ← ADD THIS LINE
 ];
 
 const burgundy = "#5A0E12";
