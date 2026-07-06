@@ -10,8 +10,8 @@ export default async function NewQuotationPage({
   const { enquiryId } = await searchParams;
   if (!enquiryId) notFound();
 
-  const enquiry = await db.enquiry.findUnique({
-    where:   { id: enquiryId },
+  const enquiry = await db.enquiry.findFirst({
+    where:   { id: enquiryId, deletedAt: null },
     include: { contact: true, company: true },
   });
   if (!enquiry) notFound();

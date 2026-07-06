@@ -1,18 +1,17 @@
 "use client";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enquiryFormSchema, type EnquiryFormValues } from "@/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const burgundy = "#5A0E12";
 
 export function EnquiryForm() {
   const router  = useRouter();
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<EnquiryFormValues>({
-    resolver: zodResolver(enquiryFormSchema) as any,
+    resolver: zodResolver(enquiryFormSchema) as Resolver<EnquiryFormValues>,
     defaultValues: { customerType: "B2C", contactSource: "CALL", interestLevel: 3 },
   });
 

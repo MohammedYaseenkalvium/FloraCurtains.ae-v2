@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { QuotationStatusWorkflow } from "@/components/crm/QuotationWorkflow";
+import type { QuotationLineItem } from "@/types";
 
 export default async function QuotationDetailPage({
   params,
@@ -10,13 +10,13 @@ export default async function QuotationDetailPage({
 }) {
   const { id } = await params;
 
-  const q = await db.quotation.findUnique({
-    where:   { id },
+  const q = await db.quotation.findFirst({
+    where:   { id, deletedAt: null },
     include: { enquiry: { include: { contact: true, company: true } } },
   });
   if (!q) notFound();
 
-  const items = q.items as any[];
+  const items = q.items as unknown as QuotationLineItem[];
 
   return (
     <div className="max-w-3xl">
@@ -44,7 +44,7 @@ export default async function QuotationDetailPage({
             </tr>
           </thead>
           <tbody>
-            {items.map((it: any, i: number) => {
+            {items.map((it: QuotationLineItem, i: number) => {
               const total = it.qty * it.unitPrice * (1 - it.discount / 100);
               return (
                 <tr key={i} className="border-t border-[#EFE7DF]">

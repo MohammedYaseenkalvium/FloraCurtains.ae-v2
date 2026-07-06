@@ -58,6 +58,8 @@ export function QuotationPDF({ quotation }: Props) {
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View style={s.logoBox}>
+            {/* @react-pdf Image is not an HTML img and has no alt prop */}
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image src={getLogoSrc()} style={s.logoImg} />
             <View>
               <Text style={s.logoText}>FLORA</Text>

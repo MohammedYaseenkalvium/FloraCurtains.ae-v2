@@ -6,7 +6,8 @@ import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, FileText, FolderOpen,
   ClipboardList, Wrench, CheckSquare, Settings, LogOut,
-  Banknote // ← ADD THIS IMPORT
+  Banknote, // ← ADD THIS IMPORT
+  Users
 } from "lucide-react";
 
 const nav = [
@@ -17,6 +18,7 @@ const nav = [
   { label: "Installations", href: "/projects?status=INSTALLATION", icon: Wrench },
   { label: "Tasks",         href: "/tasks",      icon: CheckSquare },
   { label: "Payment Details", href: "/payments", icon: Banknote }, // ← ADD THIS LINE
+  { label: "Customers", href: "/customers", icon: Users },
 ];
 
 const burgundy = "#5A0E12";

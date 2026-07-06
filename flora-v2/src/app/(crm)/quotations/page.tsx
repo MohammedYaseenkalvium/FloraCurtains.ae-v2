@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export default async function QuotationsPage() {
   const quotations = await db.quotation.findMany({
+    where: { deletedAt: null },
     orderBy: { createdAt: "desc" },
     include: { enquiry: { include: { contact: true, company: true } } },
   });

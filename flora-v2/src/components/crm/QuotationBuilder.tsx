@@ -1,5 +1,6 @@
 "use client";
 import { useForm, useFieldArray } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { quotationFormSchema, type QuotationFormValues } from "@/types";
 import { useState } from "react";
@@ -11,7 +12,7 @@ export function QuotationBuilder({ enquiryId }: { enquiryId: string }) {
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, control, watch } = useForm<QuotationFormValues>({
-    resolver: zodResolver(quotationFormSchema) as any,
+    resolver: zodResolver(quotationFormSchema) as Resolver<QuotationFormValues>,
     defaultValues: {
       enquiryId,
       vatRate: 5,

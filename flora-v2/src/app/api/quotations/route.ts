@@ -1,69 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { quotationFormSchema } from "@/types";
-import type { QuotationLineItem } from "@/types";
+import { requireAuth, parseBody, notFound, withErrorHandling } from "@/lib/api";
+import { calcTotals, generateQuoteNumber } from "@/lib/quotation";
+import { logActivity } from "@/lib/activity";
 
-function calcTotals(items: QuotationLineItem[], vatRate: number) {
-  const subtotal = items.reduce((sum, it) => {
-    return sum + it.qty * it.unitPrice * (1 - it.discount / 100);
-  }, 0);
-  const vatAmount   = subtotal * (vatRate / 100);
-  const totalAmount = subtotal + vatAmount;
-  return { subtotal, vatAmount, totalAmount };
-}
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const session = await requireAuth();
+  const v = await parseBody(req, quotationFormSchema);
+  const totals = calcTotals(v.items, v.vatRate);
 
-async function generateQuoteNumber(): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = `FLR-${year}-`;
+  const quotation = await db.$transaction(async (tx) => {
+    const enquiry = await tx.enquiry.findFirst({
+      where: { id: v.enquiryId, deletedAt: null },
+    });
+    if (!enquiry) throw notFound("Enquiry not found");
 
-  const latest = await db.quotation.findFirst({
-    where: { quoteNumber: { startsWith: prefix } },
-    orderBy: { quoteNumber: "desc" },
+    const quoteNumber = await generateQuoteNumber(tx);
+
+    const created = await tx.quotation.create({
+      data: {
+        enquiryId: v.enquiryId,
+        quoteNumber,
+        items: v.items,
+        vatRate: v.vatRate,
+        ...totals,
+        validUntil: v.validUntil ? new Date(v.validUntil) : undefined,
+        notes: v.notes,
+        internalNotes: v.internalNotes,
+        billedToName: v.billedToName,
+        billedToTrn: v.billedToTrn,
+        billedToAddr: v.billedToAddr,
+        status: "DRAFT",
+        createdById: session.user.id,
+        updatedById: session.user.id,
+      },
+    });
+
+    await tx.enquiry.update({
+      where: { id: v.enquiryId },
+      data: { status: "QUOTED", updatedById: session.user.id },
+    });
+
+    await logActivity(
+      {
+        session,
+        action: "CREATE",
+        entityType: "Quotation",
+        entityId: created.id,
+        summary: `Created quotation ${quoteNumber} (AED ${totals.totalAmount.toLocaleString()})`,
+      },
+      tx
+    );
+
+    return created;
   });
-
-  let counter = 1000;
-  if (latest) {
-    const match = latest.quoteNumber.match(/-\d{4}$/);
-    if (match) {
-      counter = Math.max(counter, parseInt(match[0].slice(1)));
-    }
-  }
-  counter++;
-
-  return `${prefix}${String(counter).padStart(4, "0")}`;
-}
-
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body   = await req.json();
-  const parsed = quotationFormSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
-
-  const v       = parsed.data;
-  const totals  = calcTotals(v.items, v.vatRate);
-  const quoteNumber = await generateQuoteNumber();
-
-  const quotation = await db.quotation.create({
-    data: {
-      enquiryId:     v.enquiryId,
-      quoteNumber,
-      items:         v.items,
-      vatRate:       v.vatRate,
-      ...totals,
-      validUntil:    v.validUntil ? new Date(v.validUntil) : undefined,
-      notes:         v.notes,
-      internalNotes: v.internalNotes,
-      billedToName:  v.billedToName,
-      billedToTrn:   v.billedToTrn,
-      billedToAddr:  v.billedToAddr,
-      status:        "DRAFT",
-    },
-  });
-
-  await db.enquiry.update({ where: { id: v.enquiryId }, data: { status: "QUOTED" } });
 
   return NextResponse.json(quotation, { status: 201 });
-}
+});

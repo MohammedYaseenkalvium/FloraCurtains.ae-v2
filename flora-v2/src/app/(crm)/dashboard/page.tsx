@@ -1,16 +1,14 @@
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const session = await auth();
-
   const [activeLeads, ongoingProjects, pendingInstalls, recentEnquiries] = await Promise.all([
-    db.enquiry.count({ where: { status: { notIn: ["WON", "LOST"] } } }),
-    db.project.count({ where: { status: { in: ["IN_PROGRESS", "INSTALLATION", "SNAGGING"] } } }),
-    db.project.count({ where: { status: "INSTALLATION" } }),
+    db.enquiry.count({ where: { deletedAt: null, status: { notIn: ["WON", "LOST"] } } }),
+    db.project.count({ where: { deletedAt: null, status: { in: ["IN_PROGRESS", "INSTALLATION", "SNAGGING"] } } }),
+    db.project.count({ where: { deletedAt: null, status: "INSTALLATION" } }),
     db.enquiry.findMany({
       take:    8,
+      where:   { deletedAt: null },
       orderBy: { createdAt: "desc" },
       include: { contact: true, company: true },
     }),

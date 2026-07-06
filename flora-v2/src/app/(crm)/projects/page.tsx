@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 
+import type { ProjectStatus } from "@prisma/client";
+
 export default async function ProjectsPage({
   searchParams,
 }: {
@@ -9,7 +11,7 @@ export default async function ProjectsPage({
   const { status } = await searchParams;
 
   const projects = await db.project.findMany({
-    where: status ? { status: status as any } : undefined,
+    where: { deletedAt: null, ...(status ? { status: status as ProjectStatus } : {}) },
     orderBy: { createdAt: "desc" },
     include: { enquiry: { include: { contact: true, company: true } }, quotation: true },
   });

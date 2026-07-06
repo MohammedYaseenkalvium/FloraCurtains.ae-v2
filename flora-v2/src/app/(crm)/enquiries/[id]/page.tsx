@@ -12,8 +12,8 @@ export default async function EnquiryDetailPage({
 }) {
   const { id } = await params;
 
-  const enquiry = await db.enquiry.findUnique({
-    where:   { id },
+  const enquiry = await db.enquiry.findFirst({
+    where:   { id, deletedAt: null },
     include: { contact: true, company: true, quotations: true, project: { include: { payments: true } }, tasks: true },
   });
   if (!enquiry) notFound();

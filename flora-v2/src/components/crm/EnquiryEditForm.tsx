@@ -6,11 +6,6 @@ import type { Enquiry, EnquiryStatus } from "@prisma/client";
 
 const statuses: EnquiryStatus[] = ["NEW","CONTACTED","VISIT_SCHEDULED","QUOTED","NEGOTIATING","WON","LOST"];
 
-const statusColors: Record<string, string> = {
-  NEW: "#8B8178", CONTACTED: "#185FA5", VISIT_SCHEDULED: "#854D0E",
-  QUOTED: "#0F6E56", NEGOTIATING: "#7F77DD", WON: "#166534", LOST: "#991B1B",
-};
-
 export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
