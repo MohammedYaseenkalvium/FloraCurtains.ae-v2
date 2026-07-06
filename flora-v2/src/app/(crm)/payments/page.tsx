@@ -23,16 +23,17 @@ const methodLabels = {
 export default async function PaymentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ method?: string; quotationId?: string }>;
+  searchParams: Promise<{ method?: string; quotationId?: string; projectId?: string }>;
 }) {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const { method, quotationId } = await searchParams;
+  const { method, quotationId, projectId } = await searchParams;
 
   const where: Prisma.PaymentWhereInput = {};
   if (method) where.method = method as Prisma.PaymentWhereInput["method"];
   if (quotationId) where.quotationId = quotationId;
+  if (projectId) where.projectId = projectId;
 
   const payments = await db.payment.findMany({
     where,
@@ -46,6 +47,23 @@ export default async function PaymentsPage({
             select: {
               contact: { select: { name: true } },
               company: { select: { tradeName: true } },
+            },
+          },
+        },
+      },
+      project: {
+        select: {
+          id: true,
+          enquiry: {
+            select: {
+              contact: { select: { name: true } },
+              company: { select: { tradeName: true } },
+            },
+          },
+          quotation: {
+            select: {
+              id: true,
+              quoteNumber: true,
             },
           },
         },
@@ -110,7 +128,7 @@ export default async function PaymentsPage({
           <thead>
             <tr className="bg-[#F8F5F2] text-left">
               <th className="px-4 py-3 font-semibold text-[#6B625A]">Date</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Quotation</th>
+              <th className="px-4 py-3 font-semibold text-[#6B625A]">Source</th>
               <th className="px-4 py-3 font-semibold text-[#6B625A]">Customer</th>
               <th className="px-4 py-3 font-semibold text-[#6B625A]">Method</th>
               <th className="px-4 py-3 font-semibold text-[#6B625A]">Reference</th>
@@ -127,10 +145,29 @@ export default async function PaymentsPage({
             ) : (
               payments.map((payment) => {
                 const Icon = methodIcons[payment.method];
+
+                // Derive customer name from whichever path exists: project → enquiry or quotation → enquiry
                 const customerName =
+                  payment.project?.enquiry?.company?.tradeName ||
                   payment.quotation?.enquiry?.company?.tradeName ||
+                  payment.project?.enquiry?.contact?.name ||
                   payment.quotation?.enquiry?.contact?.name ||
                   "Unknown";
+
+                // Determine source for display/link
+                const source = payment.project
+                  ? {
+                      label: payment.project.quotation?.quoteNumber
+                        ? `Project (${payment.project.quotation.quoteNumber})`
+                        : "Project",
+                      href: `/projects/${payment.project.id}`,
+                    }
+                  : payment.quotation
+                  ? {
+                      label: payment.quotation.quoteNumber || "Quotation",
+                      href: `/quotations/${payment.quotation.id}`,
+                    }
+                  : { label: "—", href: "#" };
 
                 return (
                   <tr key={payment.id} className="border-t border-gray-100 hover:bg-gray-50">
@@ -139,10 +176,10 @@ export default async function PaymentsPage({
                     </td>
                     <td className="px-4 py-3">
                       <Link
-                        href={`/quotations/${payment.quotationId}`}
+                        href={source.href}
                         className="text-[#5A0E12] hover:underline font-medium"
                       >
-                        {payment.quotation?.quoteNumber || "N/A"}
+                        {source.label}
                       </Link>
                     </td>
                     <td className="px-4 py-3">{customerName}</td>
