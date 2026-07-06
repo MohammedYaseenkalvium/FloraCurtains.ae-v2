@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { Banknote, Landmark, Receipt, CreditCard, ArrowLeft, Search } from "lucide-react";
+import { Banknote, Landmark, Receipt, CreditCard, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const methodIcons = {
@@ -29,8 +30,8 @@ export default async function PaymentsPage({
 
   const { method, quotationId } = await searchParams;
 
-  const where: any = {};
-  if (method) where.method = method;
+  const where: Prisma.PaymentWhereInput = {};
+  if (method) where.method = method as Prisma.PaymentWhereInput["method"];
   if (quotationId) where.quotationId = quotationId;
 
   const payments = await db.payment.findMany({

@@ -1,42 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { z } from "zod";
+import { db } from "@/lib/db";
+import { requireAuth, parseBody, withErrorHandling } from "@/lib/api";
+import { logActivity } from "@/lib/activity";
+
+type Ctx = { params: Promise<{ id: string }> };
 
 const statusSchema = z.object({
-  status: z.enum(["DRAFT","SENT","APPROVED","REJECTED","REVISED"]),
+  status: z.enum(["DRAFT", "SENT", "APPROVED", "REJECTED", "REVISED"]),
 });
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Ctx) => {
+  const session = await requireAuth();
   const { id } = await params;
-  const body = await req.json();
-  const parsed = statusSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+  const { status } = await parseBody(req, statusSchema);
 
-  const quotation = await db.quotation.update({
-    where: { id },
-    data: { status: parsed.data.status },
+  const quotation = await db.$transaction(async (tx) => {
+    const updated = await tx.quotation.update({
+      where: { id },
+      data: { status, updatedById: session.user.id },
+    });
+
+    if (status === "APPROVED") {
+      await tx.enquiry.update({
+        where: { id: updated.enquiryId },
+        data: { status: "NEGOTIATING" },
+      });
+    } else if (status === "REJECTED") {
+      await tx.enquiry.update({
+        where: { id: updated.enquiryId },
+        data: { status: "QUOTED" },
+      });
+    }
+
+    await logActivity(
+      {
+        session,
+        action: "STATUS_CHANGE",
+        entityType: "Quotation",
+        entityId: id,
+        summary: `Quotation ${updated.quoteNumber} marked ${status}`,
+      },
+      tx
+    );
+
+    return updated;
   });
 
-  if (parsed.data.status === "APPROVED") {
-    await db.enquiry.update({
-      where: { id: quotation.enquiryId },
-      data: { status: "NEGOTIATING" },
-    });
-  }
-
-  if (parsed.data.status === "REJECTED") {
-    await db.enquiry.update({
-      where: { id: quotation.enquiryId },
-      data: { status: "QUOTED" },
-    });
-  }
-
   return NextResponse.json(quotation);
-}
+});

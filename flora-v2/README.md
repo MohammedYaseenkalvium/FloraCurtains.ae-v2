@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flora CRM
 
-## Getting Started
+Internal CRM for Flora Interior / Flora Curtains (Abu Dhabi, UAE). Tracks the
+sales funnel from enquiry to quotation to project to payment, with PDF
+quotations, tasks, and an activity audit trail.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router) + **React 19**
+- **Prisma 6** + PostgreSQL (Neon)
+- **NextAuth 5** (credentials, JWT sessions)
+- **Zod** validation, **react-hook-form**
+- **@react-pdf/renderer** for quotation PDFs
+- **Tailwind CSS 3**
+
+## Domain model
+
+`Company` → `Contact` → `Enquiry` → `Quotation` → `Project` → `Payment`, plus
+`Task`, `User`, `AppSettings`, and `ActivityLog`. Enquiries, quotations, and
+projects support soft-deletion (`deletedAt`) and carry `createdById` /
+`updatedById` audit fields.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install                 # installs deps and runs `prisma generate`
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env` with:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+DATABASE_URL="postgresql://..."
+AUTH_SECRET="<random 32-byte hex>"   # e.g. `openssl rand -hex 32`
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply the database schema and seed:
 
-## Learn More
+```bash
+npx prisma migrate dev      # creates/updates tables
+npm run seed                # optional seed data
+```
 
-To learn more about Next.js, take a look at the following resources:
+Create a login:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx ts-node scripts/create-user.ts --email you@flora.com --name "You" --role ADMIN
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run the dev server:
 
-## Deploy on Vercel
+```bash
+npm run dev                 # http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command          | Description                          |
+| ---------------- | ------------------------------------ |
+| `npm run dev`    | Start the dev server                 |
+| `npm run build`  | Production build                     |
+| `npm start`      | Run the production server            |
+| `npm run lint`   | ESLint                               |
+| `npm test`       | Run unit tests (Vitest)              |
+| `npm run seed`   | Seed the database                    |
+
+## Architecture notes
+
+- **API routes** under `src/app/api/**` are the primary write surface. Each
+  handler is wrapped with `withErrorHandling` (`src/lib/api.ts`) and uses
+  `requireAuth` / `requireRole` for access control and `parseBody` for Zod
+  validation. Multi-table writes run inside `db.$transaction`.
+- **Authorization**: every endpoint requires a session; settings changes and
+  deletions require the `ADMIN` role.
+- **Auditing**: mutations call `logActivity` (`src/lib/activity.ts`) to write an
+  `ActivityLog` entry.
+- **Quotation math** lives in `src/lib/quotation.ts` (pure, unit-tested).
+- **Login** is rate-limited per email (`src/lib/rate-limit.ts`).
+
+## Security
+
+- The credentials provider hashes passwords with bcrypt and rate-limits login
+  attempts. The in-memory limiter assumes a single server instance (the
+  `output: "standalone"` build); move it to a shared store (Redis/Upstash) for
+  multi-instance deployments.
+- Never commit real secrets. Rotate any credentials that have been committed.

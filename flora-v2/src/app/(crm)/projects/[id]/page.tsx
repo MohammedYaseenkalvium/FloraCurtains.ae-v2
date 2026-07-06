@@ -11,8 +11,8 @@ export default async function ProjectDetailPage({
 }) {
   const { id } = await params;
 
-  const project = await db.project.findUnique({
-    where:   { id },
+  const project = await db.project.findFirst({
+    where:   { id, deletedAt: null },
     include: {
       enquiry:   { include: { contact: true, company: true } },
       quotation: true,

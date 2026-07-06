@@ -12,15 +12,17 @@ export default async function EnquiriesPage({
   const page     = parseInt(pageParam ?? "1");
   const pageSize = 20;
 
+  const where = { deletedAt: null, ...(enquiryStatus ? { status: enquiryStatus } : {}) };
+
   const [data, total] = await Promise.all([
     db.enquiry.findMany({
-      where:   enquiryStatus ? { status: enquiryStatus } : undefined,
+      where,
       include: { contact: true, company: true },
       orderBy: { createdAt: "desc" },
       skip:    (page - 1) * pageSize,
       take:    pageSize,
     }),
-    db.enquiry.count({ where: enquiryStatus ? { status: enquiryStatus } : undefined }),
+    db.enquiry.count({ where }),
   ]);
 
   const statuses: EnquiryStatus[] = ["NEW","CONTACTED","VISIT_SCHEDULED","QUOTED","NEGOTIATING","WON","LOST"];
@@ -88,7 +90,12 @@ export default async function EnquiriesPage({
                   {new Date(e.createdAt).toLocaleDateString("en-AE")}
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/enquiries/${e.id}`} className="text-[#5A0E12] text-xs hover:underline">View →</Link>
+                  <div className="flex gap-2">
+                    <Link href={`/enquiries/${e.id}`} className="text-[#5A0E12] text-xs hover:underline">View →</Link>
+                    <Link href={`/customers/${e.contact.id}`} className="text-[#6B625A] text-xs hover:text-[#5A0E12]">
+                      💰 Financial
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

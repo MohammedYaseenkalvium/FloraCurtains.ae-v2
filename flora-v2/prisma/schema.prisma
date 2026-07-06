@@ -162,9 +162,14 @@ model Enquiry {
   project        Project?
   tasks          Task[]
 
+  createdById    String?
+  updatedById    String?
+  deletedAt      DateTime?
+
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
+  @@index([deletedAt])
   @@map("enquiries")
 }
 
@@ -188,10 +193,14 @@ model Quotation {
   notes          String?
   internalNotes  String?
   project        Project?
-  payments       Payment[]       // ← THIS IS ALREADY CORRECTLY PLACED
+  payments       Payment[]
+  createdById    String?
+  updatedById    String?
+  deletedAt      DateTime?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
+  @@index([deletedAt])
   @@map("quotations")
 }
 
@@ -217,9 +226,14 @@ model Project {
   payments           Payment[]
   tasks              Task[]
 
+  createdById        String?
+  updatedById        String?
+  deletedAt          DateTime?
+
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
+  @@index([deletedAt])
   @@map("projects")
 }
 
@@ -237,6 +251,7 @@ model Payment {
   reference   String?
   paidAt      DateTime      @default(now())
   notes       String?
+  createdById String?
   createdAt   DateTime      @default(now())
 
   @@map("payments")
@@ -284,4 +299,22 @@ model AppSettings {
   logoUrl       String   @default("/images/logo.png")
   updatedAt     DateTime @updatedAt
   @@map("app_settings")
+}
+
+// ── ActivityLog ─────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userName   String?
+  action     String   // e.g. "CREATE", "UPDATE", "DELETE", "STATUS_CHANGE"
+  entityType String   // e.g. "Enquiry", "Quotation", "Project", "Payment", "Task"
+  entityId   String?
+  summary    String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
 }
