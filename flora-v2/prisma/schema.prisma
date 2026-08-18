@@ -1,4 +1,5 @@
-// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -9,114 +10,92 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ── Enums ─────────────────────────────────────────────────────────────────────
+// Enums
+enum ContactRole {
+  PRIMARY
+  SECONDARY
+  OTHER
+}
+
+enum CustomerSource {
+  CALL
+  WHATSAPP
+  EMAIL
+  REFERRAL
+  SOCIAL_MEDIA
+  OTHER
+}
 
 enum CustomerType {
   B2C
   B2B
 }
 
-enum CompanyType {
-  INTERIOR_FIRM
-  HOTEL
-  HOSPITAL
-  GOVERNMENT
-  CONTRACTOR
-  REAL_ESTATE
-  OTHER
-}
-
-enum ContactRole {
-  OWNER
-  MANAGER
-  INTERIOR_DESIGNER
-  PROCUREMENT
-  SITE_ENGINEER
-  OTHER
-}
-
 enum EnquiryStatus {
   NEW
   CONTACTED
-  VISIT_SCHEDULED
-  QUOTED
-  NEGOTIATING
-  WON
+  INTERESTED
+  NOT_INTERESTED
+  CONVERTED
   LOST
 }
 
 enum QuotationStatus {
   DRAFT
   SENT
-  APPROVED
+  ACCEPTED
   REJECTED
-  REVISED
+  EXPIRED
 }
 
 enum ProjectStatus {
   NOT_STARTED
   IN_PROGRESS
-  INSTALLATION
-  SNAGGING
-  COMPLETED
   ON_HOLD
+  COMPLETED
+  CANCELLED
 }
 
 enum PaymentType {
   ADVANCE
-  INSTALLMENT
-  BALANCE
-  RETENTION
+  PARTIAL
+  FINAL
 }
 
 enum PaymentMethod {
   CASH
-  CARD
-  BANK_TRANSFER
   CHEQUE
+  TRANSFER
+  CREDIT_CARD
+  OTHER
 }
 
 enum TaskPriority {
   LOW
   MEDIUM
   HIGH
+  URGENT
 }
 
-enum CustomerSource {
-  CALL
-  WALK_IN
-  REFERRAL
-  INSTAGRAM
-  WEBSITE
-  WHATSAPP
-  EXISTING_CLIENT
-  TENDER
-}
-
-// ── Company ───────────────────────────────────────────────────────────────────
-
+// Models
 model Company {
-  id           String      @id @default(cuid())
-  tradeName    String      @unique
-  legalName    String?
-  type         CompanyType @default(OTHER)
-  trn          String?
-  address      String?
-  website      String?
-  creditTerms  Int         @default(0)
-  notes        String?
+  id        String     @id @default(cuid())
+  name      String     @unique
+  trn       String?
+  email     String?
+  phone     String?
+  address   String?
+  notes     String?
+  
+  contacts  Contact[]
+  enquiries Enquiry[]
+  projects  Project[]
 
-  contacts     Contact[]
-  enquiries    Enquiry[]
-  projects     Project[]
-
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@map("companies")
 }
-
-// ── Contact ───────────────────────────────────────────────────────────────────
 
 model Contact {
   id           String       @id @default(cuid())
@@ -136,10 +115,9 @@ model Contact {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
+  @@index([companyId])
   @@map("contacts")
 }
-
-// ── Enquiry ───────────────────────────────────────────────────────────────────
 
 model Enquiry {
   id             String         @id @default(cuid())
@@ -170,10 +148,10 @@ model Enquiry {
   updatedAt      DateTime       @updatedAt
 
   @@index([deletedAt])
+  @@index([contactId])
+  @@index([companyId])
   @@map("enquiries")
 }
-
-// ── Quotation ─────────────────────────────────────────────────────────────────
 
 model Quotation {
   id             String          @id @default(cuid())
@@ -201,10 +179,9 @@ model Quotation {
   updatedAt      DateTime        @updatedAt
 
   @@index([deletedAt])
+  @@index([enquiryId])
   @@map("quotations")
 }
-
-// ── Project ───────────────────────────────────────────────────────────────────
 
 model Project {
   id                 String        @id @default(cuid())
@@ -234,10 +211,9 @@ model Project {
   updatedAt          DateTime      @updatedAt
 
   @@index([deletedAt])
+  @@index([companyId])
   @@map("projects")
 }
-
-// ── Payment ───────────────────────────────────────────────────────────────────
 
 model Payment {
   id          String        @id @default(cuid())
@@ -254,10 +230,10 @@ model Payment {
   createdById String?
   createdAt   DateTime      @default(now())
 
+  @@index([projectId])
+  @@index([quotationId])
   @@map("payments")
 }
-
-// ── Task ──────────────────────────────────────────────────────────────────────
 
 model Task {
   id          String       @id @default(cuid())
@@ -276,45 +252,7 @@ model Task {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  @@index([enquiryId])
+  @@index([projectId])
   @@map("tasks")
-}
-
-model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String
-  name     String
-  role     String @default("STAFF")
-  createdAt DateTime @default(now())
-  @@map("users")
-}
-
-model AppSettings {
-  id            String   @id @default(cuid())
-  companyName   String   @default("Flora Interior Operations")
-  vatNumber     String   @default("100000000000003")
-  currency      String   @default("AED")
-  defaultVatRate Float   @default(5)
-  quoteValidityDays Int  @default(30)
-  logoUrl       String   @default("/images/logo.png")
-  updatedAt     DateTime @updatedAt
-  @@map("app_settings")
-}
-
-// ── ActivityLog ─────────────────────────────────────────────────────────────
-
-model ActivityLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  userName   String?
-  action     String   // e.g. "CREATE", "UPDATE", "DELETE", "STATUS_CHANGE"
-  entityType String   // e.g. "Enquiry", "Quotation", "Project", "Payment", "Task"
-  entityId   String?
-  summary    String?
-  meta       Json?
-  createdAt  DateTime @default(now())
-
-  @@index([entityType, entityId])
-  @@index([createdAt])
-  @@map("activity_logs")
 }

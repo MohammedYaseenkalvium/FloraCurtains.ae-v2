@@ -10,6 +10,7 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     serviceWanted: enquiry.serviceWanted,
     remarks: enquiry.remarks ?? "",
@@ -27,7 +28,9 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
 
   async function handleSave() {
     setLoading(true);
-    const res = await fetch(`/api/enquiries/${enquiry.id}/edit`, {
+    setError("");
+    // Consolidated onto /api/enquiries/[id] (was /api/enquiries/[id]/edit — duplicate route removed).
+    const res = await fetch(`/api/enquiries/${enquiry.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -42,7 +45,8 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
       router.refresh();
       setTimeout(() => setSaved(false), 2000);
     } else {
-      alert("Failed to save changes");
+      const body = await res.json().catch(() => null);
+      setError(body?.error ?? "Failed to save changes");
     }
     setLoading(false);
   }
@@ -143,6 +147,7 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
           {loading ? "Saving…" : "Save Changes"}
         </button>
         {saved && <span className="text-sm text-[#0F6E56]">✓ Saved successfully</span>}
+        {error && <span className="text-sm text-red-600">{error}</span>}
       </div>
     </div>
   );
