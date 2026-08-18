@@ -27,6 +27,8 @@ export default async function PaymentsPage({
 }) {
   const session = await auth();
   if (!session) redirect("/login");
+  // Company-wide payments ledger — ADMIN only (see financial route for same rule).
+  if (session.user.role !== "ADMIN") redirect("/dashboard");
 
   const { method, quotationId, projectId } = await searchParams;
 
@@ -76,7 +78,6 @@ export default async function PaymentsPage({
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Payment Details</h1>
@@ -92,7 +93,6 @@ export default async function PaymentsPage({
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 mb-6">
         <form className="flex gap-3">
           <select
@@ -122,7 +122,6 @@ export default async function PaymentsPage({
         </form>
       </div>
 
-      {/* Payments Table */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -146,7 +145,6 @@ export default async function PaymentsPage({
               payments.map((payment) => {
                 const Icon = methodIcons[payment.method];
 
-                // Derive customer name from whichever path exists: project → enquiry or quotation → enquiry
                 const customerName =
                   payment.project?.enquiry?.company?.tradeName ||
                   payment.quotation?.enquiry?.company?.tradeName ||
@@ -154,7 +152,6 @@ export default async function PaymentsPage({
                   payment.quotation?.enquiry?.contact?.name ||
                   "Unknown";
 
-                // Determine source for display/link
                 const source = payment.project
                   ? {
                       label: payment.project.quotation?.quoteNumber

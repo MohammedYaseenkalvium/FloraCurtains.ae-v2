@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireAuth, parseBody, withErrorHandling } from "@/lib/api";
+import { requireAuth, forbidden, withErrorHandling } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -10,10 +10,18 @@ const statusSchema = z.object({
   status: z.enum(["DRAFT", "SENT", "APPROVED", "REJECTED", "REVISED"]),
 });
 
+// Approving a quotation is the point a discount/price becomes a commercial
+// commitment. Previously any authenticated staff account could self-approve.
+// Non-terminal transitions (DRAFT/SENT/NEGOTIATION-adjacent states) stay open
+// to STAFF; only the transition INTO "APPROVED" requires ADMIN.
 export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Ctx) => {
   const session = await requireAuth();
   const { id } = await params;
-  const { status } = await parseBody(req, statusSchema);
+  const { status } = await parseBodyLocal(req);
+
+  if (status === "APPROVED" && session.user.role !== "ADMIN") {
+    throw forbidden("Only an admin can approve a quotation");
+  }
 
   const quotation = await db.$transaction(async (tx) => {
     const updated = await tx.quotation.update({
@@ -49,3 +57,8 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Ctx)
 
   return NextResponse.json(quotation);
 });
+
+async function parseBodyLocal(req: NextRequest) {
+  const { parseBody } = await import("@/lib/api");
+  return parseBody(req, statusSchema);
+}
