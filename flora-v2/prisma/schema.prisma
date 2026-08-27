@@ -93,25 +93,42 @@ enum CustomerSource {
   TENDER
 }
 
+enum PaymentScheduleDueType {
+  EXACT_DATE
+  ON_APPROVAL
+  BEFORE_PRODUCTION
+  BEFORE_INSTALLATION
+  ON_INSTALLATION
+  ON_COMPLETION
+}
+
+enum PaymentScheduleStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
 // ── Company ───────────────────────────────────────────────────────────────────
 
 model Company {
-  id           String      @id @default(cuid())
-  tradeName    String      @unique
-  legalName    String?
-  type         CompanyType @default(OTHER)
-  trn          String?
-  address      String?
-  website      String?
-  creditTerms  Int         @default(0)
-  notes        String?
+  id          String      @id @default(cuid())
+  tradeName   String      @unique
+  legalName   String?
+  type        CompanyType @default(OTHER)
+  trn         String?
+  address     String?
+  website     String?
+  creditTerms Int         @default(0)
+  notes       String?
 
-  contacts     Contact[]
-  enquiries    Enquiry[]
-  projects     Project[]
+  contacts  Contact[]
+  enquiries Enquiry[]
+  projects  Project[]
 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("companies")
 }
@@ -119,22 +136,22 @@ model Company {
 // ── Contact ───────────────────────────────────────────────────────────────────
 
 model Contact {
-  id           String       @id @default(cuid())
-  name         String
-  phone        String       @unique
-  email        String?
-  whatsapp     String?
-  role         ContactRole  @default(OTHER)
-  source       CustomerSource @default(CALL)
-  notes        String?
+  id       String         @id @default(cuid())
+  name     String
+  phone    String         @unique
+  email    String?
+  whatsapp String?
+  role     ContactRole    @default(OTHER)
+  source   CustomerSource @default(CALL)
+  notes    String?
 
-  companyId    String?
-  company      Company?     @relation(fields: [companyId], references: [id])
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
 
-  enquiries    Enquiry[]
+  enquiries Enquiry[]
 
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("contacts")
 }
@@ -142,32 +159,32 @@ model Contact {
 // ── Enquiry ───────────────────────────────────────────────────────────────────
 
 model Enquiry {
-  id             String         @id @default(cuid())
-  contactId      String
-  contact        Contact        @relation(fields: [contactId], references: [id])
-  companyId      String?
-  company        Company?       @relation(fields: [companyId], references: [id])
-  customerType   CustomerType   @default(B2C)
-  serviceWanted  String
-  remarks        String?
-  desiredBudget  Float?
-  interestLevel  Int            @default(3)
-  status         EnquiryStatus  @default(NEW)
-  assignedTo     String?
-  followUpDate   DateTime?
-  projectName    String?
-  siteAddress    String?
+  id            String        @id @default(cuid())
+  contactId     String
+  contact       Contact       @relation(fields: [contactId], references: [id])
+  companyId     String?
+  company       Company?      @relation(fields: [companyId], references: [id])
+  customerType  CustomerType  @default(B2C)
+  serviceWanted String
+  remarks       String?
+  desiredBudget Float?
+  interestLevel Int           @default(3)
+  status        EnquiryStatus @default(NEW)
+  assignedTo    String?
+  followUpDate  DateTime?
+  projectName   String?
+  siteAddress   String?
 
-  quotations     Quotation[]
-  project        Project?
-  tasks          Task[]
+  quotations Quotation[]
+  project    Project?
+  tasks      Task[]
 
-  createdById    String?
-  updatedById    String?
-  deletedAt      DateTime?
+  createdById String?
+  updatedById String?
+  deletedAt   DateTime?
 
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([deletedAt])
   @@map("enquiries")
@@ -176,29 +193,29 @@ model Enquiry {
 // ── Quotation ─────────────────────────────────────────────────────────────────
 
 model Quotation {
-  id             String          @id @default(cuid())
-  enquiryId      String
-  enquiry        Enquiry         @relation(fields: [enquiryId], references: [id])
-  quoteNumber    String          @unique
-  items          Json
-  subtotal       Float
-  vatRate        Float           @default(5)
-  vatAmount      Float
-  totalAmount    Float
-  status         QuotationStatus @default(DRAFT)
-  validUntil     DateTime?
-  billedToName   String?
-  billedToTrn    String?
-  billedToAddr   String?
-  notes          String?
-  internalNotes  String?
-  project        Project?
-  payments       Payment[]
-  createdById    String?
-  updatedById    String?
-  deletedAt      DateTime?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id            String          @id @default(cuid())
+  enquiryId     String
+  enquiry       Enquiry         @relation(fields: [enquiryId], references: [id])
+  quoteNumber   String          @unique
+  items         Json
+  subtotal      Float
+  vatRate       Float           @default(5)
+  vatAmount     Float
+  totalAmount   Float
+  status        QuotationStatus @default(DRAFT)
+  validUntil    DateTime?
+  billedToName  String?
+  billedToTrn   String?
+  billedToAddr  String?
+  notes         String?
+  internalNotes String?
+  project       Project?
+  payments      Payment[]
+  createdById   String?
+  updatedById   String?
+  deletedAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([deletedAt])
   @@map("quotations")
@@ -207,31 +224,38 @@ model Quotation {
 // ── Project ───────────────────────────────────────────────────────────────────
 
 model Project {
-  id                 String        @id @default(cuid())
-  enquiryId          String        @unique
-  enquiry            Enquiry       @relation(fields: [enquiryId], references: [id])
-  quotationId        String?       @unique
-  quotation          Quotation?    @relation(fields: [quotationId], references: [id])
-  poNumber           String?
-  poDate             DateTime?
-  companyId          String?
-  company            Company?      @relation(fields: [companyId], references: [id])
+  id        String  @id @default(cuid())
+  enquiryId String  @unique
+  enquiry   Enquiry @relation(fields: [enquiryId], references: [id])
+
+  quotationId String?    @unique
+  quotation   Quotation? @relation(fields: [quotationId], references: [id])
+
+  poNumber String?
+  poDate   DateTime?
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
   totalContractValue Float
   status             ProjectStatus @default(NOT_STARTED)
-  startDate          DateTime?
-  endDate            DateTime?
-  installationDate   DateTime?
-  siteAddress        String?
-  notes              String?
-  payments           Payment[]
-  tasks              Task[]
 
-  createdById        String?
-  updatedById        String?
-  deletedAt          DateTime?
+  startDate        DateTime?
+  endDate          DateTime?
+  installationDate DateTime?
+  siteAddress      String?
+  notes            String?
 
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  payments         Payment[]
+  paymentSchedules PaymentSchedule[]
+  tasks            Task[]
+
+  createdById String?
+  updatedById String?
+  deletedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([deletedAt])
   @@map("projects")
@@ -257,6 +281,40 @@ model Payment {
   @@map("payments")
 }
 
+// PaymentSchedule
+model PaymentSchedule {
+  id String @id @default(cuid())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  sequence    Int
+  description String
+
+  // Optional percentage used when the schedule was created.
+  // The actual amount is stored separately as a snapshot.
+  percentage Float?
+
+  // Actual amount expected for this milestone.
+  amount Float
+
+  dueType PaymentScheduleDueType
+  dueDate DateTime?
+
+  status PaymentScheduleStatus @default(PENDING)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, sequence])
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("payment_schedules")
+}
+
 // ── Task ──────────────────────────────────────────────────────────────────────
 
 model Task {
@@ -273,31 +331,33 @@ model Task {
   done        Boolean      @default(false)
   doneAt      DateTime?
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("tasks")
 }
 
 model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String
-  name     String
-  role     String @default("STAFF")
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("STAFF")
   createdAt DateTime @default(now())
+
   @@map("users")
 }
 
 model AppSettings {
-  id            String   @id @default(cuid())
-  companyName   String   @default("Flora Interior Operations")
-  vatNumber     String   @default("100000000000003")
-  currency      String   @default("AED")
-  defaultVatRate Float   @default(5)
-  quoteValidityDays Int  @default(30)
-  logoUrl       String   @default("/images/logo.png")
-  updatedAt     DateTime @updatedAt
+  id                String   @id @default(cuid())
+  companyName       String   @default("Flora Interior Operations")
+  vatNumber         String   @default("100000000000003")
+  currency          String   @default("AED")
+  defaultVatRate    Float    @default(5)
+  quoteValidityDays Int      @default(30)
+  logoUrl           String   @default("/images/logo.png")
+  updatedAt         DateTime @updatedAt
+
   @@map("app_settings")
 }
 
@@ -307,8 +367,8 @@ model ActivityLog {
   id         String   @id @default(cuid())
   userId     String?
   userName   String?
-  action     String   // e.g. "CREATE", "UPDATE", "DELETE", "STATUS_CHANGE"
-  entityType String   // e.g. "Enquiry", "Quotation", "Project", "Payment", "Task"
+  action     String // e.g. "CREATE", "UPDATE", "DELETE", "STATUS_CHANGE"
+  entityType String // e.g. "Enquiry", "Quotation", "Project", "Payment", "Task"
   entityId   String?
   summary    String?
   meta       Json?
