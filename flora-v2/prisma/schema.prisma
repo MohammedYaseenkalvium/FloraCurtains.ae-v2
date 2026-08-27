@@ -110,6 +110,21 @@ enum PaymentScheduleStatus {
   CANCELLED
 }
 
+enum SiteVisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum MeasurementUnit {
+  MM
+  CM
+  M
+  FT
+  IN
+}
+
 // ── Company ───────────────────────────────────────────────────────────────────
 
 model Company {
@@ -178,6 +193,7 @@ model Enquiry {
   quotations Quotation[]
   project    Project?
   tasks      Task[]
+  siteVisits SiteVisit[]
 
   createdById String?
   updatedById String?
@@ -249,6 +265,7 @@ model Project {
   payments         Payment[]
   paymentSchedules PaymentSchedule[]
   tasks            Task[]
+  siteVisits       SiteVisit[]
 
   createdById String?
   updatedById String?
@@ -313,6 +330,98 @@ model PaymentSchedule {
   @@index([status])
   @@index([dueDate])
   @@map("payment_schedules")
+}
+
+// ── Site Visit ────────────────────────────────────────────────────────────────
+
+model SiteVisit {
+  id String @id @default(cuid())
+
+  enquiryId String
+  enquiry   Enquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  scheduledAt DateTime?
+  completedAt DateTime?
+
+  assignedTo String?
+
+  status SiteVisitStatus @default(SCHEDULED)
+
+  siteAddress String?
+  notes       String?
+
+  measurements MeasurementSheet[]
+  attachments  SiteVisitAttachment[]
+
+  createdById String?
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enquiryId])
+  @@index([projectId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("site_visits")
+}
+
+// ── Measurement Sheet ─────────────────────────────────────────────────────────
+
+model MeasurementSheet {
+  id String @id @default(cuid())
+
+  siteVisitId String
+  siteVisit   SiteVisit @relation(fields: [siteVisitId], references: [id], onDelete: Cascade)
+
+  roomName    String
+  openingName String?
+  openingType String?
+
+  width  Float
+  height Float
+
+  unit MeasurementUnit @default(MM)
+
+  quantity Int @default(1)
+
+  curtainType String?
+  trackType   String?
+
+  remarks String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteVisitId])
+  @@map("measurement_sheets")
+}
+
+// ── Site Visit Attachment ─────────────────────────────────────────────────────
+
+model SiteVisitAttachment {
+  id String @id @default(cuid())
+
+  siteVisitId String
+  siteVisit   SiteVisit @relation(fields: [siteVisitId], references: [id], onDelete: Cascade)
+
+  fileName String
+  fileUrl  String
+
+  fileType String
+  mimeType String?
+
+  caption String?
+
+  uploadedById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([siteVisitId])
+  @@map("site_visit_attachments")
 }
 
 // ── Task ──────────────────────────────────────────────────────────────────────
