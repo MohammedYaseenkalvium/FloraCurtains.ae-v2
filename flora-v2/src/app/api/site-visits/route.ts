@@ -9,6 +9,7 @@ import {
   notFound,
 } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
+import { getSiteVisits } from "@/lib/site-visits";
 
 const createSiteVisitSchema = z.object({
   enquiryId: z.string().min(1, "Enquiry is required"),
@@ -44,6 +45,34 @@ const createSiteVisitSchema = z.object({
     .nullable(),
 });
 
+/**
+ * GET /api/site-visits
+ *
+ * Optional filters:
+ *   ?enquiryId=...
+ *   ?projectId=...
+ */
+export const GET = withErrorHandling(
+  async (req: NextRequest) => {
+    await requireAuth();
+
+    const { searchParams } = new URL(req.url);
+
+    const enquiryId = searchParams.get("enquiryId") || undefined;
+    const projectId = searchParams.get("projectId") || undefined;
+
+    const siteVisits = await getSiteVisits({
+      enquiryId,
+      projectId,
+    });
+
+    return NextResponse.json(siteVisits);
+  }
+);
+
+/**
+ * POST /api/site-visits
+ */
 export const POST = withErrorHandling(
   async (req: NextRequest) => {
     const session = await requireAuth();
