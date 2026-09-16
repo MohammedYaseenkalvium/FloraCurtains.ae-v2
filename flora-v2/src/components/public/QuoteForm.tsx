@@ -1,0 +1,385 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Send,
+} from "lucide-react";
+
+export function QuoteForm() {
+  const [loading, setLoading] =
+    useState(false);
+
+  const [success, setSuccess] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    const form =
+      event.currentTarget;
+
+    const formData =
+      new FormData(form);
+
+    const payload = {
+      name: String(
+        formData.get("name") ?? ""
+      ).trim(),
+
+      email: String(
+        formData.get("email") ?? ""
+      ).trim(),
+
+      phone: String(
+        formData.get("phone") ?? ""
+      ).trim(),
+
+      customerType:
+        String(
+          formData.get(
+            "customerType"
+          ) ?? "B2C"
+        ),
+
+      serviceWanted:
+        String(
+          formData.get(
+            "serviceWanted"
+          ) ?? ""
+        ).trim(),
+
+      projectName:
+        String(
+          formData.get(
+            "projectName"
+          ) ?? ""
+        ).trim(),
+
+      siteAddress:
+        String(
+          formData.get(
+            "siteAddress"
+          ) ?? ""
+        ).trim(),
+
+      budget:
+        String(
+          formData.get("budget") ?? ""
+        ).trim(),
+
+      notes: String(
+        formData.get("notes") ?? ""
+      ).trim(),
+    };
+
+    try {
+      const response = await fetch(
+        "/api/public/enquiries",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data =
+        await response
+          .json()
+          .catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ??
+            "Unable to submit your enquiry."
+        );
+      }
+
+      form.reset();
+      setSuccess(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="rounded-xl border border-[#D8C9BC] bg-white p-8 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F2] text-[#5A0E12]">
+          <CheckCircle2 size={24} />
+        </div>
+
+        <h2 className="mt-5 font-serif text-3xl text-[#1E1B18]">
+          Enquiry received.
+        </h2>
+
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#6B625A]">
+          Thank you for contacting Flora Curtains.
+          Your enquiry has been received and our team
+          will get back to you.
+        </p>
+
+        <button
+          type="button"
+          onClick={() =>
+            setSuccess(false)
+          }
+          className="mt-6 rounded-lg border border-[#D8C9BC] px-5 py-2.5 text-sm font-semibold text-[#5A0E12] hover:bg-[#F8F5F2]"
+        >
+          Submit another enquiry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-xl border border-[#D8C9BC] bg-white p-6 sm:p-8"
+    >
+      <div className="grid gap-5 md:grid-cols-2">
+        {/* Name */}
+        <div>
+          <label
+            htmlFor="name"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Name *
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            required
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Your name"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label
+            htmlFor="email"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Email *
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label
+            htmlFor="phone"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Phone *
+          </label>
+
+          <input
+            id="phone"
+            name="phone"
+            required
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Phone number"
+          />
+        </div>
+
+        {/* Customer Type */}
+        <div>
+          <label
+            htmlFor="customerType"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Customer Type
+          </label>
+
+          <select
+            id="customerType"
+            name="customerType"
+            defaultValue="B2C"
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+          >
+            <option value="B2C">
+              Residential
+            </option>
+
+            <option value="B2B">
+              Business
+            </option>
+          </select>
+        </div>
+
+        {/* Service */}
+        <div>
+          <label
+            htmlFor="serviceWanted"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Service *
+          </label>
+
+          <select
+            id="serviceWanted"
+            name="serviceWanted"
+            required
+            defaultValue=""
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+          >
+            <option value="" disabled>
+              Select a service
+            </option>
+
+            <option value="Curtains">
+              Curtains
+            </option>
+
+            <option value="Blinds">
+              Blinds
+            </option>
+
+            <option value="Motorized Curtains">
+              Motorized Curtains
+            </option>
+
+            <option value="Custom Window Solutions">
+              Custom Window Solutions
+            </option>
+          </select>
+        </div>
+
+        {/* Project */}
+        <div>
+          <label
+            htmlFor="projectName"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Project Name
+          </label>
+
+          <input
+            id="projectName"
+            name="projectName"
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Optional"
+          />
+        </div>
+
+        {/* Address */}
+        <div className="md:col-span-2">
+          <label
+            htmlFor="siteAddress"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Site Address
+          </label>
+
+          <textarea
+            id="siteAddress"
+            name="siteAddress"
+            rows={3}
+            className="w-full resize-none rounded-lg border border-[#D8C9BC] px-3 py-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Where is the project located?"
+          />
+        </div>
+
+        {/* Budget */}
+        <div>
+          <label
+            htmlFor="budget"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Budget
+          </label>
+
+          <input
+            id="budget"
+            name="budget"
+            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Optional"
+          />
+        </div>
+
+        {/* Notes */}
+        <div className="md:col-span-2">
+          <label
+            htmlFor="notes"
+            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+          >
+            Tell us about your project
+          </label>
+
+          <textarea
+            id="notes"
+            name="notes"
+            rows={5}
+            className="w-full resize-none rounded-lg border border-[#D8C9BC] px-3 py-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            placeholder="Tell us about your requirements, preferred style, number of windows, timeline, etc."
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="mt-5 flex items-start gap-3 rounded-lg border border-[#D8C9BC] bg-[#F8F5F2] p-4">
+          <AlertCircle
+            size={17}
+            className="mt-0.5 shrink-0 text-[#5A0E12]"
+          />
+
+          <p className="text-sm text-[#5A0E12]">
+            {error}
+          </p>
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {loading ? (
+          <>
+            <Loader2
+              size={16}
+              className="animate-spin"
+            />
+            Sending...
+          </>
+        ) : (
+          <>
+            <Send size={16} />
+            Send Enquiry
+          </>
+        )}
+      </button>
+    </form>
+  );
+}

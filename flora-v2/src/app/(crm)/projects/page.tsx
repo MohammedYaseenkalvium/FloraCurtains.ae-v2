@@ -1,69 +1,748 @@
-import { db } from "@/lib/db";
 import Link from "next/link";
-
+import {
+  ArrowUpRight,
+  CircleDollarSign,
+  FolderKanban,
+  Search,
+} from "lucide-react";
 import type { ProjectStatus } from "@prisma/client";
+
+import { db } from "@/lib/db";
+
+const PAGE_SIZE = 20;
+
+const statuses: ProjectStatus[] = [
+  "NOT_STARTED",
+  "IN_PROGRESS",
+  "INSTALLATION",
+  "SNAGGING",
+  "COMPLETED",
+  "ON_HOLD",
+];
+
+const statusLabels: Record<ProjectStatus, string> = {
+  NOT_STARTED: "Not Started",
+  IN_PROGRESS: "In Progress",
+  INSTALLATION: "Installation",
+  SNAGGING: "Snagging",
+  COMPLETED: "Completed",
+  ON_HOLD: "On Hold",
+};
+
+const statusStyles: Record<
+  ProjectStatus,
+  {
+    background: string;
+    text: string;
+    border: string;
+  }
+> = {
+  NOT_STARTED: {
+    background: "#F8F5F2",
+    text: "#6B625A",
+    border: "#D8C9BC",
+  },
+  IN_PROGRESS: {
+    background: "#EEF4FA",
+    text: "#185FA5",
+    border: "#B8D0E5",
+  },
+  INSTALLATION: {
+    background: "#FEF9E7",
+    text: "#854D0E",
+    border: "#E6D19B",
+  },
+  SNAGGING: {
+    background: "#F1F0FC",
+    text: "#7F77DD",
+    border: "#C9C5F0",
+  },
+  COMPLETED: {
+    background: "#EDF7F3",
+    text: "#166534",
+    border: "#B7D8CC",
+  },
+  ON_HOLD: {
+    background: "#FEF2F2",
+    text: "#991B1B",
+    border: "#E8BDBD",
+  },
+};
+
+function isProjectStatus(value: string): value is ProjectStatus {
+  return statuses.includes(value as ProjectStatus);
+}
+
+function formatAED(value: number) {
+  return `AED ${value.toLocaleString("en-AE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function buildProjectsUrl({
+  search,
+  status,
+  page,
+}: {
+  search?: string;
+  status?: string;
+  page?: number;
+}) {
+  const params = new URLSearchParams();
+
+  if (search) {
+    params.set("q", search);
+  }
+
+  if (status) {
+    params.set("status", status);
+  }
+
+  if (page && page > 1) {
+    params.set("page", String(page));
+  }
+
+  const query = params.toString();
+
+  return query ? `/projects?${query}` : "/projects";
+}
 
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    status?: string;
+    page?: string;
+  }>;
 }) {
-  const { status } = await searchParams;
+  const params = await searchParams;
 
-  const projects = await db.project.findMany({
-    where: { deletedAt: null, ...(status ? { status: status as ProjectStatus } : {}) },
-    orderBy: { createdAt: "desc" },
-    include: { enquiry: { include: { contact: true, company: true } }, quotation: true },
-  });
+  const search = params.q?.trim() ?? "";
+  const requestedStatus = params.status ?? "";
 
-  const statusColors: Record<string, string> = {
-    NOT_STARTED: "#8B8178", IN_PROGRESS: "#185FA5", INSTALLATION: "#854D0E",
-    SNAGGING: "#7F77DD", COMPLETED: "#166534", ON_HOLD: "#991B1B",
+  const selectedStatus = isProjectStatus(requestedStatus)
+    ? requestedStatus
+    : undefined;
+
+  const requestedPage = Number(params.page ?? "1");
+  const page =
+    Number.isFinite(requestedPage) && requestedPage > 0
+      ? Math.floor(requestedPage)
+      : 1;
+
+  const baseWhere = {
+    deletedAt: null,
   };
 
+  const where = {
+    ...baseWhere,
+
+    ...(selectedStatus
+      ? {
+          status: selectedStatus,
+        }
+      : {}),
+
+    ...(search
+      ? {
+          OR: [
+            {
+              enquiry: {
+                contact: {
+                  name: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
+            {
+              enquiry: {
+                contact: {
+                  phone: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
+            {
+              enquiry: {
+                contact: {
+                  email: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
+            {
+              enquiry: {
+                company: {
+                  tradeName: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
+            {
+              enquiry: {
+                serviceWanted: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
+            },
+            {
+              enquiry: {
+                projectName: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
+            },
+            {
+              poNumber: {
+                contains: search,
+                mode: "insensitive" as const,
+              },
+            },
+          ],
+        }
+      : {}),
+  };
+
+  const [
+    projects,
+    totalCount,
+    allCount,
+    notStartedCount,
+    inProgressCount,
+    installationCount,
+    snaggingCount,
+    completedCount,
+    onHoldCount,
+  ] = await Promise.all([
+    db.project.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        enquiry: {
+          include: {
+            contact: true,
+            company: true,
+          },
+        },
+        quotation: true,
+        payments: true,
+      },
+    }),
+
+    db.project.count({
+      where,
+    }),
+
+    db.project.count({
+      where: baseWhere,
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "NOT_STARTED",
+      },
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "IN_PROGRESS",
+      },
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "INSTALLATION",
+      },
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "SNAGGING",
+      },
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "COMPLETED",
+      },
+    }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "ON_HOLD",
+      },
+    }),
+  ]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalCount / PAGE_SIZE)
+  );
+
+  const safePage = Math.min(page, totalPages);
+
+  const contractValue = projects.reduce(
+    (sum, project) =>
+      sum + project.totalContractValue,
+    0
+  );
+
+  const paidAmount = projects.reduce(
+    (sum, project) =>
+      sum +
+      project.payments.reduce(
+        (paymentSum, payment) =>
+          paymentSum + payment.amount,
+        0
+      ),
+    0
+  );
+
+  const outstandingAmount = Math.max(
+    contractValue - paidAmount,
+    0
+  );
+
+  const statusCounts: Record<
+    ProjectStatus,
+    number
+  > = {
+    NOT_STARTED: notStartedCount,
+    IN_PROGRESS: inProgressCount,
+    INSTALLATION: installationCount,
+    SNAGGING: snaggingCount,
+    COMPLETED: completedCount,
+    ON_HOLD: onHoldCount,
+  };
+
+  const currentFrom =
+    totalCount === 0
+      ? 0
+      : (safePage - 1) * PAGE_SIZE + 1;
+
+  const currentTo = Math.min(
+    safePage * PAGE_SIZE,
+    totalCount
+  );
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight">Projects</h1>
+    <div className="min-h-full bg-[#FFF8F5]">
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <FolderKanban
+              size={22}
+              className="text-[#5A0E12]"
+            />
+
+            <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+              Projects
+            </h1>
+          </div>
+
+          <p className="mt-1 text-sm text-[#6B625A]">
+            Manage active projects, installations, and
+            completed work.
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#F8F5F2] text-[#6B625A] text-[10px] uppercase tracking-widest">
-              {["Client","Company","Service","Status","Contract Value","Quote","Actions"].map(h => (
-                <th key={h} className="text-left px-4 py-3 font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {projects.map(p => (
-              <tr key={p.id} className="border-t border-[#F8F5F2] hover:bg-[#F8F5F2]/60">
-                <td className="px-4 py-3">
-                  <div className="font-medium">{p.enquiry.contact.name}</div>
-                </td>
-                <td className="px-4 py-3 text-[#6B625A] text-xs">{p.enquiry.company?.tradeName ?? "—"}</td>
-                <td className="px-4 py-3 text-[#6B625A]">{p.enquiry.serviceWanted}</td>
-                <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium"
-                    style={{ background: `${statusColors[p.status]}18`, color: statusColors[p.status] }}>
-                    {p.status.replace(/_/g, " ")}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-semibold">AED {p.totalContractValue.toLocaleString()}</td>
-                <td className="px-4 py-3 text-[#6B625A] text-xs">
-                  {p.quotation ? p.quotation.quoteNumber : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <Link href={`/projects/${p.id}`} className="text-[#5A0E12] text-xs hover:underline">View →</Link>
-                </td>
+      {/* Summary Cards */}
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            Total Projects
+          </p>
+
+          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+            {allCount}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            Contract Value
+          </p>
+
+          <p className="mt-2 text-xl font-bold text-[#5A0E12]">
+            {formatAED(contractValue)}
+          </p>
+
+          <p className="mt-1 text-xs text-[#6B625A]">
+            Current page
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <div className="flex items-center gap-2">
+            <CircleDollarSign
+              size={15}
+              className="text-[#0F6E56]"
+            />
+
+            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+              Payments Received
+            </p>
+          </div>
+
+          <p className="mt-2 text-xl font-bold text-[#0F6E56]">
+            {formatAED(paidAmount)}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            Outstanding
+          </p>
+
+          <p className="mt-2 text-xl font-bold text-[#991B1B]">
+            {formatAED(outstandingAmount)}
+          </p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4 rounded-xl border border-[#D8C9BC] bg-white p-4">
+        <form
+          method="GET"
+          action="/projects"
+          className="flex flex-col gap-3 md:flex-row"
+        >
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B625A]"
+            />
+
+            <input
+              name="q"
+              defaultValue={search}
+              placeholder="Search client, company, service, project or PO..."
+              className="w-full rounded-lg border border-[#D8C9BC] bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-[#5A0E12]"
+            />
+          </div>
+
+          {selectedStatus && (
+            <input
+              type="hidden"
+              name="status"
+              value={selectedStatus}
+            />
+          )}
+
+          <button
+            type="submit"
+            className="rounded-lg bg-[#5A0E12] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+          >
+            Search
+          </button>
+
+          {search && (
+            <Link
+              href={buildProjectsUrl({
+                status: selectedStatus,
+              })}
+              className="inline-flex items-center justify-center rounded-lg border border-[#D8C9BC] bg-white px-5 py-2.5 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2]"
+            >
+              Clear
+            </Link>
+          )}
+        </form>
+      </div>
+
+      {/* Status Filters */}
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+        <Link
+          href={buildProjectsUrl({
+            search,
+          })}
+          className={[
+            "whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
+            !selectedStatus
+              ? "border-[#5A0E12] bg-[#5A0E12] text-white"
+              : "border-[#D8C9BC] bg-white text-[#6B625A] hover:bg-[#F8F5F2]",
+          ].join(" ")}
+        >
+          All ({allCount})
+        </Link>
+
+        {statuses.map((status) => {
+          const style = statusStyles[status];
+
+          return (
+            <Link
+              key={status}
+              href={buildProjectsUrl({
+                search,
+                status,
+              })}
+              className={[
+                "whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
+                selectedStatus === status
+                  ? "text-white"
+                  : "bg-white hover:bg-[#F8F5F2]",
+              ].join(" ")}
+              style={
+                selectedStatus === status
+                  ? {
+                      backgroundColor: style.text,
+                      borderColor: style.text,
+                    }
+                  : {
+                      borderColor: style.border,
+                      color: style.text,
+                    }
+              }
+            >
+              {statusLabels[status]} (
+              {statusCounts[status]})
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Project Table */}
+      <div className="overflow-hidden rounded-xl border border-[#D8C9BC] bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1050px] text-sm">
+            <thead>
+              <tr className="bg-[#F8F5F2] text-[10px] uppercase tracking-widest text-[#6B625A]">
+                <th className="px-4 py-3 text-left font-medium">
+                  Project / Client
+                </th>
+
+                <th className="px-4 py-3 text-left font-medium">
+                  Company
+                </th>
+
+                <th className="px-4 py-3 text-left font-medium">
+                  Service
+                </th>
+
+                <th className="px-4 py-3 text-left font-medium">
+                  Status
+                </th>
+
+                <th className="px-4 py-3 text-right font-medium">
+                  Contract Value
+                </th>
+
+                <th className="px-4 py-3 text-left font-medium">
+                  Quote
+                </th>
+
+                <th className="px-4 py-3 text-left font-medium">
+                  Installation
+                </th>
+
+                <th className="px-4 py-3 text-right font-medium">
+                  Action
+                </th>
               </tr>
-            ))}
-            {projects.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-[#6B625A]">No projects yet.</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {projects.map((project) => {
+                const style =
+                  statusStyles[project.status];
+
+                return (
+                  <tr
+                    key={project.id}
+                    className="border-t border-[#EFE7DF] transition-colors hover:bg-[#FFF8F5]"
+                  >
+                    <td className="px-4 py-4">
+                      <div>
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="font-semibold text-[#1E1B18] hover:text-[#5A0E12]"
+                        >
+                          {project.enquiry.projectName ??
+                            "Untitled Project"}
+                        </Link>
+
+                        <Link
+                          href={`/customers/${project.enquiry.contact.id}`}
+                          className="mt-1 block text-xs text-[#6B625A] hover:text-[#5A0E12] hover:underline"
+                        >
+                          {project.enquiry.contact.name}
+                        </Link>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-4 text-xs text-[#6B625A]">
+                      {project.enquiry.company
+                        ?.tradeName ?? "—"}
+                    </td>
+
+                    <td className="px-4 py-4 text-[#6B625A]">
+                      {project.enquiry.serviceWanted}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <span
+                        className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium"
+                        style={{
+                          backgroundColor:
+                            style.background,
+                          color: style.text,
+                          borderColor: style.border,
+                        }}
+                      >
+                        {statusLabels[
+                          project.status
+                        ]}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-4 text-right font-semibold text-[#1E1B18]">
+                      {formatAED(
+                        project.totalContractValue
+                      )}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      {project.quotation ? (
+                        <Link
+                          href={`/quotations/${project.quotation.id}`}
+                          className="text-xs font-medium text-[#5A0E12] hover:underline"
+                        >
+                          {
+                            project.quotation
+                              .quoteNumber
+                          }
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-[#6B625A]">
+                          —
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-4 text-xs text-[#6B625A]">
+                      {project.installationDate
+                        ? new Date(
+                            project.installationDate
+                          ).toLocaleDateString(
+                            "en-AE"
+                          )
+                        : "Not scheduled"}
+                    </td>
+
+                    <td className="px-4 py-4 text-right">
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#5A0E12] hover:underline"
+                      >
+                        View
+                        <ArrowUpRight
+                          size={13}
+                        />
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {projects.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-6 py-14 text-center"
+                  >
+                    <FolderKanban
+                      size={28}
+                      className="mx-auto mb-3 text-[#D8C9BC]"
+                    />
+
+                    <p className="text-sm font-semibold text-[#1E1B18]">
+                      No projects found
+                    </p>
+
+                    <p className="mt-1 text-xs text-[#6B625A]">
+                      {search || selectedStatus
+                        ? "Try changing your search or status filter."
+                        : "Approved quotations can be converted into projects."}
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalCount > 0 && (
+          <div className="flex flex-col gap-3 border-t border-[#EFE7DF] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[#6B625A]">
+              Showing {currentFrom}–{currentTo} of{" "}
+              {totalCount} projects
+            </p>
+
+            <div className="flex items-center gap-2">
+              {safePage > 1 ? (
+                <Link
+                  href={buildProjectsUrl({
+                    search,
+                    status: selectedStatus,
+                    page: safePage - 1,
+                  })}
+                  className="rounded-lg border border-[#D8C9BC] bg-white px-3 py-2 text-xs font-medium text-[#6B625A] hover:bg-[#F8F5F2]"
+                >
+                  Previous
+                </Link>
+              ) : (
+                <span className="rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs text-[#C5B8AE]">
+                  Previous
+                </span>
+              )}
+
+              <span className="rounded-lg bg-[#5A0E12] px-3 py-2 text-xs font-semibold text-white">
+                {safePage} / {totalPages}
+              </span>
+
+              {safePage < totalPages ? (
+                <Link
+                  href={buildProjectsUrl({
+                    search,
+                    status: selectedStatus,
+                    page: safePage + 1,
+                  })}
+                  className="rounded-lg border border-[#D8C9BC] bg-white px-3 py-2 text-xs font-medium text-[#6B625A] hover:bg-[#F8F5F2]"
+                >
+                  Next
+                </Link>
+              ) : (
+                <span className="rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs text-[#C5B8AE]">
+                  Next
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

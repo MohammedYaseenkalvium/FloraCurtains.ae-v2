@@ -1,20 +1,25 @@
-
 "use client";
-
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MeasurementManager } from "@/components/crm/MeasurementManager";
 
 type Measurement = {
-     id: string;
-    roomName: string;
-     openingName: string | null;
-      openingType: string | null;
-       width: number; height: number;
-        unit: string;
-         trackType: string | null;
-          remarks: string | null; 
-        };
+  id: string;
+  siteVisitId: string;
+  roomName: string;
+  openingName: string | null;
+  openingType: string | null;
+  width: number;
+  height: number;
+  unit: "MM" | "CM" | "M" | "FT" | "IN";
+  quantity: number;
+  curtainType: string | null;
+  trackType: string | null;
+  remarks: string | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+};
 
 type Attachment = {
   id: string;
@@ -42,6 +47,7 @@ type SiteVisit = {
 
 type Props = {
   enquiryId: string;
+  projectId?: string;
   initialVisits: SiteVisit[];
   defaultAddress?: string | null;
 };
@@ -60,14 +66,17 @@ const statusStyles: Record<
     bg: "#FFF7ED",
     text: "#9A3412",
   },
+
   COMPLETED: {
     bg: "#ECFDF5",
     text: "#166534",
   },
+
   CANCELLED: {
     bg: "#FEF2F2",
     text: "#991B1B",
   },
+
   RESCHEDULED: {
     bg: "#EFF6FF",
     text: "#185FA5",
@@ -85,14 +94,20 @@ function formatDate(value: Date | string | null) {
 
 export function SiteVisitManager({
   enquiryId,
+  projectId,
   initialVisits,
   defaultAddress,
 }: Props) {
   const router = useRouter();
 
-  const [visits, setVisits] = useState<SiteVisit[]>(initialVisits);
-  const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [visits, setVisits] =
+    useState<SiteVisit[]>(initialVisits);
+
+  const [showForm, setShowForm] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
 
   const [form, setForm] = useState({
     scheduledAt: "",
@@ -117,34 +132,53 @@ export function SiteVisitManager({
         },
         body: JSON.stringify({
           enquiryId,
-          scheduledAt: form.scheduledAt,
-          assignedTo: form.assignedTo || undefined,
-          siteAddress: form.siteAddress || undefined,
+          projectId: projectId || undefined,
+          scheduledAt: new Date(
+            form.scheduledAt
+          ).toISOString(),
+          assignedTo:
+            form.assignedTo || undefined,
+          siteAddress:
+            form.siteAddress || undefined,
           notes: form.notes || undefined,
         }),
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error ?? "Failed to schedule site visit.");
+        const data = await res
+          .json()
+          .catch(() => null);
+
+        alert(
+          data?.error ??
+            "Failed to schedule site visit."
+        );
+
         return;
       }
 
       const visit = await res.json();
 
-      setVisits((current) => [visit, ...current]);
+      setVisits((current) => [
+        visit,
+        ...current,
+      ]);
 
       setForm({
         scheduledAt: "",
         assignedTo: "",
-        siteAddress: defaultAddress ?? "",
+        siteAddress:
+          defaultAddress ?? "",
         notes: "",
       });
 
       setShowForm(false);
+
       router.refresh();
     } catch {
-      alert("Failed to schedule site visit.");
+      alert(
+        "Failed to schedule site visit."
+      );
     } finally {
       setLoading(false);
     }
@@ -152,24 +186,37 @@ export function SiteVisitManager({
 
   async function updateStatus(
     visitId: string,
-    status: SiteVisit["status"]
+    status:
+      | "SCHEDULED"
+      | "COMPLETED"
+      | "CANCELLED"
   ) {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/site-visits/${visitId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status,
-        }),
-      });
+      const res = await fetch(
+        `/api/site-visits/${visitId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status,
+          }),
+        }
+      );
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error ?? "Failed to update site visit.");
+        const data = await res
+          .json()
+          .catch(() => null);
+
+        alert(
+          data?.error ??
+            "Failed to update site visit."
+        );
+
         return;
       }
 
@@ -177,19 +224,28 @@ export function SiteVisitManager({
 
       setVisits((current) =>
         current.map((visit) =>
-          visit.id === visitId ? { ...visit, ...updated } : visit
+          visit.id === visitId
+            ? {
+                ...visit,
+                ...updated,
+              }
+            : visit
         )
       );
 
       router.refresh();
     } catch {
-      alert("Failed to update site visit.");
+      alert(
+        "Failed to update site visit."
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  async function deleteVisit(visitId: string) {
+  async function deleteVisit(
+    visitId: string
+  ) {
     const confirmed = window.confirm(
       "Delete this site visit? This action cannot be undone."
     );
@@ -199,23 +255,38 @@ export function SiteVisitManager({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/site-visits/${visitId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/site-visits/${visitId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error ?? "Failed to delete site visit.");
+        const data = await res
+          .json()
+          .catch(() => null);
+
+        alert(
+          data?.error ??
+            "Failed to delete site visit."
+        );
+
         return;
       }
 
       setVisits((current) =>
-        current.filter((visit) => visit.id !== visitId)
+        current.filter(
+          (visit) =>
+            visit.id !== visitId
+        )
       );
 
       router.refresh();
     } catch {
-      alert("Failed to delete site visit.");
+      alert(
+        "Failed to delete site visit."
+      );
     } finally {
       setLoading(false);
     }
@@ -224,22 +295,25 @@ export function SiteVisitManager({
   return (
     <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
         <div>
           <h3 className="font-semibold text-sm text-[#5A0E12]">
             Site Visits
           </h3>
 
           <p className="text-xs text-[#6B625A] mt-1">
-            Schedule visits, record measurements and track site progress.
+            Schedule visits, record measurements and
+            track site progress.
           </p>
         </div>
 
         {!showForm && (
           <button
             type="button"
-            onClick={() => setShowForm(true)}
-            className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#7A1E22] transition-colors"
+            onClick={() =>
+              setShowForm(true)
+            }
+            className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#74171C] transition-colors"
           >
             + Schedule Visit
           </button>
@@ -250,20 +324,31 @@ export function SiteVisitManager({
       {showForm && (
         <div className="border border-[#D8C9BC] rounded-xl p-4 mb-5 bg-[#FCFAF8]">
           <div className="flex justify-between items-center mb-4">
-            <h4 className="font-semibold text-sm text-[#5A0E12]">
-              Schedule Site Visit
-            </h4>
+            <div>
+              <h4 className="font-semibold text-sm text-[#5A0E12]">
+                Schedule Site Visit
+              </h4>
+
+              <p className="text-xs text-[#6B625A] mt-1">
+                Add the visit schedule and site
+                instructions.
+              </p>
+            </div>
 
             <button
               type="button"
-              onClick={() => setShowForm(false)}
-              className="text-[#6B625A] hover:text-[#5A0E12] text-sm"
+              onClick={() =>
+                setShowForm(false)
+              }
+              disabled={loading}
+              className="text-[#6B625A] hover:text-[#5A0E12] text-lg"
             >
-              ✕
+              ×
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Date */}
             <div>
               <label className={label}>
                 Visit Date & Time *
@@ -276,12 +361,14 @@ export function SiteVisitManager({
                 onChange={(e) =>
                   setForm((current) => ({
                     ...current,
-                    scheduledAt: e.target.value,
+                    scheduledAt:
+                      e.target.value,
                   }))
                 }
               />
             </div>
 
+            {/* Assigned Staff */}
             <div>
               <label className={label}>
                 Assigned Staff
@@ -294,13 +381,15 @@ export function SiteVisitManager({
                 onChange={(e) =>
                   setForm((current) => ({
                     ...current,
-                    assignedTo: e.target.value,
+                    assignedTo:
+                      e.target.value,
                   }))
                 }
               />
             </div>
 
-            <div className="col-span-2">
+            {/* Address */}
+            <div className="md:col-span-2">
               <label className={label}>
                 Site Address
               </label>
@@ -311,13 +400,15 @@ export function SiteVisitManager({
                 onChange={(e) =>
                   setForm((current) => ({
                     ...current,
-                    siteAddress: e.target.value,
+                    siteAddress:
+                      e.target.value,
                   }))
                 }
               />
             </div>
 
-            <div className="col-span-2">
+            {/* Notes */}
+            <div className="md:col-span-2">
               <label className={label}>
                 Visit Notes
               </label>
@@ -330,7 +421,8 @@ export function SiteVisitManager({
                 onChange={(e) =>
                   setForm((current) => ({
                     ...current,
-                    notes: e.target.value,
+                    notes:
+                      e.target.value,
                   }))
                 }
               />
@@ -342,15 +434,20 @@ export function SiteVisitManager({
               type="button"
               onClick={createVisit}
               disabled={loading}
-              className="bg-[#0F6E56] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#0D5A45] disabled:opacity-50"
+              className="bg-[#5A0E12] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#74171C] disabled:opacity-50"
             >
-              {loading ? "Saving…" : "Schedule Visit"}
+              {loading
+                ? "Saving..."
+                : "Schedule Visit"}
             </button>
 
             <button
               type="button"
-              onClick={() => setShowForm(false)}
-              className="bg-[#EFE7DF] text-[#6B625A] rounded-lg px-5 py-2 text-sm"
+              onClick={() =>
+                setShowForm(false)
+              }
+              disabled={loading}
+              className="bg-[#EFE7DF] text-[#6B625A] rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
             >
               Cancel
             </button>
@@ -359,35 +456,42 @@ export function SiteVisitManager({
       )}
 
       {/* Empty State */}
-      {visits.length === 0 && !showForm && (
-        <div className="border border-dashed border-[#D8C9BC] rounded-xl p-8 text-center">
-          <div className="text-2xl mb-2">📐</div>
+      {visits.length === 0 &&
+        !showForm && (
+          <div className="border border-dashed border-[#D8C9BC] rounded-xl p-8 text-center">
+            <div className="text-2xl mb-2">
+              📐
+            </div>
 
-          <p className="text-sm font-medium text-[#5A0E12]">
-            No site visits scheduled
-          </p>
+            <p className="text-sm font-medium text-[#5A0E12]">
+              No site visits scheduled
+            </p>
 
-          <p className="text-xs text-[#6B625A] mt-1">
-            Schedule the first site visit to start capturing measurements.
-          </p>
-        </div>
-      )}
+            <p className="text-xs text-[#6B625A] mt-1">
+              Schedule the first site visit to
+              start capturing measurements.
+            </p>
+          </div>
+        )}
 
       {/* Visit List */}
       {visits.length > 0 && (
         <div className="space-y-4">
           {visits.map((visit) => {
-            const style = statusStyles[visit.status];
+            const style =
+              statusStyles[
+                visit.status
+              ];
 
             return (
               <div
                 key={visit.id}
                 className="border border-[#D8C9BC] rounded-xl p-4"
               >
-                {/* Visit header */}
-                <div className="flex justify-between items-start gap-4">
+                {/* Visit Header */}
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-sm text-[#2E2925]">
                         Site Visit
                       </span>
@@ -395,50 +499,70 @@ export function SiteVisitManager({
                       <span
                         className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wide"
                         style={{
-                          background: style.bg,
-                          color: style.text,
+                          background:
+                            style.bg,
+                          color:
+                            style.text,
                         }}
                       >
-                        {visit.status.replace(/_/g, " ")}
+                        {visit.status.replace(
+                          /_/g,
+                          " "
+                        )}
                       </span>
                     </div>
 
                     <p className="text-sm text-[#6B625A] mt-1">
-                      {formatDate(visit.scheduledAt)}
+                      {formatDate(
+                        visit.scheduledAt
+                      )}
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
-                    {visit.status === "SCHEDULED" && (
-                      <>
-                        <button
-                          type="button"
-                          disabled={loading}
-                          onClick={() =>
-                            updateStatus(visit.id, "COMPLETED")
-                          }
-                          className="text-xs bg-[#ECFDF5] text-[#166534] rounded-lg px-3 py-1.5 hover:bg-[#D1FAE5] disabled:opacity-50"
-                        >
-                          ✓ Complete
-                        </button>
+                  {/* Actions */}
+                  <div className="flex flex-wrap gap-2">
+                    {visit.status ===
+                      "SCHEDULED" && (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() =>
+                          updateStatus(
+                            visit.id,
+                            "COMPLETED"
+                          )
+                        }
+                        className="text-xs bg-[#ECFDF5] text-[#166534] rounded-lg px-3 py-1.5 hover:bg-[#D1FAE5] disabled:opacity-50"
+                      >
+                        ✓ Complete
+                      </button>
+                    )}
 
-                        <button
-                          type="button"
-                          disabled={loading}
-                          onClick={() =>
-                            updateStatus(visit.id, "RESCHEDULED")
-                          }
-                          className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
-                        >
-                          Reschedule
-                        </button>
-                      </>
+                    {visit.status ===
+                      "SCHEDULED" && (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() =>
+                          updateStatus(
+                            visit.id,
+                            "CANCELLED"
+                          )
+                        }
+                        className="text-xs bg-[#FEF2F2] text-[#991B1B] rounded-lg px-3 py-1.5 hover:bg-[#FEE2E2] disabled:opacity-50"
+                      >
+                        Cancel Visit
+                      </button>
                     )}
 
                     <button
                       type="button"
                       disabled={loading}
-                      onClick={() => deleteVisit(visit.id)}
+                      onClick={() =>
+                        deleteVisit(
+                          visit.id
+                        )
+                      }
                       className="text-xs text-[#991B1B] border border-[#FECACA] rounded-lg px-3 py-1.5 hover:bg-[#FEF2F2] disabled:opacity-50"
                     >
                       Delete
@@ -446,15 +570,16 @@ export function SiteVisitManager({
                   </div>
                 </div>
 
-                {/* Visit details */}
-                <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                {/* Visit Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-sm">
                   <div>
                     <p className="text-[10px] uppercase tracking-widest text-[#6B625A]">
                       Assigned To
                     </p>
 
                     <p className="font-medium mt-1">
-                      {visit.assignedTo ?? "Not assigned"}
+                      {visit.assignedTo ??
+                        "Not assigned"}
                     </p>
                   </div>
 
@@ -464,12 +589,14 @@ export function SiteVisitManager({
                     </p>
 
                     <p className="font-medium mt-1">
-                      {formatDate(visit.completedAt)}
+                      {formatDate(
+                        visit.completedAt
+                      )}
                     </p>
                   </div>
 
                   {visit.siteAddress && (
-                    <div className="col-span-2">
+                    <div className="sm:col-span-2">
                       <p className="text-[10px] uppercase tracking-widest text-[#6B625A]">
                         Site Address
                       </p>
@@ -481,6 +608,7 @@ export function SiteVisitManager({
                   )}
                 </div>
 
+                {/* Notes */}
                 {visit.notes && (
                   <div className="mt-4 pt-4 border-t border-[#EFE7DF]">
                     <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">
@@ -494,107 +622,56 @@ export function SiteVisitManager({
                 )}
 
                 {/* Measurements */}
-                <div className="mt-4 pt-4 border-t border-[#EFE7DF]">
-                  <div className="flex justify-between items-center mb-3">
-                    <div>
-                      <p className="font-semibold text-sm text-[#5A0E12]">
-                        Measurements
-                      </p>
-
-                      <p className="text-xs text-[#6B625A]">
-                        {visit.measurements.length} measurement
-                        {visit.measurements.length === 1 ? "" : "s"} recorded
-                      </p>
-                    </div>
-
-                    <LinkButton
-                      href={`/site-visits/${visit.id}`}
-                    >
-                      Open Visit →
-                    </LinkButton>
-                  </div>
-
-                  {visit.measurements.length === 0 ? (
-                    <div className="bg-[#F8F5F2] rounded-lg px-4 py-3 text-xs text-[#6B625A]">
-                      No measurements recorded yet.
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="text-left text-[10px] uppercase tracking-widest text-[#6B625A] border-b border-[#D8C9BC]">
-                            <th className="py-2 pr-3">
-                              Room
-                            </th>
-                            <th className="py-2 pr-3">
-                              Opening
-                            </th>
-                            <th className="py-2 pr-3">
-                              Type
-                            </th>
-                            <th className="py-2 pr-3">
-                              Width
-                            </th>
-                            <th className="py-2">
-                              Height
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {visit.measurements.map((measurement) => (
-                            <tr
-                              key={measurement.id}
-                              className="border-b border-[#EFE7DF] last:border-0"
-                            >
-                              <td className="py-2 pr-3 font-medium">
-                                {measurement.roomName}
-                              </td>
-
-                              <td className="py-2 pr-3">
-                                {measurement.openingName ?? "—"}
-                              </td>
-
-                              <td className="py-2 pr-3">
-                                {measurement.openingType ?? "—"}
-                              </td>
-
-                              <td className="py-2 pr-3">
-                                {measurement.width}{" "}
-                                {measurement.unit}
-                              </td>
-
-                              <td className="py-2">
-                                {measurement.height}{" "}
-                                {measurement.unit}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
+                <MeasurementManager
+                  siteVisitId={visit.id}
+                  initialMeasurements={
+                    visit.measurements
+                  }
+                />
 
                 {/* Attachments */}
-                {visit.attachments.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-[#EFE7DF]">
-                    <p className="font-semibold text-sm text-[#5A0E12] mb-2">
-                      Attachments
-                    </p>
+                {visit.attachments.length >
+                  0 && (
+                  <div className="mt-5 pt-5 border-t border-[#EFE7DF]">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="font-semibold text-sm text-[#5A0E12]">
+                          Attachments
+                        </p>
+
+                        <p className="text-xs text-[#6B625A] mt-1">
+                          {visit.attachments.length}{" "}
+                          file
+                          {visit.attachments
+                            .length === 1
+                            ? ""
+                            : "s"}{" "}
+                          attached
+                        </p>
+                      </div>
+                    </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {visit.attachments.map((attachment) => (
-                        <a
-                          key={attachment.id}
-                          href={attachment.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="border border-[#D8C9BC] rounded-lg px-3 py-2 text-xs text-[#5A0E12] hover:bg-[#F8F5F2]"
-                        >
-                          📎 {attachment.fileName}
-                        </a>
-                      ))}
+                      {visit.attachments.map(
+                        (attachment) => (
+                          <a
+                            key={
+                              attachment.id
+                            }
+                            href={
+                              attachment.fileUrl
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="border border-[#D8C9BC] rounded-lg px-3 py-2 text-xs text-[#5A0E12] hover:bg-[#F8F5F2]"
+                          >
+                            📎{" "}
+                            {
+                              attachment.fileName
+                            }
+                          </a>
+                        )
+                      )}
                     </div>
                   </div>
                 )}
@@ -606,21 +683,3 @@ export function SiteVisitManager({
     </div>
   );
 }
-
-function LinkButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      className="text-xs text-[#5A0E12] hover:underline"
-    >
-      {children}
-    </a>
-  );
-}
-

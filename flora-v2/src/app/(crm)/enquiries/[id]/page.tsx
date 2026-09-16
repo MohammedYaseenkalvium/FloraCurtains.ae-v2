@@ -118,13 +118,18 @@ export default async function EnquiryDetailPage({
           enquiry.status === "QUOTED") && (
           <div className="mb-6">
             <ConvertToProject
-              enquiryId={enquiry.id}
-              quoteTotal={
-                enquiry.quotations.find(
-                  (q) => q.status === "APPROVED"
-                )?.totalAmount
-              }
-            />
+  enquiryId={enquiry.id}
+  quotationId={
+    enquiry.quotations.find(
+      (q) => q.status === "APPROVED"
+    )?.id ?? ""
+  }
+  quoteTotal={
+    enquiry.quotations.find(
+      (q) => q.status === "APPROVED"
+    )?.totalAmount
+  }
+/>
           </div>
         )}
 

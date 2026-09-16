@@ -12,9 +12,16 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) 
   const { id } = await params;
 
   const quotation = await db.quotation.findUnique({
-    where: { id },
-    include: { enquiry: { include: { contact: true, company: true } } },
-  });
+  where: { id },
+  include: {
+    enquiry: {
+      include: {
+        contact: true,
+        company: true,
+      },
+    },
+  },
+});
   if (!quotation) throw notFound();
 
   const element = React.createElement(QuotationPDF, { quotation });
