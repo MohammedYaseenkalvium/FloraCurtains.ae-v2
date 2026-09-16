@@ -1,151 +1,1166 @@
 import {
-  Document, Page, Text, View, StyleSheet, Image
+  Document,
+  Page,
+  Text,
+  View,
+  Image,
+  StyleSheet,
 } from "@react-pdf/renderer";
-import type { Quotation, Contact, Company } from "@prisma/client";
+
+import type {
+  Contact,
+  Company,
+  Prisma,
+} from "@prisma/client";
+
 import type { QuotationLineItem } from "@/types";
+
 import fs from "fs";
 import path from "path";
 
-// --- LAZY LOGO LOADER ---
-let logoSrc: string | undefined;
-
-function getLogoSrc(): string {
-  if (!logoSrc) {
-    const logoPath = path.join(process.cwd(), "public", "images", "logo.png");
-    const logoBase64 = fs.readFileSync(logoPath).toString("base64");
-    logoSrc = `data:image/png;base64,${logoBase64}`;
-  }
-  return logoSrc;
-}
+/* =========================================================
+   FLORA BRAND TOKENS
+========================================================= */
 
 const burgundy = "#5A0E12";
+const burgundyDark = "#3F080B";
+const text = "#1E1B18";
+const muted = "#6B625A";
+const border = "#D8C9BC";
+const surface = "#F8F5F2";
+const white = "#FFFFFF";
+const green = "#0F6E56";
+const softGreen = "#EAF4F0";
 
-const s = StyleSheet.create({
-  page:       { fontFamily: "Helvetica", fontSize: 9, color: "#1A1A1A", padding: "40 48" },
-  header:     { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 },
-  logoBox:    { flexDirection: "row", alignItems: "center", gap: 10 },
-  logoImg:    { width: 100, height: 30 },
-  logoText:   { fontSize: 22, fontWeight: 700, color: burgundy, letterSpacing: 2 },
-  logoSub:    { fontSize: 7, color: "#6B625A", letterSpacing: 3, marginTop: 2 },
-  quoteNo:    { fontSize: 18, fontWeight: 700, color: burgundy, textAlign: "right" },
-  section:    { marginBottom: 16 },
-  label:      { fontSize: 7, color: "#6B625A", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 3 },
-  value:      { fontSize: 9 },
-  table:      { marginTop: 16 },
-  tHead:      { flexDirection: "row", backgroundColor: "#F8F5F2", padding: "6 8", borderRadius: 4 },
-  tRow:       { flexDirection: "row", padding: "8 8", borderBottom: "1 solid #EFE7DF" },
-  col_desc:   { flex: 4 },
-  col_num:    { flex: 1, textAlign: "right" },
-  total_row:  { flexDirection: "row", justifyContent: "flex-end", marginTop: 8 },
-  total_label:{ fontSize: 9, color: "#6B625A", marginRight: 40, width: 100, textAlign: "right" },
-  total_value:{ width: 80, textAlign: "right", fontSize: 9 },
-  grand:      { fontWeight: 700, fontSize: 11, color: burgundy },
-  footer:     { position: "absolute", bottom: 20, left: 48, right: 48, fontSize: 7, color: "#6B625A", textAlign: "center" },
-  divider:    { borderTop: "1 solid #D8C9BC", marginVertical: 12 },
-  watermark:  { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03 },
+/* =========================================================
+   LOGO
+=========================================================
+
+   Existing logo:
+
+   public/images/Flora quotation logo.png
+
+   We load it as Base64 so @react-pdf/renderer can render
+   the local PNG reliably.
+========================================================= */
+
+const logoPath = path.join(
+  process.cwd(),
+  "public",
+  "images",
+  "Flora quotation logo.png"
+);
+
+const logoBase64 = fs
+  .readFileSync(logoPath)
+  .toString("base64");
+
+const logoSrc = `data:image/png;base64,${logoBase64}`;
+
+/* =========================================================
+   STYLES
+========================================================= */
+
+const styles = StyleSheet.create({
+  /* =======================================================
+     PAGE
+  ======================================================= */
+
+  page: {
+    fontFamily: "Helvetica",
+    fontSize: 9,
+    color: text,
+    backgroundColor: white,
+
+    paddingTop: 38,
+    paddingBottom: 62,
+    paddingHorizontal: 48,
+  },
+
+  /* =======================================================
+     HEADER
+  ======================================================= */
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+
+    paddingBottom: 13,
+
+    borderBottom: `1 solid ${border}`,
+  },
+
+  brandBlock: {
+    width: "58%",
+  },
+
+  logo: {
+    width: 145,
+    height: 48,
+    objectFit: "contain",
+
+    marginBottom: 3,
+  },
+
+  companyInfo: {
+    marginTop: 3,
+
+    fontSize: 7.5,
+    lineHeight: 1.45,
+
+    color: muted,
+  },
+
+  quoteBlock: {
+    width: "38%",
+
+    alignItems: "flex-end",
+
+    paddingTop: 3,
+  },
+
+  quotationLabel: {
+    fontSize: 7.5,
+
+    color: muted,
+
+    letterSpacing: 2.2,
+
+    textTransform: "uppercase",
+  },
+
+  quoteNumber: {
+    marginTop: 4,
+
+    fontSize: 18,
+
+    fontWeight: 700,
+
+    color: burgundy,
+
+    textAlign: "right",
+  },
+
+  quoteMeta: {
+    marginTop: 5,
+
+    fontSize: 7.5,
+
+    lineHeight: 1.5,
+
+    color: muted,
+
+    textAlign: "right",
+  },
+
+  /* =======================================================
+     CUSTOMER INFORMATION
+  ======================================================= */
+
+  infoGrid: {
+    flexDirection: "row",
+
+    marginTop: 15,
+    marginBottom: 17,
+
+    gap: 12,
+  },
+
+  infoCard: {
+    flex: 1,
+
+    minHeight: 86,
+
+    padding: 12,
+
+    backgroundColor: surface,
+
+    border: `1 solid ${border}`,
+
+    borderRadius: 5,
+  },
+
+  infoCardRight: {
+    flex: 1,
+
+    minHeight: 86,
+
+    padding: 12,
+
+    backgroundColor: white,
+
+    border: `1 solid ${border}`,
+
+    borderRadius: 5,
+  },
+
+  sectionLabel: {
+    marginBottom: 7,
+
+    fontSize: 6.8,
+
+    color: muted,
+
+    letterSpacing: 1.7,
+
+    textTransform: "uppercase",
+  },
+
+  customerName: {
+    marginBottom: 5,
+
+    fontSize: 11,
+
+    fontWeight: 700,
+
+    color: burgundyDark,
+  },
+
+  infoValue: {
+    fontSize: 8.5,
+
+    lineHeight: 1.45,
+
+    color: text,
+  },
+
+  infoMuted: {
+    fontSize: 8,
+
+    lineHeight: 1.45,
+
+    color: muted,
+  },
+
+  /* =======================================================
+     SERVICE
+  ======================================================= */
+
+  serviceStrip: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    minHeight: 43,
+
+    paddingHorizontal: 12,
+
+    marginBottom: 18,
+
+    backgroundColor: burgundy,
+
+    borderRadius: 5,
+  },
+
+  serviceLabel: {
+    width: 75,
+
+    fontSize: 6.8,
+
+    color: "#EAD9D5",
+
+    letterSpacing: 1.6,
+
+    textTransform: "uppercase",
+  },
+
+  serviceValue: {
+    flex: 1,
+
+    fontSize: 9.5,
+
+    fontWeight: 700,
+
+    color: white,
+  },
+
+  projectValue: {
+    width: "38%",
+
+    fontSize: 8,
+
+    color: "#F5EDEB",
+
+    textAlign: "right",
+  },
+
+  /* =======================================================
+     TABLE
+  ======================================================= */
+
+  table: {
+    width: "100%",
+
+    marginTop: 1,
+  },
+
+  tableHeader: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    minHeight: 32,
+
+    paddingVertical: 7,
+    paddingHorizontal: 9,
+
+    backgroundColor: surface,
+
+    borderTop: `1 solid ${border}`,
+    borderBottom: `1 solid ${border}`,
+  },
+
+  tableRow: {
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    minHeight: 39,
+
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+
+    borderBottom: "1 solid #EFE7DF",
+  },
+
+  descriptionColumn: {
+    flex: 4.5,
+  },
+
+  quantityColumn: {
+    flex: 0.8,
+
+    textAlign: "right",
+  },
+
+  unitColumn: {
+    flex: 1.3,
+
+    textAlign: "right",
+  },
+
+  discountColumn: {
+    flex: 0.9,
+
+    textAlign: "right",
+  },
+
+  totalColumn: {
+    flex: 1.5,
+
+    textAlign: "right",
+  },
+
+  headerText: {
+    fontSize: 7,
+
+    fontWeight: 700,
+
+    color: muted,
+
+    letterSpacing: 0.7,
+
+    textTransform: "uppercase",
+  },
+
+  descriptionText: {
+    fontSize: 8.5,
+
+    color: text,
+  },
+
+  unitText: {
+    marginTop: 2,
+
+    fontSize: 6.8,
+
+    color: muted,
+  },
+
+  numberText: {
+    fontSize: 8.5,
+
+    color: text,
+  },
+
+  totalText: {
+    fontSize: 8.5,
+
+    fontWeight: 700,
+
+    color: text,
+  },
+
+  /* =======================================================
+     TOTALS
+  ======================================================= */
+
+  totalsArea: {
+    flexDirection: "row",
+
+    justifyContent: "flex-end",
+
+    marginTop: 13,
+  },
+
+  totalsBox: {
+    width: 230,
+  },
+
+  totalLine: {
+    flexDirection: "row",
+
+    justifyContent: "space-between",
+
+    alignItems: "center",
+
+    paddingVertical: 3.5,
+  },
+
+  totalLabel: {
+    fontSize: 8.5,
+
+    color: muted,
+  },
+
+  totalValue: {
+    fontSize: 8.5,
+
+    color: text,
+
+    textAlign: "right",
+  },
+
+  grandTotalLine: {
+    flexDirection: "row",
+
+    justifyContent: "space-between",
+
+    alignItems: "center",
+
+    marginTop: 6,
+
+    paddingTop: 9,
+
+    borderTop: `1.2 solid ${burgundy}`,
+  },
+
+  grandTotalLabel: {
+    fontSize: 10,
+
+    fontWeight: 700,
+
+    color: burgundy,
+
+    letterSpacing: 0.8,
+  },
+
+  grandTotalValue: {
+    fontSize: 14,
+
+    fontWeight: 700,
+
+    color: burgundy,
+
+    textAlign: "right",
+  },
+
+  /* =======================================================
+     NOTES
+  ======================================================= */
+
+  notesSection: {
+    marginTop: 21,
+
+    padding: 12,
+
+    backgroundColor: surface,
+
+    border: `1 solid ${border}`,
+
+    borderRadius: 5,
+  },
+
+  notesLabel: {
+    marginBottom: 6,
+
+    fontSize: 6.8,
+
+    color: muted,
+
+    letterSpacing: 1.6,
+
+    textTransform: "uppercase",
+  },
+
+  notesText: {
+    fontSize: 8,
+
+    lineHeight: 1.5,
+
+    color: text,
+  },
+
+  /* =======================================================
+     STATUS
+  ======================================================= */
+
+  statusBox: {
+    flexDirection: "row",
+
+    justifyContent: "space-between",
+
+    alignItems: "center",
+
+    marginTop: 17,
+
+    paddingVertical: 10,
+
+    paddingHorizontal: 12,
+
+    backgroundColor: white,
+
+    border: `1 solid ${border}`,
+
+    borderRadius: 5,
+  },
+
+  statusLabel: {
+    fontSize: 7,
+
+    color: muted,
+
+    letterSpacing: 1.3,
+
+    textTransform: "uppercase",
+  },
+
+  statusPill: {
+    paddingVertical: 4,
+
+    paddingHorizontal: 9,
+
+    backgroundColor: softGreen,
+
+    borderRadius: 10,
+  },
+
+  statusValue: {
+    fontSize: 7.5,
+
+    fontWeight: 700,
+
+    color: green,
+
+    letterSpacing: 0.5,
+
+    textTransform: "uppercase",
+  },
+
+  /* =======================================================
+     FOOTER
+  ======================================================= */
+
+  footer: {
+    position: "absolute",
+
+    left: 48,
+    right: 48,
+
+    bottom: 21,
+
+    paddingTop: 8,
+
+    borderTop: `1 solid ${border}`,
+  },
+
+  footerBrand: {
+    marginBottom: 3,
+
+    fontSize: 7,
+
+    fontWeight: 700,
+
+    color: burgundy,
+
+    textAlign: "center",
+  },
+
+  footerText: {
+    fontSize: 6.7,
+
+    lineHeight: 1.45,
+
+    color: muted,
+
+    textAlign: "center",
+  },
 });
 
+/* =========================================================
+   PRISMA TYPE
+========================================================= */
+
 type Props = {
-  quotation: Quotation & { enquiry: { contact: Contact; company: Company | null } };
+  quotation: Prisma.QuotationGetPayload<{
+    include: {
+      enquiry: {
+        include: {
+          contact: true;
+          company: true;
+        };
+      };
+    };
+  }>;
 };
 
-export function QuotationPDF({ quotation }: Props) {
-  const items = quotation.items as QuotationLineItem[];
-  const { contact, company } = quotation.enquiry;
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatMoney(value: number) {
+  return `AED ${Number(value).toLocaleString("en-AE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function formatDate(
+  date: Date | null | undefined
+) {
+  if (!date) return "—";
+
+  return new Intl.DateTimeFormat("en-AE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function getBilledName(
+  quotation: Props["quotation"],
+  company: Company | null,
+  contact: Contact
+) {
+  return (
+    quotation.billedToName ??
+    company?.tradeName ??
+    contact.name
+  );
+}
+
+/* =========================================================
+   QUOTATION PDF
+========================================================= */
+
+export function QuotationPDF({
+  quotation,
+}: Props) {
+  const items =
+    quotation.items as QuotationLineItem[];
+
+  const {
+    contact,
+    company,
+  } = quotation.enquiry;
+
+  const billedName =
+    getBilledName(
+      quotation,
+      company,
+      contact
+    );
 
   return (
     <Document>
-      <Page size="A4" style={s.page}>
-        <View style={s.header}>
-          <View style={s.logoBox}>
-            {/* @react-pdf Image is not an HTML img and has no alt prop */}
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <Image src={getLogoSrc()} style={s.logoImg} />
-            <View>
-              <Text style={s.logoText}>FLORA</Text>
-              <Text style={s.logoSub}>Curtains</Text>
-              <Text style={{ fontSize: 7, color: "#6B625A", marginTop: 6 }}>Abu Dhabi, UAE · www.floracurtains.com</Text>
-            </View>
-          </View>
-          <View>
-            <Text style={s.quoteNo}>{quotation.quoteNumber}</Text>
-            <Text style={{ fontSize: 7, color: "#6B625A", textAlign: "right", marginTop: 4 }}>
-              Date: {new Date(quotation.createdAt).toLocaleDateString("en-AE")}
+      <Page
+        size="A4"
+        style={styles.page}
+        wrap
+      >
+        {/* =================================================
+            HEADER
+        ================================================= */}
+
+        <View style={styles.header}>
+          <View style={styles.brandBlock}>
+            <Image
+              src={logoSrc}
+              style={styles.logo}
+            />
+
+            <Text style={styles.companyInfo}>
+              Flora Curtains LLC{"\n"}
+              Murur Road, Opp. Mubadala Tower{"\n"}
+              Abu Dhabi, UAE · P.O Box 25766{"\n"}
+              sayedflora1@gmail.com
             </Text>
-            {quotation.validUntil && (
-              <Text style={{ fontSize: 7, color: "#6B625A", textAlign: "right" }}>
-                Valid Until: {new Date(quotation.validUntil).toLocaleDateString("en-AE")}
+          </View>
+
+          <View style={styles.quoteBlock}>
+            <Text
+              style={styles.quotationLabel}
+            >
+              Quotation
+            </Text>
+
+            <Text
+              style={styles.quoteNumber}
+            >
+              {quotation.quoteNumber}
+            </Text>
+
+            <Text
+              style={styles.quoteMeta}
+            >
+              Date:{" "}
+              {formatDate(
+                quotation.createdAt
+              )}
+
+              {"\n"}
+
+              {quotation.validUntil
+                ? `Valid Until: ${formatDate(
+                    quotation.validUntil
+                  )}`
+                : ""}
+            </Text>
+          </View>
+        </View>
+
+        {/* =================================================
+            CUSTOMER / BILLING
+        ================================================= */}
+
+        <View style={styles.infoGrid}>
+          {/* BILLING */}
+          <View style={styles.infoCard}>
+            <Text
+              style={styles.sectionLabel}
+            >
+              Billed To
+            </Text>
+
+            <Text
+              style={styles.customerName}
+            >
+              {billedName}
+            </Text>
+
+            {quotation.billedToTrn ??
+            company?.trn ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                TRN:{" "}
+                {quotation.billedToTrn ??
+                  company?.trn}
               </Text>
-            )}
+            ) : null}
+
+            {quotation.billedToAddr ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                {quotation.billedToAddr}
+              </Text>
+            ) : null}
+
+            {contact.phone ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                {contact.phone}
+              </Text>
+            ) : null}
+
+            {contact.email ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                {contact.email}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* CUSTOMER */}
+          <View style={styles.infoCardRight}>
+            <Text
+              style={styles.sectionLabel}
+            >
+              Customer
+            </Text>
+
+            <Text
+              style={styles.customerName}
+            >
+              {contact.name}
+            </Text>
+
+            <Text
+              style={styles.infoValue}
+            >
+              {company
+                ? "Company / Firm"
+                : "Individual"}
+            </Text>
+
+            {company?.tradeName ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                {company.tradeName}
+              </Text>
+            ) : null}
+
+            {quotation.enquiry
+              .siteAddress ? (
+              <Text
+                style={styles.infoMuted}
+              >
+                Site:{" "}
+                {quotation.enquiry.siteAddress}
+              </Text>
+            ) : null}
           </View>
         </View>
 
-        <View style={s.divider} />
+        {/* =================================================
+            SERVICE
+        ================================================= */}
 
-        <View style={s.section}>
-          <Text style={s.label}>Billed To</Text>
-          <Text style={[s.value, { fontWeight: 700 }]}>
-            {quotation.billedToName ?? (company ? company.tradeName : contact.name)}
+        <View
+          style={styles.serviceStrip}
+        >
+          <Text
+            style={styles.serviceLabel}
+          >
+            Service
           </Text>
-          {(quotation.billedToTrn ?? company?.trn) && (
-            <Text style={s.value}>TRN: {quotation.billedToTrn ?? company?.trn}</Text>
-          )}
-          {quotation.billedToAddr && <Text style={s.value}>{quotation.billedToAddr}</Text>}
-          <Text style={s.value}>{contact.phone}</Text>
+
+          <Text
+            style={styles.serviceValue}
+          >
+            {quotation.enquiry.serviceWanted}
+          </Text>
+
+          {quotation.enquiry.projectName ? (
+            <Text
+              style={styles.projectValue}
+            >
+              {quotation.enquiry.projectName}
+            </Text>
+          ) : null}
         </View>
 
-        <View style={s.table}>
-          <View style={s.tHead}>
-            <Text style={[s.col_desc, { fontWeight: 700, fontSize: 8 }]}>Description</Text>
-            <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Qty</Text>
-            <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Unit Price</Text>
-            <Text style={[s.col_num, { fontWeight: 700, fontSize: 8 }]}>Total</Text>
+        {/* =================================================
+            ITEMS TABLE
+        ================================================= */}
+
+        <View style={styles.table}>
+          {/* TABLE HEADER */}
+          <View
+            style={styles.tableHeader}
+          >
+            <Text
+              style={[
+                styles.descriptionColumn,
+                styles.headerText,
+              ]}
+            >
+              Description
+            </Text>
+
+            <Text
+              style={[
+                styles.quantityColumn,
+                styles.headerText,
+              ]}
+            >
+              Qty
+            </Text>
+
+            <Text
+              style={[
+                styles.unitColumn,
+                styles.headerText,
+              ]}
+            >
+              Unit Price
+            </Text>
+
+            <Text
+              style={[
+                styles.discountColumn,
+                styles.headerText,
+              ]}
+            >
+              Disc.
+            </Text>
+
+            <Text
+              style={[
+                styles.totalColumn,
+                styles.headerText,
+              ]}
+            >
+              Total
+            </Text>
           </View>
-          {items.map((item, i) => {
-            const lineTotal = item.qty * item.unitPrice * (1 - item.discount / 100);
-            return (
-              <View key={i} style={s.tRow}>
-                <Text style={s.col_desc}>{item.description} ({item.unit})</Text>
-                <Text style={s.col_num}>{item.qty}</Text>
-                <Text style={s.col_num}>AED {Number(item.unitPrice).toLocaleString()}</Text>
-                <Text style={s.col_num}>AED {lineTotal.toLocaleString("en-AE", { minimumFractionDigits: 2 })}</Text>
-              </View>
-            );
-          })}
+
+          {/* TABLE ROWS */}
+          {items.map(
+            (item, index) => {
+              const quantity =
+                Number(item.qty);
+
+              const unitPrice =
+                Number(
+                  item.unitPrice
+                );
+
+              const discount =
+                Number(
+                  item.discount || 0
+                );
+
+              const lineTotal =
+                quantity *
+                unitPrice *
+                (1 -
+                  discount / 100);
+
+              return (
+                <View
+                  key={`${item.description}-${index}`}
+                  style={styles.tableRow}
+                  wrap={false}
+                >
+                  <View
+                    style={
+                      styles.descriptionColumn
+                    }
+                  >
+                    <Text
+                      style={
+                        styles.descriptionText
+                      }
+                    >
+                      {item.description}
+                    </Text>
+
+                    <Text
+                      style={
+                        styles.unitText
+                      }
+                    >
+                      {item.unit}
+                    </Text>
+                  </View>
+
+                  <Text
+                    style={[
+                      styles.quantityColumn,
+                      styles.numberText,
+                    ]}
+                  >
+                    {quantity}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.unitColumn,
+                      styles.numberText,
+                    ]}
+                  >
+                    {formatMoney(
+                      unitPrice
+                    )}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.discountColumn,
+                      styles.numberText,
+                    ]}
+                  >
+                    {discount > 0
+                      ? `${discount}%`
+                      : "—"}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.totalColumn,
+                      styles.totalText,
+                    ]}
+                  >
+                    {formatMoney(
+                      lineTotal
+                    )}
+                  </Text>
+                </View>
+              );
+            }
+          )}
         </View>
 
-        <View style={{ marginTop: 12 }}>
-          {[
-            { label: "Subtotal", value: `AED ${Number(quotation.subtotal).toLocaleString("en-AE", { minimumFractionDigits: 2 })}` },
-            { label: `VAT (${quotation.vatRate}%)`, value: `AED ${Number(quotation.vatAmount).toLocaleString("en-AE", { minimumFractionDigits: 2 })}` },
-          ].map(({ label, value }) => (
-            <View style={s.total_row} key={label}>
-              <Text style={s.total_label}>{label}</Text>
-              <Text style={s.total_value}>{value}</Text>
+        {/* =================================================
+            TOTALS
+        ================================================= */}
+
+        <View
+          style={styles.totalsArea}
+        >
+          <View
+            style={styles.totalsBox}
+          >
+            <View
+              style={styles.totalLine}
+            >
+              <Text
+                style={styles.totalLabel}
+              >
+                Subtotal
+              </Text>
+
+              <Text
+                style={styles.totalValue}
+              >
+                {formatMoney(
+                  quotation.subtotal
+                )}
+              </Text>
             </View>
-          ))}
-          <View style={[s.divider, { marginHorizontal: 0 }]} />
-          <View style={s.total_row}>
-            <Text style={[s.total_label, s.grand]}>TOTAL</Text>
-            <Text style={[s.total_value, s.grand]}>
-              AED {Number(quotation.totalAmount).toLocaleString("en-AE", { minimumFractionDigits: 2 })}
+
+            {quotation.vatRate > 0 && (
+              <View
+                style={styles.totalLine}
+              >
+                <Text
+                  style={styles.totalLabel}
+                >
+                  VAT ({quotation.vatRate}%)
+                </Text>
+
+                <Text
+                  style={styles.totalValue}
+                >
+                  {formatMoney(
+                    quotation.vatAmount
+                  )}
+                </Text>
+              </View>
+            )}
+
+            <View
+              style={
+                styles.grandTotalLine
+              }
+            >
+              <Text
+                style={
+                  styles.grandTotalLabel
+                }
+              >
+                TOTAL
+              </Text>
+
+              <Text
+                style={
+                  styles.grandTotalValue
+                }
+              >
+                {formatMoney(
+                  quotation.totalAmount
+                )}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* =================================================
+            NOTES
+        ================================================= */}
+
+        {quotation.notes ? (
+          <View
+            style={
+              styles.notesSection
+            }
+          >
+            <Text
+              style={
+                styles.notesLabel
+              }
+            >
+              Notes
+            </Text>
+
+            <Text
+              style={
+                styles.notesText
+              }
+            >
+              {quotation.notes}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* =================================================
+            STATUS
+        ================================================= */}
+
+        <View
+          style={styles.statusBox}
+        >
+          <Text
+            style={styles.statusLabel}
+          >
+            Quotation Status
+          </Text>
+
+          <View
+            style={styles.statusPill}
+          >
+            <Text
+              style={styles.statusValue}
+            >
+              {quotation.status}
             </Text>
           </View>
         </View>
 
-        {quotation.notes && (
-          <View style={[s.section, { marginTop: 20 }]}>
-            <Text style={s.label}>Notes</Text>
-            <Text style={s.value}>{quotation.notes}</Text>
-          </View>
-        )}
+        {/* =================================================
+            FOOTER
+        ================================================= */}
 
-        <Text style={s.footer}>
-          Flora Curtains LLC · Murur Road, Opp. Mubadala Tower, Abu Dhabi, UAE · P.O Box 25766
-          · Phone: +971 2 586 4545 · Mobile: +971 50 511 9982 / +971 50 811 6299
-          · sayedflora1@gmail.com · info@floracurtains.com
-          · This is a computer-generated document
-        </Text>
+        <View
+          style={styles.footer}
+          fixed
+        >
+          <Text
+            style={styles.footerBrand}
+          >
+            FLORA CURTAINS LLC
+          </Text>
+
+          <Text
+            style={styles.footerText}
+          >
+            Murur Road, Opp. Mubadala Tower,
+            Abu Dhabi, UAE · P.O Box 25766
+            {"\n"}
+            sayedflora1@gmail.com
+            {" · "}
+            www.floracurtains.com
+            {"\n"}
+            This is a computer-generated
+            document.
+          </Text>
+        </View>
       </Page>
     </Document>
   );
