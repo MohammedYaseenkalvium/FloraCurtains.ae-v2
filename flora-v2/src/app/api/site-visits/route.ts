@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import {
   requireAuth,
   parseBody,
+  parseQuery,
   withErrorHandling,
   notFound,
 } from "@/lib/api";
@@ -45,6 +46,11 @@ const createSiteVisitSchema = z.object({
     .nullable(),
 });
 
+const listQuerySchema = z.object({
+  enquiryId: z.string().min(1).optional(),
+  projectId: z.string().min(1).optional(),
+});
+
 /**
  * GET /api/site-visits
  *
@@ -56,10 +62,7 @@ export const GET = withErrorHandling(
   async (req: NextRequest) => {
     await requireAuth();
 
-    const { searchParams } = new URL(req.url);
-
-    const enquiryId = searchParams.get("enquiryId") || undefined;
-    const projectId = searchParams.get("projectId") || undefined;
+    const { enquiryId, projectId } = parseQuery(req, listQuerySchema);
 
     const siteVisits = await getSiteVisits({
       enquiryId,

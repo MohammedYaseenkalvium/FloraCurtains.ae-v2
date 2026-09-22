@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireAuth, parseBody, withErrorHandling, notFound, badRequest } from "@/lib/api";
+import { requireAuth, parseBody, parseQuery, withErrorHandling, notFound, badRequest } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 
 const taskSchema = z.object({
@@ -14,12 +14,15 @@ const taskSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM"),
 });
 
+const listQuerySchema = z.object({
+  enquiryId: z.string().min(1).optional(),
+  projectId: z.string().min(1).optional(),
+});
+
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requireAuth();
 
-  const { searchParams } = new URL(req.url);
-  const enquiryId = searchParams.get("enquiryId") || undefined;
-  const projectId = searchParams.get("projectId") || undefined;
+  const { enquiryId, projectId } = parseQuery(req, listQuerySchema);
 
   const tasks = await db.task.findMany({
     where: { enquiryId, projectId },
