@@ -27,7 +27,7 @@
 | `/api/quotations/[id]/status` | PATCH | `requireAuth` | `statusSchema` + `allowedTransitions` | txn + enquiry side-effects | Yes STATUS_CHANGE | Any-staff intentional |
 | `/api/quotations/[id]/revise` | POST | `requireAuth` | No body (clone op, no Zod needed) | `calcTotals` + new number, lineage in `ActivityLog.meta` | Yes CREATE | OK; direct PATCH→REVISED path documented as API-only |
 | `/api/quotations/[id]/pdf` | GET | `requireAuth` | id passthrough | `findFirst(deletedAt:null)` + includes | No | **Fixed: was `findUnique` without soft-delete filter**; logo fallback added |
-| `/api/projects/[id]/payments` | POST | `requireAuth` | `paymentSchema` (`amount>0`) | txn + overpay guard `contract−paid` | Yes CREATE | Canonical payment path (project scope) |
+| `/api/projects/[id]/payments` | POST | `requireAuth` | `paymentSchema` (`amount>0`) | txn + overpay guard `contract−paid` | Yes CREATE | Canonical payment path (project scope). Duplicate `(crm)/projects/[id]/payments` REMOVED 2026-09-22 (no guards) |
 | `/api/projects/[id]/status` | PATCH | `requireAuth` | `statusSchema` + transitions | `findFirst(deletedAt:null)` + update | Yes STATUS_CHANGE | OK |
 | `/api/customers/[id]/financial` | GET | `requireAuth` (via wrapper) | id passthrough | `getCustomerFinancialSummary` | No | **Fixed: was manual `auth()` without wrapper** |
 | `/api/measurements` | GET | `requireAuth` | `siteVisitId` required | `findMany` | No | **Fixed: was 500 on missing param, now 400** |
@@ -48,7 +48,7 @@
 ## Duplicates resolved / documented
 
 - Enquiry edit: `[id]/edit PATCH` marked deprecated duplicate of `[id] PATCH` (kept for compat, same fields).
-- Payments: project API is canonical. `lib/actions/payments.ts` (`quotationId` scope) retained read-only for legacy quotation ledger display; **no new quotation payments** — UI posts to projects only. Documented in code + plan.
+- Payments: project API is canonical. `lib/actions/payments.ts` (`quotationId` scope, zero UI callers) retained read-only for legacy quotation ledger display; **duplicate `(crm)/projects/[id]/payments` deleted**; `payment-schedule.ts roundMoney` re-exports `lib/finance` (single source).
 - Quotation math: server `calcTotals` authoritative; builder preview now calls it (was 4th implementation).
 - Outstanding: single formula in `src/lib/finance.ts` reused by customer summary + dashboard (was ×3).
 - Ledger: debits mirror `lifetimeRevenue` (converted quotes excluded — was double-counted).

@@ -40,16 +40,18 @@ Login throttle (kept) + public throttle (added); staff hardening; financial/cust
 ## 8. Performance
 
 - Dashboard: scoped payment select, `groupBy` noted for later; lead pipeline still 7 counts (fine at CRM scale).
-- PDF: logo read once at module load with existence guard.
-- No new deps; no bundle growth except `finance.ts` (tiny).
+- `next/image` for public header/footer logos (priority/lazy); hero/portfolio imagery still raw `<img>` (deferred, needs dimension audit).
+- Payments table wrapped in `overflow-x-auto` with `min-w` (was squeeze/overflow on mobile like other tables).
+- `(crm)/loading.tsx` skeleton + `not-found.tsx` added (CRM had neither).
+- Duplicate payment route deleted (one less conflicting handler); no other bundle growth except `gsap` (reveal only).
 
 ## 9. UI/UX improvements (functionality-safe only)
 
-No redesign. Fixed: dead buttons wired, task a11y labels + visible focus, public menu aria + form autocomplete/`tel` + `role=alert` error, inventory copy corrected, dashboard labels. Design-system token migration + responsive overhaul explicitly deferred (see plan Phase 22) to avoid regressing working flows.
+No redesign. Added: `ui/ConfirmDialog` (Radix focus-trap/Esc) replacing `window.confirm` in visits/measurements with inline `role=alert` errors; `ui/Reveal` dashboard entrance; `(crm)` loading/not-found states; payments mobile overflow fix; search input label; `next/image` logos. Design-system token migration + full responsive overhaul explicitly deferred (see plan Phase 22) to avoid regressing working flows.
 
 ## 10. GSAP usage
 
-Evaluated, intentionally deferred. Rationale: no new dependency while financial/authZ work was load-bearing; CSS transitions already cover hover/focus; animation in finance flows risks usability; `prefers-reduced-motion` posture kept. Add GSAP in dedicated UI phase only for dashboard cards/modal/list entrances.
+`gsap` added for one purposeful pattern: `ui/Reveal` entrance on dashboard KPI + financial snapshot sections (0.45s opacity/y, staggered 0.08s, client-only after mount so no hydration mismatch, fully skipped under `prefers-reduced-motion`). `ui/ConfirmDialog` (Radix) intentionally has no entrance animation (fast destructive confirm). No animation in finance write flows.
 
 ## 11. Known limitations
 
