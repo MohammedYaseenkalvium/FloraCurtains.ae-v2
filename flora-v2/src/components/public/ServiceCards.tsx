@@ -56,7 +56,7 @@ export function ServiceCards() {
 
       {/* CTA tile */}
       <Link
-        href="/contact"
+        href="/get-quote"
         className="group flex flex-col justify-between rounded-xl bg-flora-primary p-6 text-white transition-all hover:-translate-y-1 hover:bg-flora-primary-hover"
       >
         <div>

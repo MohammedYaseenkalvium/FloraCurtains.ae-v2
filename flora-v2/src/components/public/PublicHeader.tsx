@@ -56,7 +56,7 @@ export function PublicHeader() {
           </Link>
 
           <Link
-            href="/contact"
+            href="/get-quote"
             className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
           >
             Get a Quote
@@ -95,7 +95,7 @@ export function PublicHeader() {
             ))}
 
             <Link
-              href="/contact"
+              href="/get-quote"
               onClick={() => setOpen(false)}
               className="mt-4 rounded-lg bg-flora-primary px-5 py-3 text-center text-sm font-semibold text-white"
             >

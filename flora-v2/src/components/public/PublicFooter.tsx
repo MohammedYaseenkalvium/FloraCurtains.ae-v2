@@ -95,7 +95,7 @@ export function PublicFooter() {
               </a>
 
               <Link
-                href="/contact"
+                href="/get-quote"
                 className="block text-flora-gold hover:text-white"
               >
                 Request a Quote
