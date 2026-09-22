@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FloraLogo } from "@/components/public/FloraLogo";
 
 const links = [
   ["Home", "/"],
@@ -54,16 +54,10 @@ export function PublicHeader() {
           onClick={() => setOpen(false)}
           aria-label="Flora Curtains — home"
         >
-          <Image
-            src="/images/Flora quotation logo.png"
-            alt="Flora Curtains"
-            width={176}
-            height={44}
+          <FloraLogo
             priority
-            className={[
-              "h-11 w-auto object-contain transition-all duration-300",
-              transparent ? "brightness-0 invert" : "",
-            ].join(" ")}
+            inverted={transparent}
+            className="h-11 w-auto object-contain transition-all duration-300"
           />
         </Link>
 
