@@ -10,6 +10,7 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [form, setForm] = useState({
     serviceWanted: enquiry.serviceWanted,
     remarks: enquiry.remarks ?? "",
@@ -26,6 +27,7 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
   const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
   async function handleSave() {
+    setSaveError("");
     setLoading(true);
     const res = await fetch(`/api/enquiries/${enquiry.id}/edit`, {
       method: "PATCH",
@@ -42,7 +44,8 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
       router.refresh();
       setTimeout(() => setSaved(false), 2000);
     } else {
-      alert("Failed to save changes");
+      const payload = await res.json().catch(() => null);
+      setSaveError(payload?.error ?? "Failed to save changes");
     }
     setLoading(false);
   }
@@ -144,6 +147,12 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
         </button>
         {saved && <span className="text-sm text-[#0F6E56]">✓ Saved successfully</span>}
       </div>
+
+      {saveError && (
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {saveError}
+        </p>
+      )}
     </div>
   );
 }

@@ -192,7 +192,7 @@ export function SiteVisitManager({
 
       router.refresh();
     } catch {
-      alert(
+      setActionError(
         "Failed to schedule site visit."
       );
     } finally {

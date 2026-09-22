@@ -1,6 +1,7 @@
-# QA Report — Functional Walkthrough (Phase 21)
+# QA Report — Functional Walkthrough (Phase 21, updated 2026-09-22)
 
-> Date: 2026-09-22. Method: code-path walk + targeted reads (no prod DB). Build/lint/tests verified after changes.
+> Date: 2026-09-22 (brand/content pass). Method: code-path walk + targeted reads (no prod DB). Build/lint/tests verified after changes.
+> Brand rule verified: the two logo assets are the SAME identity (F-leaf monogram + FLORA CURTAINS wordmark, same maroon) — `FLora quotation logo.png` (large master: public header/footer/PDF/Get Quote) and `logo.png` (compact lockup: 36px CRM sidebar). No logo was redesigned, replaced or altered.
 
 ## Lifecycle trace
 
@@ -30,12 +31,18 @@
 - Public form: phone `text` → `tel` + autocomplete; error box now `role=alert` red; menu `aria-expanded/controls`.
 - Inventory false "structure prepared" claim → corrected.
 
-## Remaining known limitations (accepted, documented)
+## Remaining known limitations (accepted, documented) — superceded where noted 2026-09-22
 
-- `User.role` String in DB (API-validated; enum migration deferred).
-- `PaymentSchedule` unwired (ship-or-delete needs business call).
-- Attachments upload missing (list-only).
-- `RESCHEDULED`/`CANCELLED`/`REVISED` semantics partially unreachable (documented).
-- GET filters/ids passthrough (low risk).
-- No `loading.tsx` skeletons per page (empty states exist; loading deferred to UI phase).
-- GSAP intentionally not added (no new dep; CSS transitions only — see final report).
+- ~~`User.role` String in DB~~ → DONE: `UserRole` enum migrated (data-preserving).
+- ~~`PaymentSchedule` unwired~~ → DONE: shipped (replace-plan API + per-milestone edit/delete + project UI).
+- ~~Attachments upload missing~~ → DONE: URL-linking POST + ADMIN unlink + visit UI.
+- ~~`RESCHEDULED`/`CANCELLED` unreachable~~ → DONE: `RESCHEDULED` with new-date flow; `CANCELLED` terminal project status.
+- ~~GET filters/ids passthrough~~ → DONE: shared `parseBody`-style `parseQuery` (422).
+- ~~No `loading.tsx` skeletons~~ → DONE: route-level `(crm)/loading.tsx` + `not-found.tsx` (per-page skeletons still minimal).
+- ~~GSAP not added~~ → DONE: `gsap` + reduced-motion-aware `Reveal` on dashboard metrics only.
+
+## 2026-09-22 brand/content addendum (all CLOSED)
+
+- Public images were 404 (hero + 6 portfolio referenced but absent) → localized under `public/images/` instead of hotlinking.
+- Reference repo studied (React/Vite old app): palette matches ours; harvested verified phones/address/1997 story; its testimonials are invented → NOT copied, section omitted.
+- Contact/footer now carry showroom, direct line, WhatsApp, email; About carries the verified 1997→2023 story; services expanded to the 5 real offerings; QuoteForm options aligned; zero `window.confirm`/`alert` remain in `src/`.

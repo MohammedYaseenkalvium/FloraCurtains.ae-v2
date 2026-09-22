@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 export function EnquiryForm() {
   const router  = useRouter();
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<EnquiryFormValues>({
     resolver: zodResolver(enquiryFormSchema) as Resolver<EnquiryFormValues>,
@@ -18,6 +19,7 @@ export function EnquiryForm() {
   const isB2B = watch("customerType") === "B2B";
 
   async function onSubmit(data: EnquiryFormValues) {
+    setSubmitError("");
     setLoading(true);
     const res = await fetch("/api/enquiries", {
       method:  "POST",
@@ -29,7 +31,8 @@ export function EnquiryForm() {
       router.push(`/enquiries/${enquiry.id}`);
     } else {
       setLoading(false);
-      alert("Error saving enquiry");
+      const payload = await res.json().catch(() => null);
+      setSubmitError(payload?.error ?? "Error saving enquiry");
     }
   }
 
@@ -163,6 +166,12 @@ export function EnquiryForm() {
       >
         {loading ? "Saving…" : "Save Enquiry"}
       </button>
+
+      {submitError && (
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {submitError}
+        </p>
+      )}
     </form>
   );
 }
