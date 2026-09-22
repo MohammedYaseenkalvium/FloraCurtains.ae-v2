@@ -30,6 +30,7 @@ export function TopHeader({ user }: TopHeaderProps) {
 
           <input
             type="search"
+            aria-label="Search leads, customers, projects"
             placeholder="Search leads, customers, projects..."
             className="w-full bg-transparent text-sm text-flora-foreground outline-none placeholder:text-flora-muted"
           />

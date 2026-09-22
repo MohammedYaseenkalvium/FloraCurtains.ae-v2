@@ -123,8 +123,8 @@ export default async function PaymentsPage({
       </div>
 
       {/* Payments Table */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="bg-[#F8F5F2] text-left">
               <th className="px-4 py-3 font-semibold text-[#6B625A]">Date</th>

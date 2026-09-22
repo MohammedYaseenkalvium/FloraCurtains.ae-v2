@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
@@ -15,9 +16,12 @@ export function PublicHeader() {
           className="flex items-center"
           onClick={() => setOpen(false)}
         >
-          <img
+          <Image
             src="/images/Flora quotation logo.png"
             alt="Flora Curtains"
+            width={176}
+            height={44}
+            priority
             className="h-11 w-auto object-contain"
           />
         </Link>

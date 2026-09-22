@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MeasurementManager } from "@/components/crm/MeasurementManager";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type Measurement = {
   id: string;
@@ -109,6 +110,10 @@ export function SiteVisitManager({
   const [loading, setLoading] =
     useState(false);
 
+  const [actionError, setActionError] = useState("");
+
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     scheduledAt: "",
     assignedTo: "",
@@ -118,10 +123,11 @@ export function SiteVisitManager({
 
   async function createVisit() {
     if (!form.scheduledAt) {
-      alert("Please select a visit date and time.");
+      setActionError("Please select a visit date and time.");
       return;
     }
 
+    setActionError("");
     setLoading(true);
 
     try {
@@ -149,7 +155,7 @@ export function SiteVisitManager({
           .json()
           .catch(() => null);
 
-        alert(
+        setActionError(
           data?.error ??
             "Failed to schedule site visit."
         );
@@ -246,12 +252,7 @@ export function SiteVisitManager({
   async function deleteVisit(
     visitId: string
   ) {
-    const confirmed = window.confirm(
-      "Delete this site visit? This action cannot be undone."
-    );
-
-    if (!confirmed) return;
-
+    setActionError("");
     setLoading(true);
 
     try {
@@ -267,7 +268,7 @@ export function SiteVisitManager({
           .json()
           .catch(() => null);
 
-        alert(
+        setActionError(
           data?.error ??
             "Failed to delete site visit."
         );
@@ -284,16 +285,25 @@ export function SiteVisitManager({
 
       router.refresh();
     } catch {
-      alert(
+      setActionError(
         "Failed to delete site visit."
       );
     } finally {
       setLoading(false);
+      setPendingDeleteId(null);
     }
   }
 
   return (
     <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
+      {actionError && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+        >
+          {actionError}
+        </p>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
         <div>
@@ -559,10 +569,11 @@ export function SiteVisitManager({
                       type="button"
                       disabled={loading}
                       onClick={() =>
-                        deleteVisit(
+                        setPendingDeleteId(
                           visit.id
                         )
                       }
+                      aria-label={`Delete site visit ${visit.id}`}
                       className="text-xs text-[#991B1B] border border-[#FECACA] rounded-lg px-3 py-1.5 hover:bg-[#FEF2F2] disabled:opacity-50"
                     >
                       Delete
@@ -680,6 +691,19 @@ export function SiteVisitManager({
           })}
         </div>
       )}
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        title="Delete site visit?"
+        description="This action cannot be undone. Measurements linked to this visit will also be deleted."
+        confirmLabel="Delete visit"
+        loading={loading}
+        onConfirm={() => {
+          if (pendingDeleteId) deleteVisit(pendingDeleteId);
+        }}
+      />
     </div>
   );
 }

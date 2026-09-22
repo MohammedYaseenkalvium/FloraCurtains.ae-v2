@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function PublicFooter() {
   return (
@@ -6,9 +7,12 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
-            <img
+            <Image
               src="/images/Flora quotation logo.png"
               alt="Flora Curtains"
+              width={192}
+              height={48}
+              loading="lazy"
               className="mb-5 h-12 w-auto object-contain"
             />
 

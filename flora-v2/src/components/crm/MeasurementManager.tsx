@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type Measurement = {
   id: string;
@@ -98,6 +99,7 @@ export function MeasurementManager({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   function resetForm() {
     setForm(emptyForm);
@@ -244,12 +246,6 @@ export function MeasurementManager({
   async function deleteMeasurement(
     measurementId: string
   ) {
-    const confirmed = window.confirm(
-      "Delete this measurement? This action cannot be undone."
-    );
-
-    if (!confirmed) return;
-
     setError("");
     setLoading(true);
 
@@ -288,6 +284,7 @@ export function MeasurementManager({
       );
     } finally {
       setLoading(false);
+      setPendingDeleteId(null);
     }
   }
 
@@ -760,11 +757,12 @@ export function MeasurementManager({
                   <button
                     type="button"
                     onClick={() =>
-                      deleteMeasurement(
+                      setPendingDeleteId(
                         measurement.id
                       )
                     }
                     disabled={loading}
+                    aria-label={`Delete measurement ${measurement.roomName}`}
                     className="border border-[#E8B4B4] rounded-lg px-3 py-1.5 text-xs text-[#991B1B] hover:bg-[#FEF2F2] disabled:opacity-50"
                   >
                     Delete
@@ -775,6 +773,19 @@ export function MeasurementManager({
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        title="Delete measurement?"
+        description="This action cannot be undone."
+        confirmLabel="Delete measurement"
+        loading={loading}
+        onConfirm={() => {
+          if (pendingDeleteId) deleteMeasurement(pendingDeleteId);
+        }}
+      />
     </div>
   );
 }

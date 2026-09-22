@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
+import { Reveal } from "@/components/ui/Reveal";
 
 const leadStatuses = [
   "NEW",
@@ -268,7 +269,8 @@ export default async function DashboardPage() {
       </header>
 
       {/* KPI Cards */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <Reveal>
+      <section aria-label="Key metrics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((kpi) => (
           <Link
             key={kpi.label}
@@ -297,9 +299,11 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </section>
+      </Reveal>
 
       {/* Financial Snapshot */}
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <Reveal delay={0.08}>
+      <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-flora-border bg-white p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
             Contract Value
@@ -342,6 +346,7 @@ export default async function DashboardPage() {
           </p>
         </div>
       </section>
+      </Reveal>
 
       {/* Lead Pipeline */}
       <section className="rounded-xl border border-flora-border bg-white">
