@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
 
 const leadStatuses = [
   "NEW",
@@ -47,11 +48,7 @@ const statusLabels: Record<string, string> = {
 };
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: "AED",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatAED(value, { decimals: false });
 }
 
 function formatDate(value: Date) {
@@ -145,6 +142,7 @@ export default async function DashboardPage() {
     }),
 
     db.payment.findMany({
+      where: { projectId: { not: null } },
       select: {
         amount: true,
       },
@@ -175,17 +173,13 @@ export default async function DashboardPage() {
   );
 
   /*
-   * Payment calculations
+   * Payment calculations — project-scoped (Phase 15).
+   * Quotation-linked payments (write-orphans, no create endpoint) must NOT
+   * deflate project outstanding. Canonical helpers in src/lib/finance.ts.
    */
-  const totalPaymentsReceived = payments.reduce(
-    (total, payment) => total + payment.amount,
-    0,
-  );
+  const totalPaymentsReceived = sumPayments(payments);
 
-  const outstandingAmount = Math.max(
-    totalContractValue - totalPaymentsReceived,
-    0,
-  );
+  const outstandingAmount = calcOutstanding(totalContractValue, totalPaymentsReceived);
 
   /*
    * Lead pipeline
@@ -316,7 +310,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
-            Total active project value
+            Total project value (all statuses)
           </p>
         </div>
 

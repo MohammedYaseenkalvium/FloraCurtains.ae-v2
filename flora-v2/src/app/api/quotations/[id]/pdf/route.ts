@@ -11,8 +11,8 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) 
   await requireAuth();
   const { id } = await params;
 
-  const quotation = await db.quotation.findUnique({
-  where: { id },
+  const quotation = await db.quotation.findFirst({
+  where: { id, deletedAt: null },
   include: {
     enquiry: {
       include: {
@@ -22,7 +22,7 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) 
     },
   },
 });
-  if (!quotation) throw notFound();
+  if (!quotation) throw notFound("Quotation not found");
 
   const element = React.createElement(QuotationPDF, { quotation });
   const stream = await renderToStream(

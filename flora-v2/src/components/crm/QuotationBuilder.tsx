@@ -16,6 +16,7 @@ import {
   quotationFormSchema,
   type QuotationFormValues,
 } from "@/types";
+import { calcTotals } from "@/lib/quotation";
 
 type Props = {
   enquiryId: string;
@@ -75,21 +76,17 @@ export function QuotationBuilder({
   const items = watch("items") ?? [];
   const vatRate = Number(watch("vatRate") ?? 5);
 
-  const subtotal = useMemo(() => {
-    return items.reduce((sum, item) => {
-      const qty = Number(item.qty) || 0;
-      const unitPrice = Number(item.unitPrice) || 0;
-      const discount = Number(item.discount) || 0;
-
-      const gross = qty * unitPrice;
-      const discountAmount = gross * (discount / 100);
-
-      return sum + (gross - discountAmount);
-    }, 0);
-  }, [items]);
-
-  const vatAmount = subtotal * (vatRate / 100);
-  const totalAmount = subtotal + vatAmount;
+  // RHF watch() returns a new reference per render by design; preview recomputes live.
+  const { subtotal, vatAmount, totalAmount } = useMemo(() => {
+    const normalized = (items ?? []).map((item) => ({
+      description: String(item?.description ?? ""),
+      unit: String(item?.unit ?? "pcs"),
+      qty: Number(item?.qty) || 0,
+      unitPrice: Number(item?.unitPrice) || 0,
+      discount: Number(item?.discount) || 0,
+    }));
+    return calcTotals(normalized, Number.isFinite(vatRate) ? vatRate : 5);
+  }, [items, vatRate]);
 
   async function onSubmit(values: QuotationFormValues) {
     setError("");
