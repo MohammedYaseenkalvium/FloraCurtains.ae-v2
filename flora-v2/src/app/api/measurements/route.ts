@@ -6,6 +6,7 @@ import {
   parseBody,
   withErrorHandling,
   notFound,
+  badRequest,
 } from "@/lib/api";
 import { db } from "@/lib/db";
 import { logActivity } from "@/lib/activity";
@@ -83,7 +84,7 @@ export const GET = withErrorHandling(
       searchParams.get("siteVisitId");
 
     if (!siteVisitId) {
-      throw new Error("siteVisitId is required");
+      throw badRequest("siteVisitId is required");
     }
 
     const measurements =

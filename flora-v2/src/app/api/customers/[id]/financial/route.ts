@@ -1,42 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requireAuth, withErrorHandling, notFound } from "@/lib/api";
 import { getCustomerFinancialSummary } from "@/lib/customer-financial";
 
-export async function GET(
-  _: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
+type Ctx = { params: Promise<{ id: string }> };
 
-  if (!session) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
+export const GET = withErrorHandling(async (_: NextRequest, { params }: Ctx) => {
+  await requireAuth();
   const { id } = await params;
+  if (!id || typeof id !== "string") {
+    throw notFound("Customer not found");
+  }
 
   try {
     const summary = await getCustomerFinancialSummary(id);
-
     return NextResponse.json(summary);
   } catch (error: unknown) {
-    if (
-      error instanceof Error &&
-      error.message.toLowerCase().includes("not found")
-    ) {
-      return NextResponse.json(
-        { error: "Customer not found" },
-        { status: 404 }
-      );
+    if (error instanceof Error && error.message.toLowerCase().includes("not found")) {
+      throw notFound("Customer not found");
     }
-
-    console.error("Financial summary error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to load financial data" },
-      { status: 500 }
-    );
+    throw error;
   }
-}
+});

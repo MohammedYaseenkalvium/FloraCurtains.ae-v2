@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
 
 const enquirySchema = z.object({
   name: z
@@ -63,7 +64,27 @@ const enquirySchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    // Basic abuse protection for the unauthenticated endpoint (Phase 3).
+    // In-memory limiter: 10 submissions / 15 min per IP+phone bucket.
+    const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    let rawBody: unknown = null;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid enquiry data." }, { status: 400 });
+    }
+    const phoneHint =
+      typeof rawBody === "object" && rawBody !== null && "phone" in rawBody
+        ? String((rawBody as Record<string, unknown>).phone ?? "")
+        : "";
+    const limited = rateLimit(`public-enquiry:${forwarded}:${phoneHint}`, 10, 15 * 60 * 1000);
+    if (!limited.success) {
+      return NextResponse.json(
+        { error: "Too many submissions. Please try again later." },
+        { status: 429 }
+      );
+    }
+    const body = rawBody;
 
     const parsed = enquirySchema.safeParse(body);
 
