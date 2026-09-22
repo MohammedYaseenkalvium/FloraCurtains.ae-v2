@@ -4,6 +4,7 @@ export interface ServiceOffering {
   description: string;
   offerings: string[];
   emphasis: string;
+  image: string;
 }
 
 export const services: ServiceOffering[] = [
@@ -23,6 +24,7 @@ export const services: ServiceOffering[] = [
       "Custom Designs & Installation",
     ],
     emphasis: "Professional measurement, customization and installation with finishing quality.",
+    image: "/images/portfolio-1.jpg",
   },
   {
     slug: "wallpaper",
@@ -37,6 +39,7 @@ export const services: ServiceOffering[] = [
       "Feature Wall Concepts",
     ],
     emphasis: "Luxury materials with seamless installation and a premium finish.",
+    image: "/images/portfolio-2.jpg",
   },
   {
     slug: "sofas-upholstery",
@@ -51,6 +54,7 @@ export const services: ServiceOffering[] = [
       "Cushion & Headboard Customization",
     ],
     emphasis: "Comfort, customization and craftsmanship with curated fabric selection.",
+    image: "/images/portfolio-3.jpg",
   },
   {
     slug: "interior-decoration",
@@ -65,6 +69,7 @@ export const services: ServiceOffering[] = [
       "Color & Material Selection",
     ],
     emphasis: "Personalization, functionality and modern elegance.",
+    image: "/images/portfolio-4.jpg",
   },
   {
     slug: "flooring",
@@ -79,5 +84,6 @@ export const services: ServiceOffering[] = [
       "Custom Carpet Installation",
     ],
     emphasis: "Durable materials, professional installation and a lasting finish.",
+    image: "/images/portfolio-5.jpg",
   },
 ];

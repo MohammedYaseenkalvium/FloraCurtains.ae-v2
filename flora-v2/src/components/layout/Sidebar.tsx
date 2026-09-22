@@ -130,15 +130,15 @@ export function Sidebar() {
       <aside
         id="crm-sidebar"
         className={[
-          "fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-flora-border bg-white transition-transform duration-200",
+          "fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200",
           "md:static md:z-auto md:translate-x-0",
           open ? "translate-x-0" : "",
         ].join(" ")}
       >
         {/* Brand row */}
-        <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-flora-border px-6">
+        <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-6">
           <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-3">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-white/95 p-1">
             <Image
               src="/images/logo.png"
               alt="Flora Curtains"
@@ -149,11 +149,11 @@ export function Sidebar() {
           </div>
 
           <div className="min-w-0">
-            <div className="font-display text-xl font-semibold leading-none text-flora-primary">
+            <div className="font-display text-xl font-semibold leading-none text-white">
               FloraFlow
             </div>
 
-            <div className="mt-1 whitespace-nowrap text-[9px] font-medium uppercase tracking-[0.16em] text-flora-muted">
+            <div className="mt-1 whitespace-nowrap text-[9px] font-medium uppercase tracking-[0.16em] text-white/50">
               Interior Operations
             </div>
           </div>
@@ -163,7 +163,7 @@ export function Sidebar() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close navigation"
-            className="rounded-lg p-1.5 text-flora-muted hover:bg-flora-surface md:hidden"
+            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 md:hidden"
           >
             <X size={20} />
           </button>
@@ -174,7 +174,7 @@ export function Sidebar() {
         {navigation.map((section) => (
           <div key={section.label} className="mb-4 last:mb-0">
             {/* Section label */}
-            <div className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-flora-muted">
+            <div className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
               {section.label}
             </div>
 
@@ -198,7 +198,7 @@ export function Sidebar() {
                       "transition-colors duration-150",
                       active
                         ? "bg-flora-primary text-white"
-                        : "text-flora-muted hover:bg-flora-surface hover:text-flora-foreground",
+                        : "text-white/65 hover:bg-white/10 hover:text-white",
                     ].join(" ")}
                   >
                     <Icon
@@ -217,11 +217,11 @@ export function Sidebar() {
       </nav>
 
       {/* Sign out */}
-      <div className="shrink-0 border-t border-flora-border bg-white p-3">
+      <div className="shrink-0 border-t border-white/10 p-3">
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface hover:text-flora-primary"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/65 transition-colors hover:bg-white/10 hover:text-white"
         >
           <LogOut
             size={18}

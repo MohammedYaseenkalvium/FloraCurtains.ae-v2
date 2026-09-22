@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -29,27 +30,40 @@ export function ServiceCards() {
           <Link
             key={service.slug}
             href={`/services#${service.slug}`}
-            className="group rounded-xl border border-flora-border bg-white p-6 transition-all hover:-translate-y-1 hover:border-flora-gold"
+            className="group overflow-hidden rounded-xl border border-flora-border bg-white transition-all hover:-translate-y-1 hover:border-flora-gold hover:shadow-flora-md"
           >
-            <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-              <Icon size={21} />
+            <div className="relative aspect-[16/10] overflow-hidden bg-flora-surface">
+              <Image
+                src={service.image}
+                alt={service.title}
+                fill
+                loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
             </div>
 
-            <h3 className="text-lg font-semibold text-flora-foreground">
-              {service.title}
-            </h3>
+            <div className="p-6">
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
+                <Icon size={21} />
+              </div>
 
-            <p className="mt-3 text-sm leading-6 text-flora-muted">
-              {service.description}
-            </p>
+              <h3 className="text-lg font-semibold text-flora-foreground">
+                {service.title}
+              </h3>
 
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-flora-primary">
-              Learn more
-              <ArrowUpRight
-                size={14}
-                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
-            </span>
+              <p className="mt-3 text-sm leading-6 text-flora-muted">
+                {service.description}
+              </p>
+
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-flora-primary">
+                Learn more
+                <ArrowUpRight
+                  size={14}
+                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </span>
+            </div>
           </Link>
         );
       })}

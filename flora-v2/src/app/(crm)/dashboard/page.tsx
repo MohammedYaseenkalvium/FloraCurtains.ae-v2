@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  FileText,
+  FolderKanban,
+  Users,
+  Wrench,
+} from "lucide-react";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
@@ -212,24 +218,28 @@ export default async function DashboardPage() {
       value: activeLeads.toString(),
       description: "Open opportunities",
       href: "/enquiries",
+      icon: FileText,
     },
     {
       label: "Ongoing Projects",
       value: ongoingProjects.toString(),
       description: "Currently in progress",
       href: "/projects",
+      icon: FolderKanban,
     },
     {
       label: "Pending Installations",
       value: pendingInstallations.toString(),
       description: "Installation stage",
       href: "/projects",
+      icon: Wrench,
     },
     {
       label: "Customers",
       value: totalCustomers.toString(),
       description: "Contacts in CRM",
       href: "/customers",
+      icon: Users,
     },
   ];
 
@@ -259,6 +269,7 @@ export default async function DashboardPage() {
             value={kpi.value}
             description={kpi.description}
             href={kpi.href}
+            icon={kpi.icon}
           />
         ))}
       </section>

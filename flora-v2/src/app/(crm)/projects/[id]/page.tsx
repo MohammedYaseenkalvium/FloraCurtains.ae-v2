@@ -249,6 +249,30 @@ export default async function ProjectDetailPage({
           <p className="mt-2 text-xl font-bold text-flora-danger">
             {formatAED(outstandingAmount)}
           </p>
+
+          <div
+            className="mt-3 h-1.5 overflow-hidden rounded-full bg-flora-surface"
+            role="progressbar"
+            aria-valuenow={
+              project.totalContractValue > 0
+                ? Math.round((paidAmount / project.totalContractValue) * 100)
+                : 0
+            }
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Payments collected"
+          >
+            <div
+              className="h-full rounded-full bg-flora-success transition-all"
+              style={{
+                width: `${
+                  project.totalContractValue > 0
+                    ? Math.min((paidAmount / project.totalContractValue) * 100, 100)
+                    : 0
+                }%`,
+              }}
+            />
+          </div>
         </div>
       </section>
 

@@ -57,7 +57,7 @@ export function PublicHeader() {
 
           <Link
             href="/get-quote"
-            className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+            className="rounded-full bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
           >
             Get a Quote
           </Link>
@@ -97,7 +97,7 @@ export function PublicHeader() {
             <Link
               href="/get-quote"
               onClick={() => setOpen(false)}
-              className="mt-4 rounded-lg bg-flora-primary px-5 py-3 text-center text-sm font-semibold text-white"
+              className="mt-4 rounded-full bg-flora-primary px-5 py-3 text-center text-sm font-semibold text-white"
             >
               Get a Quote
             </Link>

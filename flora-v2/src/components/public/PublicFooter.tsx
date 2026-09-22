@@ -104,9 +104,15 @@ export function PublicFooter() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/60">
-          © {new Date().getFullYear()} Flora Curtains.
-          All rights reserved.
+        <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} Flora Curtains.
+            All rights reserved.
+          </p>
+
+          <p className="uppercase tracking-[0.18em]">
+            Abu Dhabi | Dubai | Sharjah | All Emirates
+          </p>
         </div>
       </div>
     </footer>
