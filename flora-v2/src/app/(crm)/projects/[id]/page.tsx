@@ -16,72 +16,11 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { PaymentLedger } from "@/components/crm/PaymentLedger";
 import { PaymentScheduleManager } from "@/components/crm/PaymentScheduleManager";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Tabs } from "@/components/ui/Tabs";
 import { ProjectStatusWorkflow } from "@/components/crm/ProjectStatusWorkflow";
 import { SiteVisitManager } from "@/components/crm/SiteVisitManager";
 import { TaskManager } from "@/components/crm/TaskManager";
-
-import type { ProjectStatus } from "@prisma/client";
-
-const statusLabels: Record<ProjectStatus, string> = {
-  NOT_STARTED: "Not Started",
-  IN_PROGRESS: "In Progress",
-  INSTALLATION: "Installation",
-  SNAGGING: "Snagging",
-  COMPLETED: "Completed",
-  ON_HOLD: "On Hold",
-  CANCELLED: "Cancelled",
-};
-
-const statusStyles: Record<
-  ProjectStatus,
-  {
-    background: string;
-    text: string;
-    border: string;
-  }
-> = {
-  NOT_STARTED: {
-    background: "#F8F5F2",
-    text: "#6B625A",
-    border: "#D8C9BC",
-  },
-
-  IN_PROGRESS: {
-    background: "#EEF4FA",
-    text: "#185FA5",
-    border: "#B8D0E5",
-  },
-
-  INSTALLATION: {
-    background: "#FEF9E7",
-    text: "#854D0E",
-    border: "#E6D19B",
-  },
-
-  SNAGGING: {
-    background: "#F1F0FC",
-    text: "#7F77DD",
-    border: "#C9C5F0",
-  },
-
-  COMPLETED: {
-    background: "#EDF7F3",
-    text: "#166534",
-    border: "#B7D8CC",
-  },
-
-  ON_HOLD: {
-    background: "#FEF2F2",
-    text: "#991B1B",
-    border: "#E8BDBD",
-  },
-
-  CANCELLED: {
-    background: "#F5F5F4",
-    text: "#57534E",
-    border: "#D6D3D1",
-  },
-};
 
 function formatAED(value: number) {
   return `AED ${value.toLocaleString("en-AE", {
@@ -179,8 +118,6 @@ export default async function ProjectDetailPage({
     0
   );
 
-  const statusStyle = statusStyles[project.status];
-
   const projectName =
     project.enquiry.projectName ??
     "Untitled Project";
@@ -255,17 +192,7 @@ export default async function ProjectDetailPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className="inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold"
-              style={{
-                backgroundColor:
-                  statusStyle.background,
-                color: statusStyle.text,
-                borderColor: statusStyle.border,
-              }}
-            >
-              {statusLabels[project.status]}
-            </span>
+            <StatusBadge domain="project" status={project.status} />
 
             {project.quotation && (
               <Link
@@ -300,7 +227,7 @@ export default async function ProjectDetailPage({
           <div className="flex items-center gap-2">
             <CircleDollarSign
               size={15}
-              className="text-[#0F6E56]"
+              className="text-flora-success"
             />
 
             <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
@@ -308,7 +235,7 @@ export default async function ProjectDetailPage({
             </p>
           </div>
 
-          <p className="mt-2 text-xl font-bold text-[#0F6E56]">
+          <p className="mt-2 text-xl font-bold text-flora-success">
             {formatAED(paidAmount)}
           </p>
         </div>
@@ -319,12 +246,20 @@ export default async function ProjectDetailPage({
             Outstanding
           </p>
 
-          <p className="mt-2 text-xl font-bold text-[#991B1B]">
+          <p className="mt-2 text-xl font-bold text-flora-danger">
             {formatAED(outstandingAmount)}
           </p>
         </div>
       </section>
 
+      {/* Project workspace tabs */}
+      <Tabs
+        tabs={[
+          {
+            id: "overview",
+            label: "Overview",
+            content: (
+              <>
       {/* Customer + Project Information */}
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         {/* Customer */}
@@ -428,17 +363,7 @@ export default async function ProjectDetailPage({
               </dt>
 
               <dd className="mt-1">
-                <span
-                  className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium"
-                  style={{
-                    backgroundColor:
-                      statusStyle.background,
-                    color: statusStyle.text,
-                    borderColor: statusStyle.border,
-                  }}
-                >
-                  {statusLabels[project.status]}
-                </span>
+                <StatusBadge domain="project" status={project.status} />
               </dd>
             </div>
 
@@ -559,7 +484,15 @@ export default async function ProjectDetailPage({
             "No project notes recorded."}
         </p>
       </section>
-
+              </>
+            ),
+          },
+          {
+            id: "work",
+            label: "Tasks & Site Visits",
+            count: project.tasks.length + project.siteVisits.length,
+            content: (
+              <>
       {/* Site Visits & Measurements */}
       <section className="mb-6">
         <SiteVisitManager
@@ -600,7 +533,15 @@ export default async function ProjectDetailPage({
           initialTasks={project.tasks}
         />
       </section>
-
+              </>
+            ),
+          },
+          {
+            id: "payments",
+            label: "Payments",
+            count: project.payments.length,
+            content: (
+              <>
       {/* Payment Ledger */}
       <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5">
@@ -643,6 +584,11 @@ export default async function ProjectDetailPage({
           initialSchedules={project.paymentSchedules}
         />
       </section>
+              </>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

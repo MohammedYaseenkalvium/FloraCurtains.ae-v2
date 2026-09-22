@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const leadStatuses = [
   "NEW",
@@ -25,16 +27,6 @@ const projectStatuses = [
   "ON_HOLD",
   "CANCELLED",
 ] as const;
-
-const statusStyles: Record<string, string> = {
-  NEW: "bg-stone-100 text-stone-700",
-  CONTACTED: "bg-blue-50 text-blue-700",
-  VISIT_SCHEDULED: "bg-amber-50 text-amber-700",
-  QUOTED: "bg-emerald-50 text-emerald-700",
-  NEGOTIATING: "bg-violet-50 text-violet-700",
-  WON: "bg-green-50 text-green-700",
-  LOST: "bg-red-50 text-red-700",
-};
 
 const statusLabels: Record<string, string> = {
   NEW: "New",
@@ -81,6 +73,10 @@ function formatActivityAction(action: string) {
 
 export default async function DashboardPage() {
   const now = new Date();
+  const session = await auth();
+  const firstName = session?.user?.name?.split(" ")[0] || "there";
+  const hour = now.getHours();
+  const daypart = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const [
     activeLeads,
@@ -240,7 +236,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="FloraFlow"
+        eyebrow={`${daypart}, ${firstName}`}
         title="Operations Dashboard"
         description="A live overview of your leads, projects, installations and financial operations."
         actions={
@@ -430,15 +426,7 @@ export default async function DashboardPage() {
                       </td>
 
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                            statusStyles[enquiry.status] ??
-                            "bg-stone-100 text-stone-700"
-                          }`}
-                        >
-                          {statusLabels[enquiry.status] ??
-                            enquiry.status.replace(/_/g, " ")}
-                        </span>
+                        <StatusBadge domain="enquiry" status={enquiry.status} />
                       </td>
 
                       <td className="px-5 py-4 text-xs text-flora-muted">

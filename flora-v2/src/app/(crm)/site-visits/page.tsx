@@ -9,49 +9,9 @@ import {
 } from "lucide-react";
 
 import { db } from "@/lib/db";
-import type { SiteVisitStatus } from "@prisma/client";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 export const dynamic = "force-dynamic";
-
-const statusLabels: Record<SiteVisitStatus, string> = {
-  SCHEDULED: "Scheduled",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  RESCHEDULED: "Rescheduled",
-};
-
-const statusStyles: Record<
-  SiteVisitStatus,
-  {
-    background: string;
-    text: string;
-    border: string;
-  }
-> = {
-  SCHEDULED: {
-    background: "#FFF7ED",
-    text: "#9A3412",
-    border: "#FED7AA",
-  },
-
-  COMPLETED: {
-    background: "#ECFDF5",
-    text: "#166534",
-    border: "#BBE7D2",
-  },
-
-  CANCELLED: {
-    background: "#FEF2F2",
-    text: "#991B1B",
-    border: "#FECACA",
-  },
-
-  RESCHEDULED: {
-  background: "#EFF6FF",
-  text: "#185FA5",
-  border: "#BFDBFE",
-  },
-};
 
 function formatDate(
   value: Date | null
@@ -316,11 +276,6 @@ export default async function SiteVisitsPage() {
 
               <tbody>
                 {visits.map((visit) => {
-                  const style =
-                    statusStyles[
-                      visit.status
-                    ];
-
                   const projectName =
                     visit.project
                       ?.enquiry
@@ -425,23 +380,7 @@ export default async function SiteVisitsPage() {
 
                       {/* Status */}
                       <td className="px-5 py-4">
-                        <span
-                          className="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide"
-                          style={{
-                            backgroundColor:
-                              style.background,
-                            color:
-                              style.text,
-                            borderColor:
-                              style.border,
-                          }}
-                        >
-                          {
-                            statusLabels[
-                              visit.status
-                            ]
-                          }
-                        </span>
+                        <StatusBadge domain="visit" status={visit.status} />
                       </td>
 
                       {/* Action */}

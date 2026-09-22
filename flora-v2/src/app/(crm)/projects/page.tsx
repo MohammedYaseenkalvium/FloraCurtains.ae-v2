@@ -8,6 +8,7 @@ import {
 import type { ProjectStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const PAGE_SIZE = 20;
 
@@ -582,9 +583,6 @@ export default async function ProjectsPage({
 
             <tbody>
               {projects.map((project) => {
-                const style =
-                  statusStyles[project.status];
-
                 return (
                   <tr
                     key={project.id}
@@ -619,19 +617,7 @@ export default async function ProjectsPage({
                     </td>
 
                     <td className="px-4 py-4">
-                      <span
-                        className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium"
-                        style={{
-                          backgroundColor:
-                            style.background,
-                          color: style.text,
-                          borderColor: style.border,
-                        }}
-                      >
-                        {statusLabels[
-                          project.status
-                        ]}
-                      </span>
+                      <StatusBadge domain="project" status={project.status} />
                     </td>
 
                     <td className="px-4 py-4 text-right font-semibold text-flora-foreground">

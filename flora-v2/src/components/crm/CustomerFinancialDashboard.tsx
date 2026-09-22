@@ -6,6 +6,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { CustomerFinancialSummary } from "@/lib/customer-financial";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Tabs } from "@/components/ui/Tabs";
 import {
   TrendingUp, Wallet, FolderOpen,
   CreditCard, Receipt, Phone, Mail, Building, AlertCircle,
@@ -34,14 +36,13 @@ const methodIcons: Record<string, LucideIcon> = {
 };
 
 export function CustomerFinancialDashboard({ summary }: Props) {
-  const [activeTab, setActiveTab] = useState<"overview" | "payments" | "projects" | "quotations" | "ledger">("overview");
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [expandedQuote, setExpandedQuote] = useState<string | null>(null);
 
   const {
     customerName, customerPhone, customerEmail, companyName, companyType,
     lifetimeRevenue, totalPaid, outstanding, totalQuoted, totalContractValue,
-    quotationCount, projectCount, paymentCount, activeProjectCount,
+    enquiryCount, quotationCount, projectCount, paymentCount, activeProjectCount,
     enquiries, quotations, projects, payments, ledger,
   } = summary;
 
@@ -177,65 +178,99 @@ export function CustomerFinancialDashboard({ summary }: Props) {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-flora-border">
-        <div className="flex gap-6">
-          {[
-            { id: "overview" as const, label: "Overview", count: null },
-            { id: "payments" as const, label: "Payments", count: paymentCount },
-            { id: "projects" as const, label: "Projects", count: projectCount },
-            { id: "quotations" as const, label: "Quotations", count: quotationCount },
-            { id: "ledger" as const, label: "Running Balance", count: null },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 text-sm font-medium transition-colors relative ${
-                activeTab === tab.id 
-                  ? "text-flora-primary border-b-2 border-flora-primary" 
-                  : "text-flora-muted hover:text-[#1A1A1A]"
-              }`}
-            >
-              {tab.label}
-              {tab.count !== null && tab.count > 0 && (
-                <span className="ml-1.5 text-[10px] bg-[#EFE7DF] px-1.5 py-0.5 rounded-full">
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Tabs
+        tabs={[
+          {
+            id: "overview",
+            label: "Overview",
+            content: (
+              <OverviewTab
+                enquiries={enquiries}
+                recentPayments={payments.slice(0, 5)}
+                projects={projects}
+                totalQuoted={totalQuoted}
+                totalContractValue={totalContractValue}
+                totalPaid={totalPaid}
+                outstanding={outstanding}
+              />
+            ),
+          },
+          {
+            id: "enquiries",
+            label: "Enquiries",
+            count: enquiryCount,
+            content: <EnquiriesTab enquiries={enquiries} />,
+          },
+          {
+            id: "payments",
+            label: "Payments",
+            count: paymentCount,
+            content: <PaymentsTab payments={payments} />,
+          },
+          {
+            id: "projects",
+            label: "Projects",
+            count: projectCount,
+            content: (
+              <ProjectsTab
+                projects={projects}
+                expandedId={expandedProject}
+                onToggle={setExpandedProject}
+              />
+            ),
+          },
+          {
+            id: "quotations",
+            label: "Quotations",
+            count: quotationCount,
+            content: (
+              <QuotationsTab
+                quotations={quotations}
+                expandedId={expandedQuote}
+                onToggle={setExpandedQuote}
+              />
+            ),
+          },
+          {
+            id: "ledger",
+            label: "Running Balance",
+            content: <LedgerTab ledger={ledger} />,
+          },
+        ]}
+      />
+    </div>
+  );
+}
 
-      {/* Tab Content */}
-      <div className="min-h-[400px]">
-        {activeTab === "overview" && (
-          <OverviewTab
-            enquiries={enquiries}
-            recentPayments={payments.slice(0, 5)}
-            projects={projects}
-            totalQuoted={totalQuoted}
-            totalContractValue={totalContractValue}
-            totalPaid={totalPaid}
-            outstanding={outstanding}
-          />
-        )}
-        {activeTab === "payments" && <PaymentsTab payments={payments} />}
-        {activeTab === "projects" && (
-          <ProjectsTab 
-            projects={projects} 
-            expandedId={expandedProject}
-            onToggle={setExpandedProject}
-          />
-        )}
-        {activeTab === "quotations" && (
-          <QuotationsTab 
-            quotations={quotations}
-            expandedId={expandedQuote}
-            onToggle={setExpandedQuote}
-          />
-        )}
-        {activeTab === "ledger" && <LedgerTab ledger={ledger} />}
-      </div>
+function EnquiriesTab({
+  enquiries,
+}: {
+  enquiries: CustomerFinancialSummary["enquiries"];
+}) {
+  if (enquiries.length === 0) {
+    return <p className="text-sm text-flora-muted">No enquiries yet.</p>;
+  }
+  return (
+    <div className="space-y-3">
+      {enquiries.map((enquiry) => (
+        <div
+          key={enquiry.id}
+          className="flex items-center justify-between gap-3 rounded-xl border border-flora-border bg-white px-4 py-3"
+        >
+          <div className="min-w-0">
+            <Link
+              href={`/enquiries/${enquiry.id}`}
+              className="truncate text-sm font-medium text-flora-foreground hover:text-flora-primary hover:underline"
+            >
+              {enquiry.serviceWanted}
+            </Link>
+            <p className="mt-1 text-xs text-flora-muted">
+              {new Date(enquiry.createdAt).toLocaleDateString("en-AE")} · Interest {enquiry.interestLevel}/5
+            </p>
+          </div>
+          <StatusBadge domain="enquiry" status={enquiry.status} />
+        </div>
+      ))}
     </div>
   );
 }
