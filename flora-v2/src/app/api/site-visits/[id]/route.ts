@@ -40,6 +40,7 @@ const updateSiteVisitSchema = z.object({
       "SCHEDULED",
       "COMPLETED",
       "CANCELLED",
+      "RESCHEDULED",
     ])
     .optional(),
 

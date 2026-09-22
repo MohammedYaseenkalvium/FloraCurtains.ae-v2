@@ -60,6 +60,7 @@ enum ProjectStatus {
   SNAGGING
   COMPLETED
   ON_HOLD
+  CANCELLED
 }
 
 enum PaymentType {
@@ -446,12 +447,17 @@ model Task {
   @@map("tasks")
 }
 
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
   name      String
-  role      String   @default("STAFF")
+  role      UserRole @default(STAFF)
   createdAt DateTime @default(now())
 
   @@map("users")

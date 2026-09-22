@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
 
 import { requireRole, parseBody, withErrorHandling, conflict } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 
-const STAFF_ROLES = ["ADMIN", "STAFF"] as const;
-
 const createStaffSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100, "Name is too long."),
   email: z.string().trim().toLowerCase().email("Enter a valid email address."),
   password: z.string().min(8, "Password must be at least 8 characters.").max(100, "Password is too long."),
-  role: z.enum(STAFF_ROLES, { message: "Role must be ADMIN or STAFF." }),
+  role: z.nativeEnum(UserRole, { message: "Role must be ADMIN or STAFF." }),
 });
 
 export const GET = withErrorHandling(async () => {

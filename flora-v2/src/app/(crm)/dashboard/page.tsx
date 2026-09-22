@@ -20,6 +20,7 @@ const projectStatuses = [
   "SNAGGING",
   "COMPLETED",
   "ON_HOLD",
+  "CANCELLED",
 ] as const;
 
 const statusStyles: Record<string, string> = {
@@ -46,6 +47,7 @@ const statusLabels: Record<string, string> = {
   SNAGGING: "Snagging",
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
+  CANCELLED: "Cancelled",
 };
 
 function formatCurrency(value: number) {
@@ -580,9 +582,11 @@ export default async function DashboardPage() {
                         ? "bg-green-600"
                         : item.status === "ON_HOLD"
                           ? "bg-red-500"
-                          : item.status === "INSTALLATION"
-                            ? "bg-amber-500"
-                            : "bg-flora-primary"
+                          : item.status === "CANCELLED"
+                            ? "bg-stone-400"
+                            : item.status === "INSTALLATION"
+                              ? "bg-amber-500"
+                              : "bg-flora-primary"
                     }`}
                   />
 

@@ -6,7 +6,7 @@
  *
  * If --password is omitted you'll be prompted (input is hidden).
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { createInterface } from "node:readline";
 
@@ -45,7 +45,12 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const email = args.email?.toLowerCase();
   const name = args.name;
-  const role = args.role ?? "STAFF";
+  const rawRole = (args.role ?? "STAFF").toUpperCase();
+  if (rawRole !== UserRole.ADMIN && rawRole !== UserRole.STAFF) {
+    console.error("Role must be ADMIN or STAFF.");
+    process.exit(1);
+  }
+  const role: UserRole = rawRole;
 
   if (!email || !name) {
     console.error('Required: --email <email> --name "<name>" [--role ADMIN|STAFF] [--password <pw>]');

@@ -23,7 +23,7 @@ const statusColors: Record<string, string> = {
   DRAFT: "#8B8178", SENT: "#185FA5", APPROVED: "#0F6E56",
   REJECTED: "#991B1B", REVISED: "#854D0E",
   NOT_STARTED: "#8B8178", IN_PROGRESS: "#185FA5", INSTALLATION: "#854D0E",
-  SNAGGING: "#7F77DD", COMPLETED: "#166534", ON_HOLD: "#991B1B",
+  SNAGGING: "#7F77DD", COMPLETED: "#166534", ON_HOLD: "#991B1B", CANCELLED: "#57534E",
 };
 
 const methodIcons: Record<string, LucideIcon> = {
@@ -85,7 +85,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">{customerName}</h1>
-          <div className="flex items-center gap-4 mt-2 text-sm text-[#6B625A]">
+          <div className="flex items-center gap-4 mt-2 text-sm text-flora-muted">
             <span className="flex items-center gap-1">
               <Phone size={14} /> {customerPhone}
             </span>
@@ -106,21 +106,21 @@ export function CustomerFinancialDashboard({ summary }: Props) {
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-2 bg-[#EFE7DF] border border-[#D8C9BC] rounded-lg px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#D8C9BC] transition-colors"
+            className="flex items-center gap-2 bg-[#EFE7DF] border border-flora-border rounded-lg px-4 py-2 text-sm text-[#1A1A1A] hover:bg-flora-border transition-colors"
           >
             <Receipt size={14} /> Statement PDF
           </button>
           {projects.length > 0 ? (
             <Link
               href={`/projects/${projects[0].id}`}
-              className="flex items-center gap-2 bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22] transition-colors"
+              className="flex items-center gap-2 bg-flora-primary text-white rounded-lg px-4 py-2 text-sm hover:bg-flora-primary-hover transition-colors"
             >
               <Plus size={14} /> Record Payment
             </Link>
           ) : (
             <span
               title="No project yet — payments are recorded on projects"
-              className="flex items-center gap-2 bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm opacity-50 cursor-not-allowed"
+              className="flex items-center gap-2 bg-flora-primary text-white rounded-lg px-4 py-2 text-sm opacity-50 cursor-not-allowed"
             >
               <Plus size={14} /> Record Payment
             </span>
@@ -131,13 +131,13 @@ export function CustomerFinancialDashboard({ summary }: Props) {
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-4">
         {kpiCards.map(({ label, value, color, icon: Icon, subtext }) => (
-          <div key={label} className="bg-white border border-[#D8C9BC] rounded-xl p-5">
+          <div key={label} className="bg-white border border-flora-border rounded-xl p-5">
             <div className="flex items-center gap-2 mb-3">
               <Icon size={16} style={{ color }} />
-              <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">{label}</span>
+              <span className="text-[10px] uppercase tracking-widest text-flora-muted">{label}</span>
             </div>
             <div className="text-2xl font-extrabold tracking-tight" style={{ color }}>{value}</div>
-            <div className="text-xs text-[#6B625A] mt-1">{subtext}</div>
+            <div className="text-xs text-flora-muted mt-1">{subtext}</div>
             
             {/* Progress bar for paid vs outstanding */}
             {label === "Lifetime Revenue" && (
@@ -146,7 +146,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
                   <div className="h-full bg-[#0F6E56] rounded-full" style={{ width: `${paidPercentage}%` }} />
                   <div className="h-full bg-[#991B1B] rounded-full" style={{ width: `${outstandingPercentage}%` }} />
                 </div>
-                <div className="flex justify-between text-[10px] text-[#6B625A] mt-1">
+                <div className="flex justify-between text-[10px] text-flora-muted mt-1">
                   <span className="text-[#0F6E56]">{paidPercentage.toFixed(0)}% paid</span>
                   <span className="text-[#991B1B]">{outstandingPercentage.toFixed(0)}% due</span>
                 </div>
@@ -157,27 +157,27 @@ export function CustomerFinancialDashboard({ summary }: Props) {
       </div>
 
       {/* Payment Progress */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
+      <div className="bg-white border border-flora-border rounded-xl p-5">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-sm text-[#5A0E12]">Payment Progress</h3>
-          <span className="text-sm font-medium text-[#6B625A]">
+          <h3 className="font-semibold text-sm text-flora-primary">Payment Progress</h3>
+          <span className="text-sm font-medium text-flora-muted">
             {paidPercentage.toFixed(1)}% collected
           </span>
         </div>
         <div className="h-3 bg-[#EFE7DF] rounded-full overflow-hidden">
           <div 
-            className="h-full bg-[#5A0E12] rounded-full transition-all"
+            className="h-full bg-flora-primary rounded-full transition-all"
             style={{ width: `${Math.min(paidPercentage, 100)}%` }}
           />
         </div>
-        <div className="flex justify-between mt-2 text-xs text-[#6B625A]">
+        <div className="flex justify-between mt-2 text-xs text-flora-muted">
           <span>AED 0</span>
           <span>AED {lifetimeRevenue.toLocaleString()}</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-[#D8C9BC]">
+      <div className="border-b border-flora-border">
         <div className="flex gap-6">
           {[
             { id: "overview" as const, label: "Overview", count: null },
@@ -191,8 +191,8 @@ export function CustomerFinancialDashboard({ summary }: Props) {
               onClick={() => setActiveTab(tab.id)}
               className={`pb-3 text-sm font-medium transition-colors relative ${
                 activeTab === tab.id 
-                  ? "text-[#5A0E12] border-b-2 border-[#5A0E12]" 
-                  : "text-[#6B625A] hover:text-[#1A1A1A]"
+                  ? "text-flora-primary border-b-2 border-flora-primary" 
+                  : "text-flora-muted hover:text-[#1A1A1A]"
               }`}
             >
               {tab.label}
@@ -262,26 +262,26 @@ function OverviewTab({
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* Recent Activity */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Recent Payments</h3>
+      <div className="bg-white border border-flora-border rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Recent Payments</h3>
         {recentPayments.length === 0 ? (
-          <p className="text-sm text-[#6B625A]">No payments recorded yet.</p>
+          <p className="text-sm text-flora-muted">No payments recorded yet.</p>
         ) : (
           <div className="space-y-3">
             {recentPayments.map(p => {
               const Icon = methodIcons[p.method] ?? CreditCard;
               return (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-[#EFE7DF] last:border-0">
+                <div key={p.id} className="flex items-center justify-between py-2 border-b border-flora-border/60 last:border-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#F8F5F2] rounded-lg flex items-center justify-center">
-                      <Icon size={14} className="text-[#5A0E12]" />
+                    <div className="w-8 h-8 bg-flora-surface rounded-lg flex items-center justify-center">
+                      <Icon size={14} className="text-flora-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">AED {p.amount.toLocaleString()}</p>
-                      <p className="text-xs text-[#6B625A]">{p.type} · {p.method.replace(/_/g, " ")}</p>
+                      <p className="text-xs text-flora-muted">{p.type} · {p.method.replace(/_/g, " ")}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-[#6B625A]">
+                  <span className="text-xs text-flora-muted">
                     {format(new Date(p.paidAt), "dd MMM yyyy")}
                   </span>
                 </div>
@@ -292,19 +292,19 @@ function OverviewTab({
       </div>
 
       {/* Active Projects */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Active Projects</h3>
+      <div className="bg-white border border-flora-border rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Active Projects</h3>
         {projects.filter(p => p.status !== "COMPLETED").length === 0 ? (
-          <p className="text-sm text-[#6B625A]">No active projects.</p>
+          <p className="text-sm text-flora-muted">No active projects.</p>
         ) : (
           <div className="space-y-3">
             {projects
               .filter(p => p.status !== "COMPLETED")
               .map(p => (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-[#EFE7DF] last:border-0">
+                <div key={p.id} className="flex items-center justify-between py-2 border-b border-flora-border/60 last:border-0">
                   <div>
                     <p className="text-sm font-medium">{p.enquiryService}</p>
-                    <p className="text-xs text-[#6B625A]">
+                    <p className="text-xs text-flora-muted">
                       {p.poNumber ? `PO: ${p.poNumber}` : "No PO"} · {p.siteAddress ?? "No site"}
                     </p>
                   </div>
@@ -318,7 +318,7 @@ function OverviewTab({
                     >
                       {p.status.replace(/_/g, " ")}
                     </span>
-                    <p className="text-xs text-[#6B625A] mt-1">
+                    <p className="text-xs text-flora-muted mt-1">
                       {((p.totalPaid / p.totalContractValue) * 100).toFixed(0)}% paid
                     </p>
                   </div>
@@ -329,14 +329,14 @@ function OverviewTab({
       </div>
 
       {/* Recent Enquiries */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Recent Enquiries</h3>
+      <div className="bg-white border border-flora-border rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Recent Enquiries</h3>
         <div className="space-y-3">
           {enquiries.slice(0, 5).map(e => (
-            <div key={e.id} className="flex items-center justify-between py-2 border-b border-[#EFE7DF] last:border-0">
+            <div key={e.id} className="flex items-center justify-between py-2 border-b border-flora-border/60 last:border-0">
               <div>
                 <p className="text-sm font-medium">{e.serviceWanted}</p>
-                <p className="text-xs text-[#6B625A]">
+                <p className="text-xs text-flora-muted">
                   Interest: {Array(e.interestLevel).fill("●").join("")}
                   {Array(5 - e.interestLevel).fill("○").join("")}
                 </p>
@@ -356,22 +356,22 @@ function OverviewTab({
       </div>
 
       {/* Quick Stats */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Financial Summary</h3>
+      <div className="bg-white border border-flora-border rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Financial Summary</h3>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-[#6B625A]">Total Quoted</span>
+            <span className="text-flora-muted">Total Quoted</span>
             <span className="font-medium">AED {totalQuoted.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#6B625A]">Total Contract Value</span>
+            <span className="text-flora-muted">Total Contract Value</span>
             <span className="font-medium">AED {totalContractValue.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#6B625A]">Total Collected</span>
+            <span className="text-flora-muted">Total Collected</span>
             <span className="font-medium text-[#0F6E56]">AED {totalPaid.toLocaleString()}</span>
           </div>
-          <div className="border-t border-[#D8C9BC] pt-2 flex justify-between font-semibold">
+          <div className="border-t border-flora-border pt-2 flex justify-between font-semibold">
             <span>Outstanding</span>
             <span className={`font-semibold ${outstanding > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
               AED {outstanding.toLocaleString()}
@@ -389,8 +389,8 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
   const filtered = filter === "all" ? payments : payments.filter(p => p.sourceType === filter);
 
   return (
-    <div className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
-      <div className="px-5 py-4 border-b border-[#EFE7DF] flex justify-between items-center">
+    <div className="bg-white border border-flora-border rounded-xl overflow-hidden">
+      <div className="px-5 py-4 border-b border-flora-border/60 flex justify-between items-center">
         <h3 className="font-semibold text-sm">Payment History</h3>
         <div className="flex gap-2">
           {(["all", "PROJECT", "QUOTATION"] as const).map(f => (
@@ -399,8 +399,8 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 filter === f 
-                  ? "bg-[#5A0E12] text-white" 
-                  : "bg-[#F8F5F2] text-[#6B625A] hover:bg-[#EFE7DF]"
+                  ? "bg-flora-primary text-white" 
+                  : "bg-flora-surface text-flora-muted hover:bg-[#EFE7DF]"
               }`}
             >
               {f === "all" ? "All" : f === "PROJECT" ? "Projects" : "Quotations"}
@@ -411,7 +411,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
       
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-[#F8F5F2] text-[#6B625A] text-[10px] uppercase tracking-widest">
+          <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
             <th className="text-left px-5 py-3 font-medium">Date</th>
             <th className="text-left px-5 py-3 font-medium">Source</th>
             <th className="text-left px-5 py-3 font-medium">Type</th>
@@ -423,7 +423,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
         <tbody>
           {filtered.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-5 py-8 text-center text-[#6B625A]">
+              <td colSpan={6} className="px-5 py-8 text-center text-flora-muted">
                 No payments found.
               </td>
             </tr>
@@ -431,15 +431,15 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
             filtered.map(p => {
               const Icon = methodIcons[p.method] ?? CreditCard;
               return (
-                <tr key={p.id} className="border-t border-[#F8F5F2] hover:bg-[#F8F5F2]/60">
-                  <td className="px-5 py-3 text-[#6B625A]">
+                <tr key={p.id} className="border-t border-flora-surface hover:bg-flora-surface/60">
+                  <td className="px-5 py-3 text-flora-muted">
                     {format(new Date(p.paidAt), "dd MMM yyyy")}
                   </td>
                   <td className="px-5 py-3">
-                    <span className="text-xs bg-[#F8F5F2] px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-flora-surface px-2 py-0.5 rounded-full">
                       {p.sourceType === "PROJECT" ? "Project" : "Quote"}
                     </span>
-                    <span className="text-xs text-[#6B625A] ml-2">{p.sourceNumber}</span>
+                    <span className="text-xs text-flora-muted ml-2">{p.sourceNumber}</span>
                   </td>
                   <td className="px-5 py-3">
                     <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
@@ -448,12 +448,12 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-1.5">
-                      <Icon size={14} className="text-[#6B625A]" />
+                      <Icon size={14} className="text-flora-muted" />
                       <span>{p.method.replace(/_/g, " ")}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-[#6B625A]">{p.reference ?? "—"}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-[#5A0E12]">
+                  <td className="px-5 py-3 text-flora-muted">{p.reference ?? "—"}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-flora-primary">
                     AED {p.amount.toLocaleString()}
                   </td>
                 </tr>
@@ -480,9 +480,9 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
           : 0;
 
         return (
-          <div key={project.id} className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
+          <div key={project.id} className="bg-white border border-flora-border rounded-xl overflow-hidden">
             <div 
-              className="p-5 cursor-pointer hover:bg-[#F8F5F2]/30 transition-colors"
+              className="p-5 cursor-pointer hover:bg-flora-surface/30 transition-colors"
               onClick={() => onToggle(isExpanded ? null : project.id)}
             >
               <div className="flex justify-between items-start">
@@ -499,7 +499,7 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                       {project.status.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <p className="text-xs text-[#6B625A] mt-1">
+                  <p className="text-xs text-flora-muted mt-1">
                     PO: {project.poNumber ?? "—"} · Site: {project.siteAddress ?? "—"}
                   </p>
                 </div>
@@ -507,7 +507,7 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                   <p className="text-sm font-semibold">AED {project.totalContractValue.toLocaleString()}</p>
                   <p className="text-xs text-[#0F6E56]">{progress.toFixed(0)}% paid</p>
                 </div>
-                {isExpanded ? <ChevronUp size={16} className="text-[#6B625A] ml-3" /> : <ChevronDown size={16} className="text-[#6B625A] ml-3" />}
+                {isExpanded ? <ChevronUp size={16} className="text-flora-muted ml-3" /> : <ChevronDown size={16} className="text-flora-muted ml-3" />}
               </div>
               
               {/* Mini progress bar */}
@@ -517,18 +517,18 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
             </div>
 
             {isExpanded && (
-              <div className="px-5 pb-5 border-t border-[#EFE7DF]">
+              <div className="px-5 pb-5 border-t border-flora-border/60">
                 <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Contract Value</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Contract Value</p>
                     <p className="font-semibold">AED {project.totalContractValue.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Total Paid</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Total Paid</p>
                     <p className="font-semibold text-[#0F6E56]">AED {project.totalPaid.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Balance</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Balance</p>
                     <p className={`font-semibold ${project.balance > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
                       AED {project.balance.toLocaleString()}
                     </p>
@@ -537,11 +537,11 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
 
                 {project.payments.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-2">Payment History</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Payment History</p>
                     <div className="space-y-2">
                       {project.payments.map(p => (
-                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-[#F8F5F2] last:border-0">
-                          <span className="text-[#6B625A]">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
+                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-surface last:border-0">
+                          <span className="text-flora-muted">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
                           <span className="font-medium">AED {p.amount.toLocaleString()}</span>
                         </div>
                       ))}
@@ -552,7 +552,7 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                 <div className="mt-4 flex gap-2">
                   <Link 
                     href={`/projects/${project.id}`}
-                    className="text-xs text-[#5A0E12] hover:underline"
+                    className="text-xs text-flora-primary hover:underline"
                   >
                     View Project →
                   </Link>
@@ -564,7 +564,7 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
       })}
       
       {projects.length === 0 && (
-        <div className="bg-white border border-[#D8C9BC] rounded-xl p-8 text-center text-[#6B625A]">
+        <div className="bg-white border border-flora-border rounded-xl p-8 text-center text-flora-muted">
           No projects yet.
         </div>
       )}
@@ -583,9 +583,9 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
         const isExpanded = expandedId === quote.id;
         
         return (
-          <div key={quote.id} className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
+          <div key={quote.id} className="bg-white border border-flora-border rounded-xl overflow-hidden">
             <div 
-              className="p-5 cursor-pointer hover:bg-[#F8F5F2]/30 transition-colors"
+              className="p-5 cursor-pointer hover:bg-flora-surface/30 transition-colors"
               onClick={() => onToggle(isExpanded ? null : quote.id)}
             >
               <div className="flex justify-between items-start">
@@ -602,33 +602,33 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                       {quote.status}
                     </span>
                   </div>
-                  <p className="text-xs text-[#6B625A] mt-1">{quote.enquiryService}</p>
+                  <p className="text-xs text-flora-muted mt-1">{quote.enquiryService}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold">AED {quote.totalAmount.toLocaleString()}</p>
-                  <p className="text-xs text-[#6B625A]">Valid until {quote.validUntil ? format(new Date(quote.validUntil), "dd MMM yyyy") : "—"}</p>
+                  <p className="text-xs text-flora-muted">Valid until {quote.validUntil ? format(new Date(quote.validUntil), "dd MMM yyyy") : "—"}</p>
                 </div>
-                {isExpanded ? <ChevronUp size={16} className="text-[#6B625A] ml-3" /> : <ChevronDown size={16} className="text-[#6B625A] ml-3" />}
+                {isExpanded ? <ChevronUp size={16} className="text-flora-muted ml-3" /> : <ChevronDown size={16} className="text-flora-muted ml-3" />}
               </div>
             </div>
 
             {isExpanded && (
-              <div className="px-5 pb-5 border-t border-[#EFE7DF]">
+              <div className="px-5 pb-5 border-t border-flora-border/60">
                 <div className="mt-4 grid grid-cols-4 gap-4 text-sm">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Subtotal</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Subtotal</p>
                     <p className="font-medium">AED {quote.subtotal.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">VAT ({quote.vatRate}%)</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">VAT ({quote.vatRate}%)</p>
                     <p className="font-medium">AED {quote.vatAmount.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Total</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Total</p>
                     <p className="font-semibold">AED {quote.totalAmount.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">Balance</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Balance</p>
                     <p className={`font-semibold ${quote.balance > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
                       AED {quote.balance.toLocaleString()}
                     </p>
@@ -637,11 +637,11 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
 
                 {quote.payments.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-2">Payments</p>
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Payments</p>
                     <div className="space-y-2">
                       {quote.payments.map(p => (
-                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-[#F8F5F2] last:border-0">
-                          <span className="text-[#6B625A]">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
+                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-surface last:border-0">
+                          <span className="text-flora-muted">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
                           <span className="font-medium">AED {p.amount.toLocaleString()}</span>
                         </div>
                       ))}
@@ -652,7 +652,7 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                 <div className="mt-4 flex gap-3">
                   <Link 
                     href={`/quotations/${quote.id}`}
-                    className="text-xs text-[#5A0E12] hover:underline"
+                    className="text-xs text-flora-primary hover:underline"
                   >
                     View Quote →
                   </Link>
@@ -660,7 +660,7 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                     href={`/api/quotations/${quote.id}/pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-[#6B625A] hover:text-[#5A0E12]"
+                    className="text-xs text-flora-muted hover:text-flora-primary"
                   >
                     📄 Download PDF
                   </a>
@@ -672,7 +672,7 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
       })}
       
       {quotations.length === 0 && (
-        <div className="bg-white border border-[#D8C9BC] rounded-xl p-8 text-center text-[#6B625A]">
+        <div className="bg-white border border-flora-border rounded-xl p-8 text-center text-flora-muted">
           No quotations yet.
         </div>
       )}
@@ -682,15 +682,15 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
 
 function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
   return (
-    <div className="bg-white border border-[#D8C9BC] rounded-xl overflow-hidden">
-      <div className="px-5 py-4 border-b border-[#EFE7DF]">
+    <div className="bg-white border border-flora-border rounded-xl overflow-hidden">
+      <div className="px-5 py-4 border-b border-flora-border/60">
         <h3 className="font-semibold text-sm">Running Balance</h3>
-        <p className="text-xs text-[#6B625A] mt-1">Chronological ledger of all debits and credits</p>
+        <p className="text-xs text-flora-muted mt-1">Chronological ledger of all debits and credits</p>
       </div>
       
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-[#F8F5F2] text-[#6B625A] text-[10px] uppercase tracking-widest">
+          <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
             <th className="text-left px-5 py-3 font-medium">Date</th>
             <th className="text-left px-5 py-3 font-medium">Type</th>
             <th className="text-left px-5 py-3 font-medium">Description</th>
@@ -703,7 +703,7 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
         <tbody>
           {ledger.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-5 py-8 text-center text-[#6B625A]">
+              <td colSpan={7} className="px-5 py-8 text-center text-flora-muted">
                 No ledger entries yet.
               </td>
             </tr>
@@ -711,11 +711,11 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
             ledger.map(entry => (
               <tr 
                 key={entry.id} 
-                className={`border-t border-[#F8F5F2] ${
+                className={`border-t border-flora-surface ${
                   entry.type === "PAYMENT" ? "bg-green-50/30" : ""
                 }`}
               >
-                <td className="px-5 py-3 text-[#6B625A]">
+                <td className="px-5 py-3 text-flora-muted">
                   {format(new Date(entry.date), "dd MMM yyyy")}
                 </td>
                 <td className="px-5 py-3">
@@ -728,7 +728,7 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
                   </span>
                 </td>
                 <td className="px-5 py-3">{entry.description}</td>
-                <td className="px-5 py-3 text-[#6B625A] text-xs">{entry.reference}</td>
+                <td className="px-5 py-3 text-flora-muted text-xs">{entry.reference}</td>
                 <td className="px-5 py-3 text-right font-medium text-[#991B1B]">
                   {entry.debit > 0 ? `AED ${entry.debit.toLocaleString()}` : "—"}
                 </td>

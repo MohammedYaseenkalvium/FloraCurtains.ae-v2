@@ -23,6 +23,7 @@ const statusSchema = z.object({
     "SNAGGING",
     "COMPLETED",
     "ON_HOLD",
+    "CANCELLED",
   ]),
 });
 
@@ -32,7 +33,8 @@ type ProjectStatus =
   | "INSTALLATION"
   | "SNAGGING"
   | "COMPLETED"
-  | "ON_HOLD";
+  | "ON_HOLD"
+  | "CANCELLED";
 
 const allowedTransitions: Record<
   ProjectStatus,
@@ -41,11 +43,13 @@ const allowedTransitions: Record<
   NOT_STARTED: [
     "IN_PROGRESS",
     "ON_HOLD",
+    "CANCELLED",
   ],
 
   IN_PROGRESS: [
     "INSTALLATION",
     "ON_HOLD",
+    "CANCELLED",
   ],
 
   INSTALLATION: [
@@ -60,9 +64,12 @@ const allowedTransitions: Record<
 
   COMPLETED: [],
 
+  CANCELLED: [],
+
   ON_HOLD: [
     "IN_PROGRESS",
     "INSTALLATION",
+    "CANCELLED",
   ],
 };
 

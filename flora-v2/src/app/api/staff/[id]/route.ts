@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
 
 import { requireRole, parseBody, withErrorHandling, notFound, conflict } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
-
-const STAFF_ROLES = ["ADMIN", "STAFF"] as const;
 
 const updateStaffSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100, "Name is too long."),
@@ -18,7 +17,7 @@ const updateStaffSchema = z.object({
     .refine((v) => v === undefined || v.trim() === "" || v.trim().length >= 8, {
       message: "Password must be at least 8 characters.",
     }),
-  role: z.enum(STAFF_ROLES, { message: "Role must be ADMIN or STAFF." }),
+  role: z.nativeEnum(UserRole, { message: "Role must be ADMIN or STAFF." }),
 });
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -51,7 +50,7 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Ctx)
   });
   if (duplicateEmail) throw conflict("Another user already uses this email.");
 
-  const updateData: { name: string; email: string; role: string; password?: string } = {
+  const updateData: { name: string; email: string; role: UserRole; password?: string } = {
     name,
     email,
     role,

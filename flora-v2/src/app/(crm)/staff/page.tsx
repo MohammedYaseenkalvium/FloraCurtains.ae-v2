@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import type { UserRole } from "@prisma/client";
 import {
   ArrowUpRight,
   Mail,
@@ -59,6 +60,12 @@ export default async function StaffPage({
       ? Math.floor(requestedPage)
       : 1;
 
+  const normalizedSearch = search.trim().toUpperCase();
+  const roleMatch =
+    normalizedSearch === "ADMIN" || normalizedSearch === "STAFF"
+      ? normalizedSearch
+      : undefined;
+
   const where = search
     ? {
         OR: [
@@ -74,12 +81,7 @@ export default async function StaffPage({
               mode: "insensitive" as const,
             },
           },
-          {
-            role: {
-              contains: search,
-              mode: "insensitive" as const,
-            },
-          },
+          ...(roleMatch ? [{ role: roleMatch as UserRole }] : []),
         ],
       }
     : {};
@@ -133,33 +135,33 @@ export default async function StaffPage({
   }
 
   return (
-    <div className="min-h-full bg-[#FFF8F5]">
+    <div className="min-h-full bg-flora-background">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
             <Users
               size={18}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <span className="text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+            <span className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
               Administration
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+          <h1 className="text-2xl font-bold tracking-tight text-flora-foreground">
             Staff
           </h1>
 
-          <p className="mt-1 text-sm text-[#6B625A]">
+          <p className="mt-1 text-sm text-flora-muted">
             Manage FloraFlow users and their access roles.
           </p>
         </div>
 
         <Link
           href="/staff/new"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
         >
           <Plus size={16} />
           Add Staff
@@ -168,43 +170,43 @@ export default async function StaffPage({
 
       {/* Summary */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <Users
               size={16}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Total Staff
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {totalStaff}
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <ShieldCheck
               size={16}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Administrators
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {adminCount}
           </p>
         </div>
       </div>
 
       {/* Search */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-4">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-4">
         <form
           action="/staff"
           method="GET"
@@ -213,20 +215,20 @@ export default async function StaffPage({
           <div className="relative flex-1">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B625A]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-flora-muted"
             />
 
             <input
               name="q"
               defaultValue={search}
               placeholder="Search by name, email or role..."
-              className="h-10 w-full rounded-lg border border-[#D8C9BC] bg-white pl-9 pr-3 text-sm text-[#1E1B18] outline-none transition focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+              className="h-10 w-full rounded-lg border border-flora-border bg-white pl-9 pr-3 text-sm text-flora-foreground outline-none transition focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             />
           </div>
 
           <button
             type="submit"
-            className="h-10 rounded-lg border border-[#D8C9BC] bg-[#F8F5F2] px-4 text-sm font-medium text-[#5A0E12] transition-colors hover:bg-[#EFE7DF]"
+            className="h-10 rounded-lg border border-flora-border bg-flora-surface px-4 text-sm font-medium text-flora-primary transition-colors hover:bg-[#EFE7DF]"
           >
             Search
           </button>
@@ -234,7 +236,7 @@ export default async function StaffPage({
           {search && (
             <Link
               href="/staff"
-              className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-medium text-[#6B625A] hover:bg-[#F8F5F2]"
+              className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-medium text-flora-muted hover:bg-flora-surface"
             >
               Clear
             </Link>
@@ -243,13 +245,13 @@ export default async function StaffPage({
       </section>
 
       {/* Staff Table */}
-      <section className="overflow-hidden rounded-xl border border-[#D8C9BC] bg-white">
-        <div className="border-b border-[#D8C9BC] px-5 py-4">
-          <h2 className="text-sm font-semibold text-[#5A0E12]">
+      <section className="overflow-hidden rounded-xl border border-flora-border bg-white">
+        <div className="border-b border-flora-border px-5 py-4">
+          <h2 className="text-sm font-semibold text-flora-primary">
             Staff Directory
           </h2>
 
-          <p className="mt-1 text-xs text-[#6B625A]">
+          <p className="mt-1 text-xs text-flora-muted">
             {totalStaff}{" "}
             {totalStaff === 1 ? "user" : "users"} found.
           </p>
@@ -262,11 +264,11 @@ export default async function StaffPage({
               className="mx-auto text-[#D8C9BC]"
             />
 
-            <h3 className="mt-4 text-sm font-semibold text-[#1E1B18]">
+            <h3 className="mt-4 text-sm font-semibold text-flora-foreground">
               No staff found
             </h3>
 
-            <p className="mt-1 text-sm text-[#6B625A]">
+            <p className="mt-1 text-sm text-flora-muted">
               {search
                 ? "Try changing your search."
                 : "Create your first staff account."}
@@ -275,7 +277,7 @@ export default async function StaffPage({
             {!search && (
               <Link
                 href="/staff/new"
-                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#5A0E12] px-4 py-2 text-sm font-semibold text-white hover:bg-[#74171C]"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-flora-primary px-4 py-2 text-sm font-semibold text-white hover:bg-flora-primary-hover"
               >
                 <Plus size={15} />
                 Add Staff
@@ -287,24 +289,24 @@ export default async function StaffPage({
             <div className="overflow-x-auto">
               <table className="min-w-[760px] w-full">
                 <thead>
-                  <tr className="border-b border-[#D8C9BC] bg-[#F8F5F2] text-left">
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                  <tr className="border-b border-flora-border bg-flora-surface text-left">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Staff
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Email
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Role
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Joined
                     </th>
 
-                    <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                    <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Action
                     </th>
                   </tr>
@@ -314,22 +316,22 @@ export default async function StaffPage({
                   {staff.map((member) => (
                     <tr
                       key={member.id}
-                      className="border-b border-[#EFE7DF] last:border-b-0"
+                      className="border-b border-flora-border/60 last:border-b-0"
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F8F5F2] text-sm font-bold text-[#5A0E12]">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-flora-surface text-sm font-bold text-flora-primary">
                             {member.name
                               .charAt(0)
                               .toUpperCase()}
                           </div>
 
                           <div>
-                            <p className="font-semibold text-[#1E1B18]">
+                            <p className="font-semibold text-flora-foreground">
                               {member.name}
                             </p>
 
-                            <p className="text-xs text-[#6B625A]">
+                            <p className="text-xs text-flora-muted">
                               User account
                             </p>
                           </div>
@@ -337,10 +339,10 @@ export default async function StaffPage({
                       </td>
 
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-2 text-sm text-[#1E1B18]">
+                        <div className="flex items-center gap-2 text-sm text-flora-foreground">
                           <Mail
                             size={14}
-                            className="text-[#6B625A]"
+                            className="text-flora-muted"
                           />
 
                           <span>{member.email}</span>
@@ -348,19 +350,19 @@ export default async function StaffPage({
                       </td>
 
                       <td className="px-5 py-4">
-                        <span className="inline-flex rounded-full border border-[#D8C9BC] bg-[#F8F5F2] px-2.5 py-1 text-xs font-semibold text-[#5A0E12]">
+                        <span className="inline-flex rounded-full border border-flora-border bg-flora-surface px-2.5 py-1 text-xs font-semibold text-flora-primary">
                           {roleLabel(member.role)}
                         </span>
                       </td>
 
-                      <td className="px-5 py-4 text-sm text-[#6B625A]">
+                      <td className="px-5 py-4 text-sm text-flora-muted">
                         {formatDate(member.createdAt)}
                       </td>
 
                       <td className="px-5 py-4 text-right">
                         <Link
                           href={`/staff/${member.id}/edit`}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-semibold text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-flora-border px-3 py-2 text-xs font-semibold text-flora-primary transition-colors hover:bg-flora-surface"
                         >
                           Edit
                           <ArrowUpRight size={13} />
@@ -373,8 +375,8 @@ export default async function StaffPage({
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-col gap-3 border-t border-[#D8C9BC] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-[#6B625A]">
+            <div className="flex flex-col gap-3 border-t border-flora-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-flora-muted">
                 Page {currentPage} of {totalPages}
               </p>
 
@@ -384,12 +386,12 @@ export default async function StaffPage({
                     href={buildPageUrl(
                       currentPage - 1
                     )}
-                    className="rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-medium text-[#5A0E12] hover:bg-[#F8F5F2]"
+                    className="rounded-lg border border-flora-border px-3 py-2 text-xs font-medium text-flora-primary hover:bg-flora-surface"
                   >
                     Previous
                   </Link>
                 ) : (
-                  <span className="cursor-not-allowed rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs font-medium text-[#B7ADA5]">
+                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-[#B7ADA5]">
                     Previous
                   </span>
                 )}
@@ -399,12 +401,12 @@ export default async function StaffPage({
                     href={buildPageUrl(
                       currentPage + 1
                     )}
-                    className="rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-medium text-[#5A0E12] hover:bg-[#F8F5F2]"
+                    className="rounded-lg border border-flora-border px-3 py-2 text-xs font-medium text-flora-primary hover:bg-flora-surface"
                   >
                     Next
                   </Link>
                 ) : (
-                  <span className="cursor-not-allowed rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs font-medium text-[#B7ADA5]">
+                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-[#B7ADA5]">
                     Next
                   </span>
                 )}
