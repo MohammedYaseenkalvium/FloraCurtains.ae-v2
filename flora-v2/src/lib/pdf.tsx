@@ -51,11 +51,17 @@ const logoPath = path.join(
   "Flora quotation logo.png"
 );
 
-const logoBase64 = fs
-  .readFileSync(logoPath)
-  .toString("base64");
-
-const logoSrc = `data:image/png;base64,${logoBase64}`;
+// Phase 6: never crash the PDF route if the logo asset is missing
+// (e.g. standalone Docker deploy without public/images). Fall back to
+// text-only header.
+let logoSrc: string | null = null;
+try {
+  if (fs.existsSync(logoPath)) {
+    logoSrc = `data:image/png;base64,${fs.readFileSync(logoPath).toString("base64")}`;
+  }
+} catch {
+  logoSrc = null;
+}
 
 /* =========================================================
    STYLES
@@ -685,10 +691,12 @@ export function QuotationPDF({
 
         <View style={styles.header}>
           <View style={styles.brandBlock}>
-            <Image
-              src={logoSrc}
-              style={styles.logo}
-            />
+            {logoSrc ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf Image renders into PDF, not HTML; no alt concept.
+              <Image src={logoSrc} style={styles.logo} />
+            ) : (
+              <Text style={styles.companyInfo}>Flora Curtains LLC</Text>
+            )}
 
             <Text style={styles.companyInfo}>
               Flora Curtains LLC{"\n"}

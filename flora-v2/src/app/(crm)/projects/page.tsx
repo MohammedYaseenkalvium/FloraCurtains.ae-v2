@@ -8,6 +8,7 @@ import {
 import type { ProjectStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const PAGE_SIZE = 20;
 
@@ -18,6 +19,7 @@ const statuses: ProjectStatus[] = [
   "SNAGGING",
   "COMPLETED",
   "ON_HOLD",
+  "CANCELLED",
 ];
 
 const statusLabels: Record<ProjectStatus, string> = {
@@ -27,6 +29,7 @@ const statusLabels: Record<ProjectStatus, string> = {
   SNAGGING: "Snagging",
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
+  CANCELLED: "Cancelled",
 };
 
 const statusStyles: Record<
@@ -66,6 +69,11 @@ const statusStyles: Record<
     background: "#FEF2F2",
     text: "#991B1B",
     border: "#E8BDBD",
+  },
+  CANCELLED: {
+    background: "#F5F5F4",
+    text: "#57534E",
+    border: "#D6D3D1",
   },
 };
 
@@ -225,6 +233,7 @@ export default async function ProjectsPage({
     snaggingCount,
     completedCount,
     onHoldCount,
+    cancelledCount,
   ] = await Promise.all([
     db.project.findMany({
       where,
@@ -294,6 +303,13 @@ export default async function ProjectsPage({
         status: "ON_HOLD",
       },
     }),
+
+    db.project.count({
+      where: {
+        ...baseWhere,
+        status: "CANCELLED",
+      },
+    }),
   ]);
 
   const totalPages = Math.max(
@@ -335,6 +351,7 @@ export default async function ProjectsPage({
     SNAGGING: snaggingCount,
     COMPLETED: completedCount,
     ON_HOLD: onHoldCount,
+    CANCELLED: cancelledCount,
   };
 
   const currentFrom =
@@ -348,22 +365,22 @@ export default async function ProjectsPage({
   );
 
   return (
-    <div className="min-h-full bg-[#FFF8F5]">
+    <div className="min-h-full bg-flora-background">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <FolderKanban
               size={22}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+            <h1 className="text-2xl font-bold tracking-tight text-flora-foreground">
               Projects
             </h1>
           </div>
 
-          <p className="mt-1 text-sm text-[#6B625A]">
+          <p className="mt-1 text-sm text-flora-muted">
             Manage active projects, installations, and
             completed work.
           </p>
@@ -372,38 +389,38 @@ export default async function ProjectsPage({
 
       {/* Summary Cards */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Total Projects
           </p>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {allCount}
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Contract Value
           </p>
 
-          <p className="mt-2 text-xl font-bold text-[#5A0E12]">
+          <p className="mt-2 text-xl font-bold text-flora-primary">
             {formatAED(contractValue)}
           </p>
 
-          <p className="mt-1 text-xs text-[#6B625A]">
+          <p className="mt-1 text-xs text-flora-muted">
             Current page
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <CircleDollarSign
               size={15}
               className="text-[#0F6E56]"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Payments Received
             </p>
           </div>
@@ -413,8 +430,8 @@ export default async function ProjectsPage({
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Outstanding
           </p>
 
@@ -425,7 +442,7 @@ export default async function ProjectsPage({
       </div>
 
       {/* Search */}
-      <div className="mb-4 rounded-xl border border-[#D8C9BC] bg-white p-4">
+      <div className="mb-4 rounded-xl border border-flora-border bg-white p-4">
         <form
           method="GET"
           action="/projects"
@@ -434,14 +451,14 @@ export default async function ProjectsPage({
           <div className="relative flex-1">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B625A]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-flora-muted"
             />
 
             <input
               name="q"
               defaultValue={search}
               placeholder="Search client, company, service, project or PO..."
-              className="w-full rounded-lg border border-[#D8C9BC] bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full rounded-lg border border-flora-border bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
 
@@ -455,7 +472,7 @@ export default async function ProjectsPage({
 
           <button
             type="submit"
-            className="rounded-lg bg-[#5A0E12] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+            className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
           >
             Search
           </button>
@@ -465,7 +482,7 @@ export default async function ProjectsPage({
               href={buildProjectsUrl({
                 status: selectedStatus,
               })}
-              className="inline-flex items-center justify-center rounded-lg border border-[#D8C9BC] bg-white px-5 py-2.5 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2]"
+              className="inline-flex items-center justify-center rounded-lg border border-flora-border bg-white px-5 py-2.5 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface"
             >
               Clear
             </Link>
@@ -482,8 +499,8 @@ export default async function ProjectsPage({
           className={[
             "whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
             !selectedStatus
-              ? "border-[#5A0E12] bg-[#5A0E12] text-white"
-              : "border-[#D8C9BC] bg-white text-[#6B625A] hover:bg-[#F8F5F2]",
+              ? "border-flora-primary bg-flora-primary text-white"
+              : "border-flora-border bg-white text-flora-muted hover:bg-flora-surface",
           ].join(" ")}
         >
           All ({allCount})
@@ -503,7 +520,7 @@ export default async function ProjectsPage({
                 "whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
                 selectedStatus === status
                   ? "text-white"
-                  : "bg-white hover:bg-[#F8F5F2]",
+                  : "bg-white hover:bg-flora-surface",
               ].join(" ")}
               style={
                 selectedStatus === status
@@ -525,11 +542,11 @@ export default async function ProjectsPage({
       </div>
 
       {/* Project Table */}
-      <div className="overflow-hidden rounded-xl border border-[#D8C9BC] bg-white">
+      <div className="overflow-hidden rounded-xl border border-flora-border bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-sm">
             <thead>
-              <tr className="bg-[#F8F5F2] text-[10px] uppercase tracking-widest text-[#6B625A]">
+              <tr className="bg-flora-surface text-[10px] uppercase tracking-widest text-flora-muted">
                 <th className="px-4 py-3 text-left font-medium">
                   Project / Client
                 </th>
@@ -566,19 +583,16 @@ export default async function ProjectsPage({
 
             <tbody>
               {projects.map((project) => {
-                const style =
-                  statusStyles[project.status];
-
                 return (
                   <tr
                     key={project.id}
-                    className="border-t border-[#EFE7DF] transition-colors hover:bg-[#FFF8F5]"
+                    className="border-t border-flora-border/60 transition-colors hover:bg-flora-background"
                   >
                     <td className="px-4 py-4">
                       <div>
                         <Link
                           href={`/projects/${project.id}`}
-                          className="font-semibold text-[#1E1B18] hover:text-[#5A0E12]"
+                          className="font-semibold text-flora-foreground hover:text-flora-primary"
                         >
                           {project.enquiry.projectName ??
                             "Untitled Project"}
@@ -586,39 +600,27 @@ export default async function ProjectsPage({
 
                         <Link
                           href={`/customers/${project.enquiry.contact.id}`}
-                          className="mt-1 block text-xs text-[#6B625A] hover:text-[#5A0E12] hover:underline"
+                          className="mt-1 block text-xs text-flora-muted hover:text-flora-primary hover:underline"
                         >
                           {project.enquiry.contact.name}
                         </Link>
                       </div>
                     </td>
 
-                    <td className="px-4 py-4 text-xs text-[#6B625A]">
+                    <td className="px-4 py-4 text-xs text-flora-muted">
                       {project.enquiry.company
                         ?.tradeName ?? "—"}
                     </td>
 
-                    <td className="px-4 py-4 text-[#6B625A]">
+                    <td className="px-4 py-4 text-flora-muted">
                       {project.enquiry.serviceWanted}
                     </td>
 
                     <td className="px-4 py-4">
-                      <span
-                        className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium"
-                        style={{
-                          backgroundColor:
-                            style.background,
-                          color: style.text,
-                          borderColor: style.border,
-                        }}
-                      >
-                        {statusLabels[
-                          project.status
-                        ]}
-                      </span>
+                      <StatusBadge domain="project" status={project.status} />
                     </td>
 
-                    <td className="px-4 py-4 text-right font-semibold text-[#1E1B18]">
+                    <td className="px-4 py-4 text-right font-semibold text-flora-foreground">
                       {formatAED(
                         project.totalContractValue
                       )}
@@ -628,7 +630,7 @@ export default async function ProjectsPage({
                       {project.quotation ? (
                         <Link
                           href={`/quotations/${project.quotation.id}`}
-                          className="text-xs font-medium text-[#5A0E12] hover:underline"
+                          className="text-xs font-medium text-flora-primary hover:underline"
                         >
                           {
                             project.quotation
@@ -636,13 +638,13 @@ export default async function ProjectsPage({
                           }
                         </Link>
                       ) : (
-                        <span className="text-xs text-[#6B625A]">
+                        <span className="text-xs text-flora-muted">
                           —
                         </span>
                       )}
                     </td>
 
-                    <td className="px-4 py-4 text-xs text-[#6B625A]">
+                    <td className="px-4 py-4 text-xs text-flora-muted">
                       {project.installationDate
                         ? new Date(
                             project.installationDate
@@ -655,7 +657,7 @@ export default async function ProjectsPage({
                     <td className="px-4 py-4 text-right">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#5A0E12] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-flora-primary hover:underline"
                       >
                         View
                         <ArrowUpRight
@@ -678,11 +680,11 @@ export default async function ProjectsPage({
                       className="mx-auto mb-3 text-[#D8C9BC]"
                     />
 
-                    <p className="text-sm font-semibold text-[#1E1B18]">
+                    <p className="text-sm font-semibold text-flora-foreground">
                       No projects found
                     </p>
 
-                    <p className="mt-1 text-xs text-[#6B625A]">
+                    <p className="mt-1 text-xs text-flora-muted">
                       {search || selectedStatus
                         ? "Try changing your search or status filter."
                         : "Approved quotations can be converted into projects."}
@@ -696,8 +698,8 @@ export default async function ProjectsPage({
 
         {/* Pagination */}
         {totalCount > 0 && (
-          <div className="flex flex-col gap-3 border-t border-[#EFE7DF] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-[#6B625A]">
+          <div className="flex flex-col gap-3 border-t border-flora-border/60 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-flora-muted">
               Showing {currentFrom}–{currentTo} of{" "}
               {totalCount} projects
             </p>
@@ -710,17 +712,17 @@ export default async function ProjectsPage({
                     status: selectedStatus,
                     page: safePage - 1,
                   })}
-                  className="rounded-lg border border-[#D8C9BC] bg-white px-3 py-2 text-xs font-medium text-[#6B625A] hover:bg-[#F8F5F2]"
+                  className="rounded-lg border border-flora-border bg-white px-3 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface"
                 >
                   Previous
                 </Link>
               ) : (
-                <span className="rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
                   Previous
                 </span>
               )}
 
-              <span className="rounded-lg bg-[#5A0E12] px-3 py-2 text-xs font-semibold text-white">
+              <span className="rounded-lg bg-flora-primary px-3 py-2 text-xs font-semibold text-white">
                 {safePage} / {totalPages}
               </span>
 
@@ -731,12 +733,12 @@ export default async function ProjectsPage({
                     status: selectedStatus,
                     page: safePage + 1,
                   })}
-                  className="rounded-lg border border-[#D8C9BC] bg-white px-3 py-2 text-xs font-medium text-[#6B625A] hover:bg-[#F8F5F2]"
+                  className="rounded-lg border border-flora-border bg-white px-3 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface"
                 >
                   Next
                 </Link>
               ) : (
-                <span className="rounded-lg border border-[#EFE7DF] px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
                   Next
                 </span>
               )}

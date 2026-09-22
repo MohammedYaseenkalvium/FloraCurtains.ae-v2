@@ -37,19 +37,19 @@ export default function SettingsPage() {
     setLoading(false);
   }
 
-  const field = "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
-  const label = "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  const field = "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
+  const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
   if (!settings) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="max-w-2xl">
       <h1 className="text-2xl font-extrabold tracking-tight mb-1">Settings</h1>
-      <p className="text-[#6B625A] text-sm mb-8">Manage your company profile and preferences</p>
+      <p className="text-flora-muted text-sm mb-8">Manage your company profile and preferences</p>
 
       <form onSubmit={handleSave} className="space-y-8">
         <section>
-          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Company Profile</h3>
+          <h3 className="font-semibold text-sm mb-4 text-flora-primary">Company Profile</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={label}>Company Name</label>
@@ -71,7 +71,7 @@ export default function SettingsPage() {
         </section>
 
         <section>
-          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Quotation Defaults</h3>
+          <h3 className="font-semibold text-sm mb-4 text-flora-primary">Quotation Defaults</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={label}>Default VAT Rate (%)</label>
@@ -85,7 +85,7 @@ export default function SettingsPage() {
         </section>
 
         <div className="flex items-center gap-4">
-          <button type="submit" disabled={loading} className="bg-[#5A0E12] text-white rounded-lg px-8 py-2.5 text-sm font-medium hover:bg-[#7A1E22] disabled:opacity-50 transition-colors">
+          <button type="submit" disabled={loading} className="bg-flora-primary text-white rounded-lg px-8 py-2.5 text-sm font-medium hover:bg-flora-primary-hover disabled:opacity-50 transition-colors">
             {loading ? "Saving…" : "Save Changes"}
           </button>
           {saved && <span className="text-sm text-[#0F6E56]">✓ Saved successfully</span>}

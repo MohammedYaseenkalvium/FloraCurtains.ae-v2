@@ -1,300 +1,89 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
 
-import { auth } from "@/lib/auth";
+import { requireRole, parseBody, withErrorHandling, notFound, conflict } from "@/lib/api";
+import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 
 const updateStaffSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Name must be at least 2 characters.")
-    .max(100, "Name is too long."),
-
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address."),
-
+  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100, "Name is too long."),
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
   password: z
     .string()
     .max(100, "Password is too long.")
-    .optional(),
-
-  role: z
-    .string()
-    .trim()
-    .min(1, "Role is required.")
-    .max(50, "Role is too long."),
+    .optional()
+    .refine((v) => v === undefined || v.trim() === "" || v.trim().length >= 8, {
+      message: "Password must be at least 8 characters.",
+    }),
+  role: z.nativeEnum(UserRole, { message: "Role must be ADMIN or STAFF." }),
 });
 
-async function getAdminSession() {
-  const session = await auth();
+type Ctx = { params: Promise<{ id: string }> };
 
-  if (!session?.user?.id) {
-    return {
-      session: null,
-      response: NextResponse.json(
-        {
-          error: "Unauthorized.",
-        },
-        {
-          status: 401,
-        }
-      ),
-    };
-  }
-
-  if (session.user.role !== "ADMIN") {
-    return {
-      session: null,
-      response: NextResponse.json(
-        {
-          error: "You do not have permission to manage staff.",
-        },
-        {
-          status: 403,
-        }
-      ),
-    };
-  }
-
-  return {
-    session,
-    response: null,
-  };
-}
-
-export async function GET(
-  _request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{
-      id: string;
-    }>;
-  }
-) {
-  const { response } = await getAdminSession();
-
-  if (response) {
-    return response;
-  }
-
+export const GET = withErrorHandling(async (_req: NextRequest, { params }: Ctx) => {
+  await requireRole("ADMIN");
   const { id } = await params;
-
   const staff = await db.user.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-    },
+    where: { id },
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
   });
+  if (!staff) throw notFound("Staff member not found.");
+  return NextResponse.json({ staff });
+});
 
-  if (!staff) {
-    return NextResponse.json(
-      {
-        error: "Staff member not found.",
-      },
-      {
-        status: 404,
-      }
-    );
-  }
-
-  return NextResponse.json({
-    staff,
-  });
-}
-
-export async function PATCH(
-  request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{
-      id: string;
-    }>;
-  }
-) {
-  const { session, response } =
-    await getAdminSession();
-
-  if (response) {
-    return response;
-  }
-
+export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Ctx) => {
+  const session = await requireRole("ADMIN");
   const { id } = await params;
+  const { name, email, password, role } = await parseBody(req, updateStaffSchema);
 
-  try {
-    const body = await request.json();
+  const existingUser = await db.user.findUnique({
+    where: { id },
+    select: { id: true, name: true, email: true, role: true },
+  });
+  if (!existingUser) throw notFound("Staff member not found.");
 
-    const parsed =
-      updateStaffSchema.safeParse(body);
+  const duplicateEmail = await db.user.findFirst({
+    where: { email, NOT: { id } },
+    select: { id: true },
+  });
+  if (duplicateEmail) throw conflict("Another user already uses this email.");
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          error:
-            parsed.error.issues[0]?.message ??
-            "Invalid staff data.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
+  const updateData: { name: string; email: string; role: UserRole; password?: string } = {
+    name,
+    email,
+    role,
+  };
+  const passwordChanged = Boolean(password && password.trim());
+  if (passwordChanged) updateData.password = await bcrypt.hash(password!.trim(), 12);
 
-    const {
-      name,
-      email,
-      password,
-      role,
-    } = parsed.data;
-
-    const existingUser =
-      await db.user.findUnique({
-        where: {
-          id,
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      });
-
-    if (!existingUser) {
-      return NextResponse.json(
-        {
-          error: "Staff member not found.",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
-    const duplicateEmail =
-      await db.user.findFirst({
-        where: {
-          email,
-          NOT: {
-            id,
-          },
-        },
-        select: {
-          id: true,
-        },
-      });
-
-    if (duplicateEmail) {
-      return NextResponse.json(
-        {
-          error:
-            "Another user already uses this email.",
-        },
-        {
-          status: 409,
-        }
-      );
-    }
-
-    const updateData: {
-      name: string;
-      email: string;
-      role: string;
-      password?: string;
-    } = {
-      name,
-      email,
-      role,
-    };
-
-    if (password && password.trim()) {
-      updateData.password =
-        await bcrypt.hash(
-          password.trim(),
-          12
-        );
-    }
-
-    const updatedUser =
-      await db.$transaction(
-        async (tx) => {
-          const user =
-            await tx.user.update({
-              where: {
-                id,
-              },
-              data: updateData,
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                createdAt: true,
-              },
-            });
-
-          await tx.activityLog.create({
-            data: {
-              userId: session!.user.id,
-              userName:
-                session!.user.name ??
-                session!.user.email ??
-                "Administrator",
-              action: "STAFF_UPDATED",
-              entityType: "USER",
-              entityId: user.id,
-              summary: `Updated staff account for ${user.name}.`,
-              meta: {
-                previousName:
-                  existingUser.name,
-                previousEmail:
-                  existingUser.email,
-                previousRole:
-                  existingUser.role,
-                newEmail: user.email,
-                newRole: user.role,
-                passwordChanged:
-                  Boolean(
-                    password &&
-                      password.trim()
-                  ),
-              },
-            },
-          });
-
-          return user;
-        }
-      );
-
-    return NextResponse.json({
-      staff: updatedUser,
+  const updatedUser = await db.$transaction(async (tx) => {
+    const user = await tx.user.update({
+      where: { id },
+      data: updateData,
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
     });
-  } catch (error) {
-    console.error(
-      "Update staff error:",
-      error
-    );
-
-    return NextResponse.json(
+    await logActivity(
       {
-        error:
-          "Unable to update the staff account.",
+        session,
+        action: "STAFF_UPDATED",
+        entityType: "USER",
+        entityId: user.id,
+        summary: `Updated staff account for ${user.name}.`,
+        meta: {
+          previousName: existingUser.name,
+          previousEmail: existingUser.email,
+          previousRole: existingUser.role,
+          newEmail: user.email,
+          newRole: user.role,
+          passwordChanged,
+        },
       },
-      {
-        status: 500,
-      }
+      tx
     );
-  }
-}
+    return user;
+  });
+
+  return NextResponse.json({ staff: updatedUser });
+});

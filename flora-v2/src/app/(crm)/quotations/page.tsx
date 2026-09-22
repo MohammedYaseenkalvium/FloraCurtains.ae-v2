@@ -268,17 +268,8 @@ export default async function QuotationsPage({
     0
   );
 
-  const totalCollected = quotations.reduce(
-    (sum, quotation) =>
-      sum +
-      quotation.payments.reduce(
-        (paymentTotal, payment) =>
-          paymentTotal + payment.amount,
-        0
-      ),
-    0
-  );
-
+  // Note: quotation-level payments are read-only orphans (no create endpoint;
+  // UI records project payments only). Totals below use project payments.
   function pageHref(nextPage: number) {
     const params = new URLSearchParams();
 

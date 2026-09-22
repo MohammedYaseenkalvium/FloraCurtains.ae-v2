@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 export function EnquiryForm() {
   const router  = useRouter();
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<EnquiryFormValues>({
     resolver: zodResolver(enquiryFormSchema) as Resolver<EnquiryFormValues>,
@@ -18,6 +19,7 @@ export function EnquiryForm() {
   const isB2B = watch("customerType") === "B2B";
 
   async function onSubmit(data: EnquiryFormValues) {
+    setSubmitError("");
     setLoading(true);
     const res = await fetch("/api/enquiries", {
       method:  "POST",
@@ -29,12 +31,13 @@ export function EnquiryForm() {
       router.push(`/enquiries/${enquiry.id}`);
     } else {
       setLoading(false);
-      alert("Error saving enquiry");
+      const payload = await res.json().catch(() => null);
+      setSubmitError(payload?.error ?? "Error saving enquiry");
     }
   }
 
-  const field = "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
-  const label = "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  const field = "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
+  const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
   const err   = "text-red-600 text-xs mt-0.5";
 
   return (
@@ -46,7 +49,7 @@ export function EnquiryForm() {
         <div className="flex gap-3">
           {(["B2C", "B2B"] as const).map(t => (
             <label key={t} className="flex items-center gap-2 cursor-pointer">
-              <input type="radio" value={t} {...register("customerType")} className="accent-[#5A0E12]" />
+              <input type="radio" value={t} {...register("customerType")} className="accent-flora-primary" />
               <span className="text-sm">{t === "B2C" ? "Individual (B2C)" : "Company / Firm (B2B)"}</span>
             </label>
           ))}
@@ -55,7 +58,7 @@ export function EnquiryForm() {
 
       {/* Contact Details */}
       <section>
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Contact Details</h3>
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Contact Details</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={label}>Full Name *</label>
@@ -95,7 +98,7 @@ export function EnquiryForm() {
       {/* B2B Company Details */}
       {isB2B && (
         <section>
-          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Company Details</h3>
+          <h3 className="font-semibold text-sm mb-4 text-flora-primary">Company Details</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={label}>Company / Trade Name *</label>
@@ -123,7 +126,7 @@ export function EnquiryForm() {
 
       {/* Enquiry Details */}
       <section>
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">Enquiry Details</h3>
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">Enquiry Details</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className={label}>Service Wanted *</label>
@@ -159,10 +162,16 @@ export function EnquiryForm() {
 
       <button
         type="submit" disabled={loading}
-        className="bg-[#5A0E12] text-white rounded-lg px-8 py-2.5 text-sm font-medium disabled:opacity-50 hover:bg-[#7A1E22] transition-colors"
+        className="bg-flora-primary text-white rounded-lg px-8 py-2.5 text-sm font-medium disabled:opacity-50 hover:bg-flora-primary-hover transition-colors"
       >
         {loading ? "Saving…" : "Save Enquiry"}
       </button>
+
+      {submitError && (
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {submitError}
+        </p>
+      )}
     </form>
   );
 }

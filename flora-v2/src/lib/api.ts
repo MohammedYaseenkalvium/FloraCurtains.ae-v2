@@ -58,6 +58,20 @@ export async function parseBody<T>(req: Request, schema: ZodSchema<T>): Promise<
   return parsed.data;
 }
 
+/** Parses URL query params against a Zod schema, throwing a 422 ApiError on failure. */
+export function parseQuery<T>(req: NextRequest, schema: ZodSchema<T>): T {
+  const { searchParams } = new URL(req.url);
+  const raw: Record<string, string> = {};
+  searchParams.forEach((value, key) => {
+    raw[key] = value;
+  });
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    throw new ApiError(422, "Invalid query parameters", parsed.error.flatten());
+  }
+  return parsed.data;
+}
+
 function toErrorResponse(err: unknown): NextResponse {
   if (err instanceof ApiError) {
     return NextResponse.json(

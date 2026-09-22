@@ -174,19 +174,19 @@ export function StaffForm({
       className="space-y-6"
     >
       {/* Account Details */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5 flex items-center gap-2">
           <UserRound
             size={17}
-            className="text-[#5A0E12]"
+            className="text-flora-primary"
           />
 
           <div>
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Account Details
             </h2>
 
-            <p className="mt-1 text-xs text-[#6B625A]">
+            <p className="mt-1 text-xs text-flora-muted">
               Basic information for the staff account.
             </p>
           </div>
@@ -197,7 +197,7 @@ export function StaffForm({
           <div>
             <label
               htmlFor="staff-name"
-              className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+              className="mb-2 block text-xs font-semibold text-flora-foreground"
             >
               Full Name
             </label>
@@ -212,7 +212,7 @@ export function StaffForm({
               placeholder="Enter full name"
               autoComplete="name"
               disabled={loading}
-              className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm text-[#1E1B18] outline-none transition placeholder:text-[#A69A91] focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12] disabled:cursor-not-allowed disabled:bg-[#F8F5F2]"
+              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
             />
           </div>
 
@@ -220,7 +220,7 @@ export function StaffForm({
           <div>
             <label
               htmlFor="staff-email"
-              className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+              className="mb-2 block text-xs font-semibold text-flora-foreground"
             >
               Email Address
             </label>
@@ -235,26 +235,26 @@ export function StaffForm({
               placeholder="staff@example.com"
               autoComplete="email"
               disabled={loading}
-              className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm text-[#1E1B18] outline-none transition placeholder:text-[#A69A91] focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12] disabled:cursor-not-allowed disabled:bg-[#F8F5F2]"
+              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
             />
           </div>
         </div>
       </section>
 
       {/* Access */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5 flex items-center gap-2">
           <ShieldCheck
             size={17}
-            className="text-[#5A0E12]"
+            className="text-flora-primary"
           />
 
           <div>
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Access & Security
             </h2>
 
-            <p className="mt-1 text-xs text-[#6B625A]">
+            <p className="mt-1 text-xs text-flora-muted">
               Control what level of access this account has.
             </p>
           </div>
@@ -265,7 +265,7 @@ export function StaffForm({
           <div>
             <label
               htmlFor="staff-role"
-              className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+              className="mb-2 block text-xs font-semibold text-flora-foreground"
             >
               Role
             </label>
@@ -277,7 +277,7 @@ export function StaffForm({
                 setRole(event.target.value)
               }
               disabled={loading}
-              className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm text-[#1E1B18] outline-none transition focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12] disabled:cursor-not-allowed disabled:bg-[#F8F5F2]"
+              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
             >
               <option value="STAFF">
                 Staff
@@ -304,7 +304,7 @@ export function StaffForm({
                 )}
             </select>
 
-            <p className="mt-2 text-xs leading-5 text-[#6B625A]">
+            <p className="mt-2 text-xs leading-5 text-flora-muted">
               Administrators can manage staff accounts.
               Staff users cannot access staff management.
             </p>
@@ -314,7 +314,7 @@ export function StaffForm({
           <div>
             <label
               htmlFor="staff-password"
-              className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+              className="mb-2 block text-xs font-semibold text-flora-foreground"
             >
               {mode === "create"
                 ? "Password"
@@ -346,7 +346,7 @@ export function StaffForm({
                     : "new-password"
                 }
                 disabled={loading}
-                className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 pr-11 text-sm text-[#1E1B18] outline-none transition placeholder:text-[#A69A91] focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12] disabled:cursor-not-allowed disabled:bg-[#F8F5F2]"
+                className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 pr-11 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
               />
 
               <button
@@ -357,7 +357,7 @@ export function StaffForm({
                   )
                 }
                 disabled={loading}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B625A] hover:text-[#5A0E12]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-flora-muted hover:text-flora-primary"
                 aria-label={
                   showPassword
                     ? "Hide password"
@@ -372,7 +372,7 @@ export function StaffForm({
               </button>
             </div>
 
-            <p className="mt-2 text-xs leading-5 text-[#6B625A]">
+            <p className="mt-2 text-xs leading-5 text-flora-muted">
               {mode === "create"
                 ? "The password will be securely hashed before being stored."
                 : "Only enter a password if you want to change it."}
@@ -383,26 +383,26 @@ export function StaffForm({
 
       {/* Messages */}
       {error && (
-        <div className="flex items-start gap-3 rounded-lg border border-[#D8C9BC] bg-white p-4">
+        <div className="flex items-start gap-3 rounded-lg border border-flora-border bg-white p-4">
           <AlertCircle
             size={17}
-            className="mt-0.5 shrink-0 text-[#5A0E12]"
+            className="mt-0.5 shrink-0 text-flora-primary"
           />
 
-          <p className="text-sm text-[#5A0E12]">
+          <p className="text-sm text-flora-primary">
             {error}
           </p>
         </div>
       )}
 
       {success && (
-        <div className="flex items-start gap-3 rounded-lg border border-[#D8C9BC] bg-white p-4">
+        <div className="flex items-start gap-3 rounded-lg border border-flora-border bg-white p-4">
           <CheckCircle2
             size={17}
-            className="mt-0.5 shrink-0 text-[#5A0E12]"
+            className="mt-0.5 shrink-0 text-flora-primary"
           />
 
-          <p className="text-sm text-[#5A0E12]">
+          <p className="text-sm text-flora-primary">
             {success}
           </p>
         </div>
@@ -416,7 +416,7 @@ export function StaffForm({
             router.push("/staff")
           }
           disabled={loading}
-          className="inline-flex h-11 items-center justify-center rounded-lg border border-[#D8C9BC] bg-white px-5 text-sm font-semibold text-[#6B625A] transition-colors hover:bg-[#F8F5F2] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-lg border border-flora-border bg-white px-5 text-sm font-semibold text-flora-muted transition-colors hover:bg-flora-surface disabled:cursor-not-allowed disabled:opacity-60"
         >
           Cancel
         </button>
@@ -424,7 +424,7 @@ export function StaffForm({
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-flora-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>

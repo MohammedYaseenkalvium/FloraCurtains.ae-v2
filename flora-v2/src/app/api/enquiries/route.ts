@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { enquiryFormSchema } from "@/types";
-import { requireAuth, parseBody, withErrorHandling } from "@/lib/api";
+import { requireAuth, parseBody, parseQuery, withErrorHandling } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
-import type { EnquiryStatus } from "@prisma/client";
+
+const listQuerySchema = z.object({
+  status: z
+    .enum(["NEW", "CONTACTED", "VISIT_SCHEDULED", "QUOTED", "NEGOTIATING", "WON", "LOST"])
+    .optional(),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requireAuth();
 
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") as EnquiryStatus | null;
-  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-  const pageSize = 20;
+  const { status, page, pageSize } = parseQuery(req, listQuerySchema);
 
   const where = {
     deletedAt: null,

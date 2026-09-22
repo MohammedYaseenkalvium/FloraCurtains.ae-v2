@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
+import { calcLifetimeRevenue, calcOutstanding, sumPayments } from "@/lib/finance";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface CustomerFinancialSummary {
@@ -237,23 +237,21 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
   const totalQuoted = quotations.reduce((sum, q) => sum + q.totalAmount, 0);
   const totalContractValue = projects.reduce((sum, p) => sum + p.totalContractValue, 0);
   
-  // Lifetime revenue = approved quotes + project contract values (avoid double counting)
-  const approvedQuotesTotal = quotations
-    .filter(q => q.status === "APPROVED")
-    .reduce((sum, q) => sum + q.totalAmount, 0);
+  // Lifetime revenue = project values + approved quotes WITHOUT a project
+  // (avoids double-counting a converted quote -> project).
+  // Canonical formula — see src/lib/finance.ts.
+  const { lifetimeRevenue } = calcLifetimeRevenue({
+    projects: projects.map((p) => ({
+      totalContractValue: p.totalContractValue,
+      quotationId: p.quotationId,
+    })),
+    approvedQuotations: quotations
+      .filter((q) => q.status === "APPROVED")
+      .map((q) => ({ id: q.id, totalAmount: q.totalAmount })),
+  });
   
-  // If project exists for approved quote, use project contract value instead
-  const projectValues = projects.reduce((sum, p) => sum + p.totalContractValue, 0);
-  
-  // Lifetime revenue is the higher of: approved quotes not yet projects + all project values
-  const quotesWithoutProjects = quotations
-    .filter(q => q.status === "APPROVED" && !projects.some(p => p.quotationId === q.id))
-    .reduce((sum, q) => sum + q.totalAmount, 0);
-  
-  const lifetimeRevenue = projectValues + quotesWithoutProjects;
-  
-  const totalPaid = allPayments.reduce((sum, p) => sum + p.amount, 0);
-  const outstanding = Math.max(0, lifetimeRevenue - totalPaid);
+  const totalPaid = sumPayments(allPayments);
+  const outstanding = calcOutstanding(lifetimeRevenue, totalPaid);
 
   // Active projects (not completed or on hold)
   const activeStatuses = ["NOT_STARTED", "IN_PROGRESS", "INSTALLATION", "SNAGGING"];
@@ -299,10 +297,14 @@ function buildLedger(
   payments: PaymentFinancial[]
 ): LedgerEntry[] {
   const entries: LedgerEntry[] = [];
+  const projectQuotationIds = new Set(
+    projects.map((p) => p.quotationId).filter(Boolean) as string[]
+  );
 
-  // Add approved quotations as debits
+  // Add approved STANDALONE quotations as debits (skip converted quotes —
+  // their project debit below already represents the debt).
   quotations
-    .filter(q => q.status === "APPROVED")
+    .filter((q) => q.status === "APPROVED" && !projectQuotationIds.has(q.id))
     .forEach(q => {
       entries.push({
         id: `Q-${q.id}`,
@@ -375,19 +377,23 @@ export async function getAllOutstandingBalances() {
     const quotations = contact.enquiries.flatMap(e => e.quotations);
     const projects = contact.enquiries.map(e => e.project).filter(Boolean);
     
-    const approvedQuotes = quotations.filter(q => q.status === "APPROVED");
-    const totalApproved = approvedQuotes.reduce((sum, q) => sum + q.totalAmount, 0);
-    const projectValues = projects.reduce((sum, p) => sum + (p?.totalContractValue ?? 0), 0);
+    // Canonical formula — see src/lib/finance.ts (no max() heuristic).
+    const { lifetimeRevenue: lifetimeValue } = calcLifetimeRevenue({
+      projects: projects.map((p) => ({
+        totalContractValue: p?.totalContractValue ?? 0,
+        quotationId: p?.quotationId ?? null,
+      })),
+      approvedQuotations: quotations
+        .filter((q) => q.status === "APPROVED")
+        .map((q) => ({ id: q.id, totalAmount: q.totalAmount })),
+    });
     
     const allPayments = [
       ...quotations.flatMap(q => q.payments),
       ...projects.flatMap(p => p?.payments ?? []),
     ];
-    const totalPaid = allPayments.reduce((sum, p) => sum + p.amount, 0);
-    
-    // Use project values if they exist, otherwise approved quotes
-    const lifetimeValue = Math.max(projectValues, totalApproved);
-    const outstanding = Math.max(0, lifetimeValue - totalPaid);
+    const totalPaid = sumPayments(allPayments);
+    const outstanding = calcOutstanding(lifetimeValue, totalPaid);
 
     // Days since last payment
     const lastPayment = allPayments.sort((a, b) => b.paidAt.getTime() - a.paidAt.getTime())[0];

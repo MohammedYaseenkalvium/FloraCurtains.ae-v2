@@ -8,13 +8,16 @@ export function TaskManager({
   enquiryId,
   projectId,
   initialTasks,
+  allowCreate = true,
 }: {
   enquiryId?: string;
   projectId?: string;
   initialTasks: Task[];
+  allowCreate?: boolean;
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [open, setOpen] = useState(false);
+  const [createError, setCreateError] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -23,10 +26,11 @@ export function TaskManager({
     priority: "MEDIUM" as TaskPriority,
   });
 
-  const field = "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
-  const label = "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  const field = "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
+  const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
   async function addTask() {
+    setCreateError("");
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -41,6 +45,9 @@ export function TaskManager({
       setTasks(prev => [...prev, task]);
       setOpen(false);
       setForm({ title: "", description: "", assignedTo: "", dueDate: "", priority: "MEDIUM" });
+    } else {
+      const data = await res.json().catch(() => null);
+      setCreateError(data?.error ?? "Unable to create task.");
     }
   }
 
@@ -69,18 +76,18 @@ export function TaskManager({
       <div className="space-y-2 mb-4">
         {tasks.map(task => (
           <div key={task.id} className="flex items-center gap-3 text-sm group">
-            <button onClick={() => toggleDone(task)} className="shrink-0">
+            <button onClick={() => toggleDone(task)} aria-label={task.done ? `Reopen task ${task.title}` : `Complete task ${task.title}`} className="shrink-0">
               {task.done ? (
                 <CheckCircle2 size={16} className="text-green-600" />
               ) : (
-                <Circle size={16} className="text-[#5A0E12]" />
+                <Circle size={16} className="text-flora-primary" />
               )}
             </button>
-            <span className={task.done ? "line-through text-[#6B625A]" : "flex-1"}>
+            <span className={task.done ? "line-through text-flora-muted" : "flex-1"}>
               {task.title}
             </span>
             {task.assignedTo && (
-              <span className="text-xs text-[#6B625A]">@{task.assignedTo}</span>
+              <span className="text-xs text-flora-muted">@{task.assignedTo}</span>
             )}
             <span
               className="px-2 py-0.5 rounded-full text-xs font-medium"
@@ -89,33 +96,42 @@ export function TaskManager({
               {task.priority}
             </span>
             {task.dueDate && (
-              <span className="text-xs text-[#6B625A]">
+              <span className="text-xs text-flora-muted">
                 {new Date(task.dueDate).toLocaleDateString("en-AE")}
               </span>
             )}
             <button
               onClick={() => deleteTask(task.id)}
-              className="opacity-0 group-hover:opacity-100 text-[#6B625A] hover:text-red-700 transition-opacity"
+              aria-label={`Delete task ${task.title}`}
+              title="Delete task (admin only)"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 text-flora-muted hover:text-red-700 transition-opacity"
             >
               <Trash2 size={14} />
             </button>
           </div>
         ))}
         {tasks.length === 0 && (
-          <p className="text-sm text-[#6B625A]">No tasks yet.</p>
+          <p className="text-sm text-flora-muted">No tasks yet.</p>
         )}
       </div>
 
       {!open ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 text-[#5A0E12] text-sm hover:underline"
-        >
-          <PlusCircle size={15} /> Add Task
-        </button>
+        allowCreate ? (
+          <button
+            onClick={() => { setCreateError(""); setOpen(true); }}
+            className="flex items-center gap-2 text-flora-primary text-sm hover:underline"
+          >
+            <PlusCircle size={15} /> Add Task
+          </button>
+        ) : null
       ) : (
-        <div className="border border-[#D8C9BC] rounded-xl p-4 space-y-3">
-          <h4 className="font-semibold text-sm text-[#5A0E12]">New Task</h4>
+        <div className="border border-flora-border rounded-xl p-4 space-y-3">
+          <h4 className="font-semibold text-sm text-flora-primary">New Task</h4>
+          {createError && (
+            <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {createError}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className={label}>Title *</label>
@@ -168,13 +184,13 @@ export function TaskManager({
             <button
               onClick={addTask}
               disabled={!form.title}
-              className="bg-[#5A0E12] text-white rounded-lg px-6 py-2 text-sm font-medium hover:bg-[#7A1E22] disabled:opacity-50"
+              className="bg-flora-primary text-white rounded-lg px-6 py-2 text-sm font-medium hover:bg-flora-primary-hover disabled:opacity-50"
             >
               Add Task
             </button>
             <button
               onClick={() => setOpen(false)}
-              className="bg-[#EFE7DF] text-[#6B625A] rounded-lg px-6 py-2 text-sm"
+              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-6 py-2 text-sm"
             >
               Cancel
             </button>

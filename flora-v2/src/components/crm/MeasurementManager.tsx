@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type Measurement = {
   id: string;
@@ -39,10 +40,10 @@ type FormState = {
 };
 
 const field =
-  "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
+  "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
 
 const label =
-  "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
 const emptyForm: FormState = {
   roomName: "",
@@ -98,6 +99,7 @@ export function MeasurementManager({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   function resetForm() {
     setForm(emptyForm);
@@ -244,12 +246,6 @@ export function MeasurementManager({
   async function deleteMeasurement(
     measurementId: string
   ) {
-    const confirmed = window.confirm(
-      "Delete this measurement? This action cannot be undone."
-    );
-
-    if (!confirmed) return;
-
     setError("");
     setLoading(true);
 
@@ -288,19 +284,20 @@ export function MeasurementManager({
       );
     } finally {
       setLoading(false);
+      setPendingDeleteId(null);
     }
   }
 
   return (
-    <div className="border-t border-[#EFE7DF] mt-5 pt-5">
+    <div className="border-t border-flora-border/60 mt-5 pt-5">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4">
         <div>
-          <h4 className="font-semibold text-sm text-[#5A0E12]">
+          <h4 className="font-semibold text-sm text-flora-primary">
             Measurements
           </h4>
 
-          <p className="text-xs text-[#6B625A] mt-1">
+          <p className="text-xs text-flora-muted mt-1">
             Record window and curtain measurements for
             this visit.
           </p>
@@ -310,7 +307,7 @@ export function MeasurementManager({
           <button
             type="button"
             onClick={startCreate}
-            className="bg-[#5A0E12] text-white rounded-lg px-3 py-2 text-xs font-medium hover:bg-[#74171C] transition-colors"
+            className="bg-flora-primary text-white rounded-lg px-3 py-2 text-xs font-medium hover:bg-flora-primary-hover transition-colors"
           >
             + Add Measurement
           </button>
@@ -326,16 +323,16 @@ export function MeasurementManager({
 
       {/* Form */}
       {showForm && (
-        <div className="border border-[#D8C9BC] rounded-xl p-4 mb-5 bg-[#FCFAF8]">
+        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-[#FCFAF8]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h5 className="font-semibold text-sm text-[#5A0E12]">
+              <h5 className="font-semibold text-sm text-flora-primary">
                 {editingId
                   ? "Edit Measurement"
                   : "Add Measurement"}
               </h5>
 
-              <p className="text-xs text-[#6B625A] mt-1">
+              <p className="text-xs text-flora-muted mt-1">
                 Enter the exact dimensions recorded on
                 site.
               </p>
@@ -345,7 +342,7 @@ export function MeasurementManager({
               type="button"
               onClick={resetForm}
               disabled={loading}
-              className="text-[#6B625A] hover:text-[#5A0E12] text-sm"
+              className="text-flora-muted hover:text-flora-primary text-sm"
             >
               ×
             </button>
@@ -597,7 +594,7 @@ export function MeasurementManager({
               type="button"
               onClick={saveMeasurement}
               disabled={loading}
-              className="bg-[#5A0E12] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#74171C] disabled:opacity-50"
+              className="bg-flora-primary text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-flora-primary-hover disabled:opacity-50"
             >
               {loading
                 ? "Saving..."
@@ -610,7 +607,7 @@ export function MeasurementManager({
               type="button"
               onClick={resetForm}
               disabled={loading}
-              className="bg-[#EFE7DF] text-[#6B625A] rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
+              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
             >
               Cancel
             </button>
@@ -620,14 +617,14 @@ export function MeasurementManager({
 
       {/* Empty */}
       {measurements.length === 0 && !showForm && (
-        <div className="border border-dashed border-[#D8C9BC] rounded-xl p-6 text-center">
+        <div className="border border-dashed border-flora-border rounded-xl p-6 text-center">
           <div className="text-2xl mb-2">⌗</div>
 
-          <p className="text-sm font-medium text-[#1E1B18]">
+          <p className="text-sm font-medium text-flora-foreground">
             No measurements recorded
           </p>
 
-          <p className="text-xs text-[#6B625A] mt-1">
+          <p className="text-xs text-flora-muted mt-1">
             Add the room and opening dimensions
             collected during the visit.
           </p>
@@ -640,22 +637,22 @@ export function MeasurementManager({
           {measurements.map((measurement, index) => (
             <div
               key={measurement.id}
-              className="border border-[#D8C9BC] rounded-xl p-4 bg-[#FCFAF8]"
+              className="border border-flora-border rounded-xl p-4 bg-[#FCFAF8]"
             >
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 {/* Main */}
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-[#6B625A]">
+                    <span className="text-xs font-semibold text-flora-muted">
                       #{index + 1}
                     </span>
 
-                    <h5 className="font-semibold text-sm text-[#1E1B18]">
+                    <h5 className="font-semibold text-sm text-flora-foreground">
                       {measurement.roomName}
                     </h5>
 
                     {measurement.openingName && (
-                      <span className="text-sm text-[#6B625A]">
+                      <span className="text-sm text-flora-muted">
                         · {measurement.openingName}
                       </span>
                     )}
@@ -663,7 +660,7 @@ export function MeasurementManager({
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
                     <div>
-                      <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                      <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                         Size
                       </span>
 
@@ -682,7 +679,7 @@ export function MeasurementManager({
                     </div>
 
                     <div>
-                      <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                      <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                         Quantity
                       </span>
 
@@ -693,7 +690,7 @@ export function MeasurementManager({
 
                     {measurement.openingType && (
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                        <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                           Opening
                         </span>
 
@@ -708,7 +705,7 @@ export function MeasurementManager({
 
                     {measurement.curtainType && (
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                        <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                           Curtain
                         </span>
 
@@ -720,7 +717,7 @@ export function MeasurementManager({
 
                     {measurement.trackType && (
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                        <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                           Track
                         </span>
 
@@ -732,12 +729,12 @@ export function MeasurementManager({
                   </div>
 
                   {measurement.remarks && (
-                    <div className="mt-3 pt-3 border-t border-[#EFE7DF]">
-                      <span className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                    <div className="mt-3 pt-3 border-t border-flora-border/60">
+                      <span className="text-[10px] uppercase tracking-widest text-flora-muted">
                         Remarks
                       </span>
 
-                      <p className="text-sm text-[#6B625A] mt-1 whitespace-pre-wrap">
+                      <p className="text-sm text-flora-muted mt-1 whitespace-pre-wrap">
                         {measurement.remarks}
                       </p>
                     </div>
@@ -752,7 +749,7 @@ export function MeasurementManager({
                       startEdit(measurement)
                     }
                     disabled={loading}
-                    className="border border-[#D8C9BC] rounded-lg px-3 py-1.5 text-xs text-[#5A0E12] hover:bg-[#EFE7DF] disabled:opacity-50"
+                    className="border border-flora-border rounded-lg px-3 py-1.5 text-xs text-flora-primary hover:bg-[#EFE7DF] disabled:opacity-50"
                   >
                     Edit
                   </button>
@@ -760,11 +757,12 @@ export function MeasurementManager({
                   <button
                     type="button"
                     onClick={() =>
-                      deleteMeasurement(
+                      setPendingDeleteId(
                         measurement.id
                       )
                     }
                     disabled={loading}
+                    aria-label={`Delete measurement ${measurement.roomName}`}
                     className="border border-[#E8B4B4] rounded-lg px-3 py-1.5 text-xs text-[#991B1B] hover:bg-[#FEF2F2] disabled:opacity-50"
                   >
                     Delete
@@ -775,6 +773,19 @@ export function MeasurementManager({
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        title="Delete measurement?"
+        description="This action cannot be undone."
+        confirmLabel="Delete measurement"
+        loading={loading}
+        onConfirm={() => {
+          if (pendingDeleteId) deleteMeasurement(pendingDeleteId);
+        }}
+      />
     </div>
   );
 }

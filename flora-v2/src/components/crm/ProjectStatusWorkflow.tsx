@@ -8,6 +8,7 @@ import {
   CirclePause,
   Play,
   Wrench,
+  X,
 } from "lucide-react";
 
 type WorkflowAction = {
@@ -31,6 +32,11 @@ const transitions: Record<
       label: "Put On Hold",
       icon: CirclePause,
     },
+    {
+      status: "CANCELLED",
+      label: "Cancel Project",
+      icon: X,
+    },
   ],
 
   IN_PROGRESS: [
@@ -43,6 +49,11 @@ const transitions: Record<
       status: "ON_HOLD",
       label: "Put On Hold",
       icon: CirclePause,
+    },
+    {
+      status: "CANCELLED",
+      label: "Cancel Project",
+      icon: X,
     },
   ],
 
@@ -74,6 +85,8 @@ const transitions: Record<
 
   COMPLETED: [],
 
+  CANCELLED: [],
+
   ON_HOLD: [
     {
       status: "IN_PROGRESS",
@@ -84,6 +97,11 @@ const transitions: Record<
       status: "INSTALLATION",
       label: "Resume Installation",
       icon: Wrench,
+    },
+    {
+      status: "CANCELLED",
+      label: "Cancel Project",
+      icon: X,
     },
   ],
 };
@@ -98,6 +116,7 @@ const statusLabels: Record<
   SNAGGING: "Snagging",
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
+  CANCELLED: "Cancelled",
 };
 
 const statusStyles: Record<
@@ -142,6 +161,12 @@ const statusStyles: Record<
     background: "#FEF2F2",
     text: "#991B1B",
     border: "#E8BDBD",
+  },
+
+  CANCELLED: {
+    background: "#F5F5F4",
+    text: "#57534E",
+    border: "#D6D3D1",
   },
 };
 
@@ -275,7 +300,7 @@ export function ProjectStatusWorkflow({
                       ? "border border-[#E8BDBD] bg-[#FEF2F2] text-[#991B1B] hover:bg-[#FDE8E8]"
                       : isComplete
                         ? "border border-[#B7D8CC] bg-[#EDF7F3] text-[#166534] hover:bg-[#E0F1EB]"
-                        : "bg-[#5A0E12] text-white hover:bg-[#74171C]",
+                        : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >
                   <Icon size={13} />

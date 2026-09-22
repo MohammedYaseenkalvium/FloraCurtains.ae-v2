@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import type { EnquiryStatus } from "@prisma/client";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const statuses: EnquiryStatus[] = [
   "NEW",
@@ -11,16 +15,6 @@ const statuses: EnquiryStatus[] = [
   "WON",
   "LOST",
 ];
-
-const statusStyles: Record<EnquiryStatus, string> = {
-  NEW: "bg-stone-100 text-stone-700",
-  CONTACTED: "bg-blue-50 text-blue-700",
-  VISIT_SCHEDULED: "bg-amber-50 text-amber-700",
-  QUOTED: "bg-emerald-50 text-emerald-700",
-  NEGOTIATING: "bg-violet-50 text-violet-700",
-  WON: "bg-green-50 text-green-700",
-  LOST: "bg-red-50 text-red-700",
-};
 
 const statusLabels: Record<EnquiryStatus, string> = {
   NEW: "New",
@@ -292,60 +286,47 @@ export default async function EnquiriesPage({
       </section>
 
       {/* Lead Table */}
-      <section className="overflow-hidden rounded-xl border border-flora-border bg-white">
-        <div className="flex flex-col gap-2 border-b border-flora-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-semibold text-flora-foreground">
-              {enquiryStatus
-                ? `${statusLabels[enquiryStatus]} Leads`
-                : "All Leads"}
-            </h2>
-
-            <p className="mt-1 text-xs text-flora-muted">
-              {total} {total === 1 ? "enquiry" : "enquiries"} found
-              {search ? ` for "${search}"` : ""}
-            </p>
-          </div>
-
-          {enquiryStatus && (
+      <Card
+        padded={false}
+        className="overflow-hidden"
+        title={
+          enquiryStatus
+            ? `${statusLabels[enquiryStatus]} Leads`
+            : "All Leads"
+        }
+        description={`${total} ${total === 1 ? "enquiry" : "enquiries"} found${
+          search ? ` for "${search}"` : ""
+        }`}
+        action={
+          enquiryStatus ? (
             <Link
               href={buildPageUrl(1, undefined, search)}
               className="text-xs font-medium text-flora-primary hover:underline"
             >
               View all leads →
             </Link>
-          )}
-        </div>
-
+          ) : undefined
+        }
+      >
         {data.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-xl text-flora-primary">
-              +
-            </div>
-
-            <h3 className="mt-4 font-semibold text-flora-foreground">
-              No enquiries found
-            </h3>
-
-            <p className="mx-auto mt-2 max-w-md text-sm text-flora-muted">
-              {search
+          <EmptyState
+            icon="+"
+            title="No enquiries found"
+            hint={
+              search
                 ? "Try a different search term or clear the current filter."
                 : enquiryStatus
                   ? `There are currently no ${statusLabels[
                       enquiryStatus
                     ].toLowerCase()} leads.`
-                  : "Start building your pipeline by logging a new lead."}
-            </p>
-
-            {!search && !enquiryStatus && (
-              <Link
-                href="/enquiries/new"
-                className="mt-5 inline-flex rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-flora-primary-hover"
-              >
-                + Log Call / Lead
-              </Link>
-            )}
-          </div>
+                  : "Start building your pipeline by logging a new lead."
+            }
+            action={
+              !search && !enquiryStatus ? (
+                <Button href="/enquiries/new">+ Log Call / Lead</Button>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-sm">
@@ -407,14 +388,7 @@ export default async function EnquiriesPage({
 
                     {/* Status */}
                     <td className="px-5 py-4">
-                      <span
-                        className={[
-                          "inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium",
-                          statusStyles[enquiry.status],
-                        ].join(" ")}
-                      >
-                        {statusLabels[enquiry.status]}
-                      </span>
+                      <StatusBadge domain="enquiry" status={enquiry.status} />
                     </td>
 
                     {/* Interest */}
@@ -468,7 +442,7 @@ export default async function EnquiriesPage({
             </table>
           </div>
         )}
-      </section>
+      </Card>
 
       {/* Pagination */}
       {total > 0 && (

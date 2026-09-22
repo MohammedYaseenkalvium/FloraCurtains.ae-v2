@@ -1,22 +1,89 @@
-export const services = [
+export interface ServiceOffering {
+  slug: string;
+  title: string;
+  description: string;
+  offerings: string[];
+  emphasis: string;
+  image: string;
+}
+
+export const services: ServiceOffering[] = [
   {
-    title: "Curtains",
+    slug: "curtains-blinds",
+    title: "Curtains & Blinds",
     description:
-      "Custom-made curtains tailored to your interior, privacy needs and preferred finish.",
+      "Premium curtains and smart window solutions designed for style, functionality and a perfect finish.",
+    offerings: [
+      "Blackout Curtains",
+      "Sheer Curtains",
+      "Motorized Curtains",
+      "Roller Blinds",
+      "Roman Blinds",
+      "Venetian Blinds",
+      "Wooden Blinds",
+      "Custom Designs & Installation",
+    ],
+    emphasis: "Professional measurement, customization and installation with finishing quality.",
+    image: "/images/portfolio-1.jpg",
   },
   {
-    title: "Blinds",
+    slug: "wallpaper",
+    title: "Wallpaper Solutions",
     description:
-      "Practical and refined blind solutions for homes, offices and commercial spaces.",
+      "Luxury wallpapers with seamless installation and a premium finish for any room.",
+    offerings: [
+      "Contemporary Designs",
+      "Textured Wallpapers",
+      "Luxury Patterns",
+      "Minimal & Modern Styles",
+      "Feature Wall Concepts",
+    ],
+    emphasis: "Luxury materials with seamless installation and a premium finish.",
+    image: "/images/portfolio-2.jpg",
   },
   {
-    title: "Motorized Curtains",
+    slug: "sofas-upholstery",
+    title: "Customized Sofas & Upholstery",
     description:
-      "Modern motorized window treatments designed for convenience, control and comfort.",
+      "Custom-made sofas and reupholstery crafted for comfort, durability and your interior.",
+    offerings: [
+      "Custom-Made Sofas",
+      "Reupholstery Services",
+      "Premium Fabric Selection",
+      "Modern & Classic Designs",
+      "Cushion & Headboard Customization",
+    ],
+    emphasis: "Comfort, customization and craftsmanship with curated fabric selection.",
+    image: "/images/portfolio-3.jpg",
   },
   {
-    title: "Custom Window Solutions",
+    slug: "interior-decoration",
+    title: "Interior Decoration",
     description:
-      "Thoughtfully measured and made-to-fit solutions for unique windows and interiors.",
+      "Personalized interior styling for homes and offices — functional, modern and elegant.",
+    offerings: [
+      "Home Interior Styling",
+      "Villa & Apartment Decoration",
+      "Office Interior Solutions",
+      "Space Planning",
+      "Color & Material Selection",
+    ],
+    emphasis: "Personalization, functionality and modern elegance.",
+    image: "/images/portfolio-4.jpg",
+  },
+  {
+    slug: "flooring",
+    title: "Carpet & Wooden Flooring",
+    description:
+      "Durable carpets and flooring with professional installation and a refined finish.",
+    offerings: [
+      "Wall-to-Wall Carpets",
+      "Vinyl Flooring",
+      "Wooden Flooring",
+      "Laminate Flooring",
+      "Custom Carpet Installation",
+    ],
+    emphasis: "Durable materials, professional installation and a lasting finish.",
+    image: "/images/portfolio-5.jpg",
   },
 ];

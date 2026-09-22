@@ -1,5 +1,11 @@
 "use server";
 
+/**
+ * Legacy quotation-scoped payment writer (no UI callers — retained so existing
+ * quotation-payment rows stay readable via getPayments/quotation detail).
+ * New payments MUST go through POST /api/projects/[id]/payments (canonical).
+ */
+
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";

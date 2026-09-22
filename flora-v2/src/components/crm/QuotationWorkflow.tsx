@@ -268,7 +268,7 @@ export function QuotationStatusWorkflow({
                       ? "border border-[#E8BDBD] bg-[#FEF2F2] text-[#991B1B] hover:bg-[#FDE8E8]"
                       : isRevise
                         ? "border border-[#E6D19B] bg-[#FEF9E7] text-[#854D0E] hover:bg-[#FDF3CF]"
-                        : "bg-[#5A0E12] text-white hover:bg-[#74171C]",
+                        : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >
                   <Icon size={13} />

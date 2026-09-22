@@ -19,7 +19,7 @@ export default async function NewQuotationPage({
   return (
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight mb-1">Create Quotation</h1>
-      <p className="text-[#6B625A] text-sm mb-8">
+      <p className="text-flora-muted text-sm mb-8">
         For <strong>{enquiry.contact.name}</strong>
         {enquiry.company ? ` · ${enquiry.company.tradeName}` : ""} — {enquiry.serviceWanted}
       </p>

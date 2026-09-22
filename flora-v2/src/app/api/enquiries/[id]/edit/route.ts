@@ -4,6 +4,14 @@ import { db } from "@/lib/db";
 import { requireAuth, parseBody, withErrorHandling } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 
+/**
+ * PATCH /api/enquiries/:id/edit
+ *
+ * @deprecated Duplicate of PATCH /api/enquiries/:id (same fields).
+ * Kept for backward compatibility with existing CRM forms.
+ * New code must use PATCH /api/enquiries/:id.
+ */
+
 type Ctx = { params: Promise<{ id: string }> };
 
 const editSchema = z.object({

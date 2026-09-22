@@ -1,88 +1,116 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ArrowDown, ArrowRight } from "lucide-react";
+import { gsap } from "gsap";
+import { GlassCard } from "@/components/website/GlassCard";
 
+/**
+ * Full-screen editorial hero: photographic backdrop (image stays visible
+ * under a restrained burgundy-tinted grade), staggered entrance, glass
+ * experience card, scroll cue. Static when reduced motion is preferred.
+ */
 export function HeroSection() {
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".hero-media",
+        { scale: 1.05 },
+        { scale: 1, duration: 1.6, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        ".hero-rise",
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.9, stagger: 0.12, ease: "power3.out", delay: 0.15 }
+      );
+      gsap.fromTo(
+        ".hero-fade",
+        { opacity: 0 },
+        { opacity: 1, duration: 1, ease: "power2.out", delay: 0.7 }
+      );
+    }, el);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative overflow-hidden border-b border-[#D8C9BC]">
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-2 lg:items-center lg:px-8 lg:py-28">
-        <div>
-          <span className="inline-flex rounded-full border border-[#D8C9BC] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
-            Bespoke Window Solutions
-          </span>
+    <section ref={root} className="relative flex min-h-svh items-center overflow-hidden bg-flora-ink text-white">
+      {/* Backdrop */}
+      <div className="hero-media absolute inset-0" aria-hidden="true">
+        <Image
+          src="/images/hero-curtains.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* Restrained grade: image stays visible */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2A0E11]/80 via-[#2A0E11]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1C0A0C]/70 via-transparent to-[#1C0A0C]/25" />
+      </div>
 
-          <h1 className="mt-6 max-w-3xl font-serif text-5xl leading-[0.98] tracking-tight text-[#1E1B18] sm:text-6xl lg:text-7xl">
-            Windows,
-            <br />
-            <span className="text-[#5A0E12]">
-              beautifully finished.
-            </span>
-          </h1>
-
-          <p className="mt-7 max-w-xl text-base leading-7 text-[#6B625A] sm:text-lg">
-            Bespoke curtains, blinds and window treatments
-            designed around the way you live and work.
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-24 pt-36 lg:px-8 lg:pb-28 lg:pt-40">
+        <div className="max-w-2xl">
+          <p className="hero-rise text-xs font-semibold uppercase tracking-[0.28em] text-flora-gold">
+            Flora Curtains
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <h1 className="hero-rise mt-6 font-display text-[2.75rem] leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+            Transforming Spaces
+            <br />
+            with Style, Comfort
+            <br />
+            <span className="text-flora-gold">&amp; Elegance.</span>
+          </h1>
+
+          <p className="hero-rise mt-7 max-w-xl text-base leading-7 text-white/80 sm:text-lg">
+            Premium curtains, interiors and customized
+            furnishing solutions across the UAE.
+          </p>
+
+          <div className="hero-rise mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+              href="/services"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-flora-lg transition-all hover:-translate-y-0.5 hover:bg-flora-primary-hover"
+            >
+              Explore Services
+              <ArrowRight size={15} />
+            </Link>
+
+            <Link
+              href="/get-quote"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
             >
               Get a Quote
-              <ArrowRight size={16} />
             </Link>
-
-            <Link
-              href="/portfolio"
-              className="inline-flex items-center justify-center rounded-lg border border-[#D8C9BC] bg-white px-6 py-3.5 text-sm font-semibold text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
-            >
-              View Our Work
-            </Link>
-          </div>
-
-          <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3">
-            {[
-              "Custom made",
-              "Professional measurement",
-              "Installation support",
-            ].map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center gap-2 text-xs font-medium text-[#6B625A]"
-              >
-                <CheckCircle2
-                  size={14}
-                  className="text-[#5A0E12]"
-                />
-                {item}
-              </span>
-            ))}
           </div>
         </div>
 
-        <div className="relative">
-          <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-[#D8C9BC] bg-[#F8F5F2]">
-            <img
-              src="/images/hero-curtains.jpg"
-              alt="Bespoke curtain interior"
-              className="h-full w-full object-cover"
-            />
-          </div>
-
-          <div className="absolute -bottom-5 -left-5 max-w-xs rounded-xl border border-[#D8C9BC] bg-white p-5 shadow-sm">
-            <p className="font-serif text-xl text-[#5A0E12]">
-              Made for your space.
-            </p>
-
-            <p className="mt-2 text-xs leading-5 text-[#6B625A]">
-              From consultation and measurement to
-              installation.
-            </p>
-          </div>
+        {/* Floating glass card */}
+        <div className="hero-fade mt-14 max-w-xs sm:absolute sm:bottom-24 sm:right-5 lg:right-8">
+          <GlassCard
+            eyebrow="Experience"
+            value="25+ Years"
+            description="Interior craftsmanship rooted in experience."
+          />
         </div>
+
+        {/* Scroll cue */}
+        <a
+          href="#experience"
+          aria-label="Scroll to experience section"
+          className="hero-fade absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-white/60 transition-colors hover:text-white md:flex"
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">Scroll</span>
+          <ArrowDown size={16} className="animate-bounce" />
+        </a>
       </div>
     </section>
   );

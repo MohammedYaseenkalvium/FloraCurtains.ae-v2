@@ -34,10 +34,10 @@ export function ConvertToProject({
   });
 
   const field =
-    "w-full rounded-lg border border-[#D8C9BC] bg-[#F8F5F2] px-3 py-2 text-sm outline-none transition-colors focus:border-[#5A0E12] focus:bg-white";
+    "w-full rounded-lg border border-flora-border bg-flora-surface px-3 py-2 text-sm outline-none transition-colors focus:border-flora-primary focus:bg-white";
 
   const label =
-    "mb-1 block text-[10px] font-medium uppercase tracking-widest text-[#6B625A]";
+    "mb-1 block text-[10px] font-medium uppercase tracking-widest text-flora-muted";
 
   function updateField(
     key: keyof typeof form,
@@ -133,11 +133,11 @@ export function ConvertToProject({
     <div className="rounded-xl border border-[#B7D8CC] bg-white p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-[#1E1B18]">
+          <h3 className="text-sm font-semibold text-flora-foreground">
             Convert to Project
           </h3>
 
-          <p className="mt-1 text-xs text-[#6B625A]">
+          <p className="mt-1 text-xs text-flora-muted">
             Create a project from this approved quotation.
           </p>
         </div>
@@ -147,7 +147,7 @@ export function ConvertToProject({
           onClick={() => setOpen(false)}
           disabled={loading}
           aria-label="Close conversion form"
-          className="rounded-lg p-2 text-[#6B625A] transition-colors hover:bg-[#F8F5F2] disabled:opacity-50"
+          className="rounded-lg p-2 text-flora-muted transition-colors hover:bg-flora-surface disabled:opacity-50"
         >
           <X size={16} />
         </button>
@@ -284,7 +284,7 @@ export function ConvertToProject({
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3 border-t border-[#EFE7DF] pt-5">
+      <div className="mt-5 flex flex-wrap gap-3 border-t border-flora-border/60 pt-5">
         <button
           type="button"
           onClick={handleConvert}
@@ -302,7 +302,7 @@ export function ConvertToProject({
           type="button"
           onClick={() => setOpen(false)}
           disabled={loading}
-          className="rounded-lg bg-[#F8F5F2] px-6 py-2.5 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#EFE7DF] disabled:opacity-50"
+          className="rounded-lg bg-flora-surface px-6 py-2.5 text-sm font-medium text-flora-muted transition-colors hover:bg-[#EFE7DF] disabled:opacity-50"
         >
           Cancel
         </button>

@@ -1,63 +1,53 @@
-import {
-  Ruler,
-  Layers3,
-  BadgeCheck,
-  Wrench,
-} from "lucide-react";
-
 const reasons = [
   {
-    icon: Ruler,
-    title: "Made to Measure",
+    title: "Premium Quality Materials",
     description:
-      "Every window is considered individually so the finished treatment fits the space properly.",
+      "Premium curtain fabrics, sheer and blackout collections, and finishes selected to last.",
   },
   {
-    icon: Layers3,
-    title: "Designed Around You",
+    title: "Modern & Customized Designs",
     description:
-      "Choose fabrics, finishes and functionality that complement your interior.",
+      "Contemporary and classic designs tailored to your space, style and requirements.",
   },
   {
-    icon: BadgeCheck,
-    title: "Attention to Detail",
+    title: "Expert Craftsmanship",
     description:
-      "From measurement to finishing, every stage is handled with care.",
+      "Decades of hands-on curtain and upholstery craft in every stitch and fitting.",
   },
   {
-    icon: Wrench,
-    title: "Installation Support",
+    title: "Professional Installation",
     description:
-      "Professional installation helps ensure the finished result looks and functions as intended.",
+      "Careful measurement and installation by an experienced in-house team.",
+  },
+  {
+    title: "UAE-Wide Service",
+    description:
+      "Villas, apartments, offices and commercial projects across all Emirates.",
+  },
+  {
+    title: "Complete Solution",
+    description:
+      "Curtains, wallpaper, sofas, flooring and styling from a single trusted team.",
   },
 ];
 
+/** Editorial numbered index — not SaaS feature cards. */
 export function WhyFlora() {
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-      {reasons.map((reason) => {
-        const Icon = reason.icon;
-
-        return (
-          <div
-            key={reason.title}
-            className="border-l border-[#C8A97E] pl-5"
-          >
-            <Icon
-              size={21}
-              className="text-[#5A0E12]"
-            />
-
-            <h3 className="mt-4 text-sm font-semibold text-[#1E1B18]">
-              {reason.title}
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-[#6B625A]">
-              {reason.description}
-            </p>
-          </div>
-        );
-      })}
-    </div>
+    <ol className="grid gap-x-12 gap-y-10 md:grid-cols-2">
+      {reasons.map((reason, i) => (
+        <li key={reason.title} className="border-t border-flora-border pt-6">
+          <p aria-hidden="true" className="font-display text-4xl leading-none text-flora-gold">
+            {String(i + 1).padStart(2, "0")}
+          </p>
+          <h3 className="mt-4 text-sm font-semibold uppercase tracking-[0.14em] text-flora-foreground">
+            {reason.title}
+          </h3>
+          <p className="mt-2 max-w-md text-sm leading-6 text-flora-muted">
+            {reason.description}
+          </p>
+        </li>
+      ))}
+    </ol>
   );
 }

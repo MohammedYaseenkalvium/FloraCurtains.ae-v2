@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   requireAuth,
   parseBody,
+  parseQuery,
   withErrorHandling,
   notFound,
 } from "@/lib/api";
@@ -71,6 +72,10 @@ const createMeasurementSchema = z.object({
     .nullable(),
 });
 
+const listQuerySchema = z.object({
+  siteVisitId: z.string().min(1, "siteVisitId is required"),
+});
+
 /**
  * GET /api/measurements?siteVisitId=...
  */
@@ -78,13 +83,7 @@ export const GET = withErrorHandling(
   async (req: NextRequest) => {
     await requireAuth();
 
-    const { searchParams } = new URL(req.url);
-    const siteVisitId =
-      searchParams.get("siteVisitId");
-
-    if (!siteVisitId) {
-      throw new Error("siteVisitId is required");
-    }
+    const { siteVisitId } = parseQuery(req, listQuerySchema);
 
     const measurements =
       await db.measurementSheet.findMany({

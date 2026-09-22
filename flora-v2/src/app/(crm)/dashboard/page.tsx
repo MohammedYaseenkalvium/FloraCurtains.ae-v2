@@ -1,5 +1,18 @@
 import Link from "next/link";
+import {
+  FileText,
+  FolderKanban,
+  Users,
+  Wrench,
+} from "lucide-react";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
+import { Reveal } from "@/components/ui/Reveal";
+import { Button } from "@/components/ui/Button";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const leadStatuses = [
   "NEW",
@@ -18,17 +31,8 @@ const projectStatuses = [
   "SNAGGING",
   "COMPLETED",
   "ON_HOLD",
+  "CANCELLED",
 ] as const;
-
-const statusStyles: Record<string, string> = {
-  NEW: "bg-stone-100 text-stone-700",
-  CONTACTED: "bg-blue-50 text-blue-700",
-  VISIT_SCHEDULED: "bg-amber-50 text-amber-700",
-  QUOTED: "bg-emerald-50 text-emerald-700",
-  NEGOTIATING: "bg-violet-50 text-violet-700",
-  WON: "bg-green-50 text-green-700",
-  LOST: "bg-red-50 text-red-700",
-};
 
 const statusLabels: Record<string, string> = {
   NEW: "New",
@@ -44,14 +48,11 @@ const statusLabels: Record<string, string> = {
   SNAGGING: "Snagging",
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
+  CANCELLED: "Cancelled",
 };
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: "AED",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatAED(value, { decimals: false });
 }
 
 function formatDate(value: Date) {
@@ -78,6 +79,10 @@ function formatActivityAction(action: string) {
 
 export default async function DashboardPage() {
   const now = new Date();
+  const session = await auth();
+  const firstName = session?.user?.name?.split(" ")[0] || "there";
+  const hour = now.getHours();
+  const daypart = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const [
     activeLeads,
@@ -145,6 +150,7 @@ export default async function DashboardPage() {
     }),
 
     db.payment.findMany({
+      where: { projectId: { not: null } },
       select: {
         amount: true,
       },
@@ -175,17 +181,13 @@ export default async function DashboardPage() {
   );
 
   /*
-   * Payment calculations
+   * Payment calculations — project-scoped (Phase 15).
+   * Quotation-linked payments (write-orphans, no create endpoint) must NOT
+   * deflate project outstanding. Canonical helpers in src/lib/finance.ts.
    */
-  const totalPaymentsReceived = payments.reduce(
-    (total, payment) => total + payment.amount,
-    0,
-  );
+  const totalPaymentsReceived = sumPayments(payments);
 
-  const outstandingAmount = Math.max(
-    totalContractValue - totalPaymentsReceived,
-    0,
-  );
+  const outstandingAmount = calcOutstanding(totalContractValue, totalPaymentsReceived);
 
   /*
    * Lead pipeline
@@ -216,96 +218,66 @@ export default async function DashboardPage() {
       value: activeLeads.toString(),
       description: "Open opportunities",
       href: "/enquiries",
+      icon: FileText,
     },
     {
       label: "Ongoing Projects",
       value: ongoingProjects.toString(),
       description: "Currently in progress",
       href: "/projects",
+      icon: FolderKanban,
     },
     {
       label: "Pending Installations",
       value: pendingInstallations.toString(),
       description: "Installation stage",
       href: "/projects",
+      icon: Wrench,
     },
     {
       label: "Customers",
       value: totalCustomers.toString(),
       description: "Contacts in CRM",
       href: "/customers",
+      icon: Users,
     },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-flora-gold">
-            FloraFlow
-          </p>
-
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-flora-foreground">
-            Operations Dashboard
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-sm text-flora-muted">
-            A live overview of your leads, projects, installations and
-            financial operations.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/enquiries/new"
-            className="rounded-lg border border-flora-border bg-white px-4 py-2.5 text-sm font-medium text-flora-foreground transition hover:bg-flora-surface"
-          >
-            + New Lead
-          </Link>
-
-          <Link
-            href="/quotations/new"
-            className="rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-flora-primary-hover"
-          >
-            + Create Quote
-          </Link>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow={`${daypart}, ${firstName}`}
+        title="Operations Dashboard"
+        description="A live overview of your leads, projects, installations and financial operations."
+        actions={
+          <>
+            <Button variant="secondary" href="/enquiries/new">
+              + New Lead
+            </Button>
+            <Button href="/quotations/new">+ Create Quote</Button>
+          </>
+        }
+      />
 
       {/* KPI Cards */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <Reveal>
+      <section aria-label="Key metrics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((kpi) => (
-          <Link
+          <MetricCard
             key={kpi.label}
+            label={kpi.label}
+            value={kpi.value}
+            description={kpi.description}
             href={kpi.href}
-            className="group rounded-xl border border-flora-border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-                  {kpi.label}
-                </p>
-
-                <p className="mt-3 text-3xl font-semibold tracking-tight text-flora-foreground">
-                  {kpi.value}
-                </p>
-
-                <p className="mt-1 text-xs text-flora-muted">
-                  {kpi.description}
-                </p>
-              </div>
-
-              <span className="text-flora-primary transition-transform group-hover:translate-x-0.5">
-                →
-              </span>
-            </div>
-          </Link>
+            icon={kpi.icon}
+          />
         ))}
       </section>
+      </Reveal>
 
       {/* Financial Snapshot */}
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <Reveal delay={0.08}>
+      <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-flora-border bg-white p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
             Contract Value
@@ -316,7 +288,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
-            Total active project value
+            Total project value (all statuses)
           </p>
         </div>
 
@@ -348,6 +320,7 @@ export default async function DashboardPage() {
           </p>
         </div>
       </section>
+      </Reveal>
 
       {/* Lead Pipeline */}
       <section className="rounded-xl border border-flora-border bg-white">
@@ -464,15 +437,7 @@ export default async function DashboardPage() {
                       </td>
 
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                            statusStyles[enquiry.status] ??
-                            "bg-stone-100 text-stone-700"
-                          }`}
-                        >
-                          {statusLabels[enquiry.status] ??
-                            enquiry.status.replace(/_/g, " ")}
-                        </span>
+                        <StatusBadge domain="enquiry" status={enquiry.status} />
                       </td>
 
                       <td className="px-5 py-4 text-xs text-flora-muted">
@@ -581,9 +546,11 @@ export default async function DashboardPage() {
                         ? "bg-green-600"
                         : item.status === "ON_HOLD"
                           ? "bg-red-500"
-                          : item.status === "INSTALLATION"
-                            ? "bg-amber-500"
-                            : "bg-flora-primary"
+                          : item.status === "CANCELLED"
+                            ? "bg-stone-400"
+                            : item.status === "INSTALLATION"
+                              ? "bg-amber-500"
+                              : "bg-flora-primary"
                     }`}
                   />
 
