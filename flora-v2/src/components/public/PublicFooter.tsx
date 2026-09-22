@@ -16,7 +16,7 @@ export function PublicFooter() {
               className="mb-5 h-12 w-auto object-contain"
             />
 
-            <p className="max-w-md text-sm leading-6 text-white/65">
+            <p className="max-w-md text-sm leading-6 text-white/80">
               Bespoke curtains, blinds and window solutions
               designed to bring comfort, privacy and character
               to your spaces.
@@ -28,7 +28,7 @@ export function PublicFooter() {
               Explore
             </h3>
 
-            <div className="space-y-3 text-sm text-white/65">
+            <div className="space-y-3 text-sm text-white/80">
               <Link
                 href="/"
                 className="block hover:text-white"
@@ -64,7 +64,7 @@ export function PublicFooter() {
               Contact
             </h3>
 
-            <div className="space-y-3 text-sm text-white/65">
+            <div className="space-y-3 text-sm text-white/80">
               <p>
                 Murur Road, Opp. Mubadala Tower,
                 <br />
@@ -104,7 +104,7 @@ export function PublicFooter() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/45">
+        <div className="mt-12 border-t border-white/10 pt-6 text-xs text-white/60">
           © {new Date().getFullYear()} Flora Curtains.
           All rights reserved.
         </div>

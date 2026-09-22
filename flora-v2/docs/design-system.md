@@ -38,8 +38,21 @@ Rules: no hardcoded palette hex in `className` (runtime `style` maps excepted); 
 - Type: `font-display` (Cormorant Garamond) for display/H1/H2; `font-sans` (Inter) for everything else. Scale: hero `5xl→7xl`, section H2 `4xl→5xl`, card H3 `lg`, body `sm/base`, eyebrow `xs uppercase tracking-wider`.
 - Eyebrow pattern: `text-xs font-semibold uppercase tracking-wider text-flora-primary`.
 
-## Product split
+## Tables (CRM mobile strategy)
 
+Deliberate horizontal scroll, never squeezed columns: wrapper
+`overflow-x-auto` + `min-w-[…]` per table (650–1050px by column count).
+Headers `text-[10px] uppercase tracking-[0.14em] text-flora-muted`,
+rows `hover:bg-flora-background`. No data hidden on mobile by design.
+
+## Motion
+
+`ui/Reveal` (GSAP, 0.45s, staggered ≤0.08s) for section/metric entrances
+only; skipped entirely under `prefers-reduced-motion`; client-only after
+mount (no hydration mismatch). Dialogs and destructive confirms have no
+entrance animation (fast by design). CSS transitions for hover/focus.
+
+## Product split
 - Public: emotional, editorial, photographic (warm luxury).
 - CRM: operational, dense, solid surfaces (glass only on nav/dialogs/floating).
 - Shared: tokens, spacing (`max-w-7xl`, `px-5 lg:px-8`, `py-20`), interaction quality.

@@ -77,7 +77,7 @@ export function HeroSection() {
             />
           </div>
 
-          <div className="mt-6 max-w-xs rounded-xl border border-flora-border bg-white p-5 shadow-sm sm:absolute sm:-bottom-5 sm:-left-5 sm:mt-0">
+          <div className="glass-panel mt-6 max-w-xs rounded-xl p-5 shadow-flora-md sm:absolute sm:-bottom-5 sm:-left-5 sm:mt-0">
             <p className="font-display text-xl text-flora-primary">
               Made for your space.
             </p>

@@ -4,13 +4,17 @@ import { PortfolioPreview } from "@/components/public/PortfolioPreview";
 import { WhyFlora } from "@/components/public/WhyFlora";
 import { AboutPreview } from "@/components/public/AboutPreview";
 import { ContactCTA } from "@/components/public/ContactCTA";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      <Reveal>
+        <HeroSection />
+      </Reveal>
 
       {/* Services */}
+      <Reveal>
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="mb-10 max-w-2xl">
           <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
@@ -26,8 +30,10 @@ export default function HomePage() {
 
         <ServiceCards />
       </section>
+      </Reveal>
 
       {/* Why Flora */}
+      <Reveal>
       <section className="border-y border-flora-border bg-flora-surface">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="mb-10 max-w-2xl">
@@ -45,8 +51,10 @@ export default function HomePage() {
           <WhyFlora />
         </div>
       </section>
+      </Reveal>
 
       {/* Portfolio */}
+      <Reveal>
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -64,13 +72,16 @@ export default function HomePage() {
 
         <PortfolioPreview />
       </section>
+      </Reveal>
 
       {/* About */}
+      <Reveal>
       <section className="border-y border-flora-border bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <AboutPreview />
         </div>
       </section>
+      </Reveal>
 
       <ContactCTA />
     </>

@@ -33,7 +33,7 @@ export function ConfirmDialog({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-flora-border bg-white p-5 shadow-lg"
+          className="glass-panel fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl p-5 shadow-flora-lg"
         >
           <Dialog.Title className="text-sm font-semibold text-flora-primary">
             {title}

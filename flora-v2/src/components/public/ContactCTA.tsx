@@ -16,7 +16,7 @@ export function ContactCTA() {
               your windows?
             </h2>
 
-            <p className="mt-4 max-w-xl text-sm leading-6 text-white/70">
+            <p className="mt-4 max-w-xl text-sm leading-6 text-white/80">
               Tell us about your space and requirements.
               We&apos;ll take it from there.
             </p>
