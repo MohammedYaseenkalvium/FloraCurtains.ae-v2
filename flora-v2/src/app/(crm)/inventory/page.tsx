@@ -6,20 +6,9 @@ import {
   Search,
   SlidersHorizontal,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
-
-function Skeleton({
-  className = "",
-}: {
-  className?: string;
-}) {
-  return (
-    <div
-      className={`animate-pulse rounded-md bg-flora-surface ${className}`}
-    />
-  );
-}
 
 export default function InventoryPage() {
   return (

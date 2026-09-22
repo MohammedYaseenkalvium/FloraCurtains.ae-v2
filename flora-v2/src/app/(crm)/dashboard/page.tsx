@@ -2,6 +2,9 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
 import { Reveal } from "@/components/ui/Reveal";
+import { Button } from "@/components/ui/Button";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const leadStatuses = [
   "NEW",
@@ -236,69 +239,31 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-flora-gold">
-            FloraFlow
-          </p>
-
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-flora-foreground">
-            Operations Dashboard
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-sm text-flora-muted">
-            A live overview of your leads, projects, installations and
-            financial operations.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/enquiries/new"
-            className="rounded-lg border border-flora-border bg-white px-4 py-2.5 text-sm font-medium text-flora-foreground transition hover:bg-flora-surface"
-          >
-            + New Lead
-          </Link>
-
-          <Link
-            href="/quotations/new"
-            className="rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-flora-primary-hover"
-          >
-            + Create Quote
-          </Link>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="FloraFlow"
+        title="Operations Dashboard"
+        description="A live overview of your leads, projects, installations and financial operations."
+        actions={
+          <>
+            <Button variant="secondary" href="/enquiries/new">
+              + New Lead
+            </Button>
+            <Button href="/quotations/new">+ Create Quote</Button>
+          </>
+        }
+      />
 
       {/* KPI Cards */}
       <Reveal>
       <section aria-label="Key metrics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((kpi) => (
-          <Link
+          <MetricCard
             key={kpi.label}
+            label={kpi.label}
+            value={kpi.value}
+            description={kpi.description}
             href={kpi.href}
-            className="group rounded-xl border border-flora-border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-                  {kpi.label}
-                </p>
-
-                <p className="mt-3 text-3xl font-semibold tracking-tight text-flora-foreground">
-                  {kpi.value}
-                </p>
-
-                <p className="mt-1 text-xs text-flora-muted">
-                  {kpi.description}
-                </p>
-              </div>
-
-              <span className="text-flora-primary transition-transform group-hover:translate-x-0.5">
-                →
-              </span>
-            </div>
-          </Link>
+          />
         ))}
       </section>
       </Reveal>
