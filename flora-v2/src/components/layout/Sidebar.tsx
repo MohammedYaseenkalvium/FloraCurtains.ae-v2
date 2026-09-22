@@ -140,7 +140,7 @@ export function Sidebar() {
           <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-3">
           <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-white/95 p-1">
             <Image
-              src="/images/logo.png"
+              src="/images/flora-logo.png"
               alt="Flora Curtains"
               fill
               sizes="36px"

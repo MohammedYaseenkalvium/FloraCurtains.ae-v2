@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { FloraLogo } from "@/components/public/FloraLogo";
 import { QuoteWizard } from "@/components/public/QuoteWizard";
 
 export const metadata: Metadata = {
@@ -13,14 +13,7 @@ export default function GetQuotePage() {
     <>
       <section className="border-b border-flora-border">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <Image
-            src="/images/Flora quotation logo.png"
-            alt="Flora Curtains"
-            width={220}
-            height={56}
-            priority
-            className="h-14 w-auto object-contain"
-          />
+          <FloraLogo width={220} height={56} priority className="h-14 w-auto object-contain" />
 
           <h1 className="mt-8 max-w-3xl font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
             Get a Quote

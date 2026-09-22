@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { FloraLogo } from "@/components/public/FloraLogo";
 import { services } from "@/lib/public/services";
 
 const explore = [
@@ -17,14 +17,7 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
         <div className="grid gap-12 md:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
           <div>
-            <Image
-              src="/images/Flora quotation logo.png"
-              alt="Flora Curtains"
-              width={200}
-              height={50}
-              loading="lazy"
-              className="h-12 w-auto object-contain"
-            />
+            <FloraLogo width={200} height={50} className="mb-5 h-12 w-auto object-contain" />
             <p className="mt-6 max-w-xs font-display text-2xl leading-snug text-white">
               Bringing Style, Comfort &amp; Luxury to Every Space.
             </p>
