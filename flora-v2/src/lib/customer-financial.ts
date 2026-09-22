@@ -240,7 +240,7 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
   // Lifetime revenue = project values + approved quotes WITHOUT a project
   // (avoids double-counting a converted quote -> project).
   // Canonical formula — see src/lib/finance.ts.
-  const { projectValues, lifetimeRevenue } = calcLifetimeRevenue({
+  const { lifetimeRevenue } = calcLifetimeRevenue({
     projects: projects.map((p) => ({
       totalContractValue: p.totalContractValue,
       quotationId: p.quotationId,

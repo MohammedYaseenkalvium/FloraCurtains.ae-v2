@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,17 +76,19 @@ export function QuotationBuilder({
   const items = watch("items") ?? [];
   const vatRate = Number(watch("vatRate") ?? 5);
 
-  // RHF watch() returns a new reference per render by design; preview recomputes live.
-  const { subtotal, vatAmount, totalAmount } = useMemo(() => {
-    const normalized = (items ?? []).map((item) => ({
+  // Live preview via the canonical server math (src/lib/quotation.ts).
+  // Deliberately unmemoized: the item list is tiny, and RHF watch()
+  // returns a new reference per render by design.
+  const { subtotal, vatAmount, totalAmount } = calcTotals(
+    (items ?? []).map((item) => ({
       description: String(item?.description ?? ""),
       unit: String(item?.unit ?? "pcs"),
       qty: Number(item?.qty) || 0,
       unitPrice: Number(item?.unitPrice) || 0,
       discount: Number(item?.discount) || 0,
-    }));
-    return calcTotals(normalized, Number.isFinite(vatRate) ? vatRate : 5);
-  }, [items, vatRate]);
+    })),
+    Number.isFinite(vatRate) ? vatRate : 5
+  );
 
   async function onSubmit(values: QuotationFormValues) {
     setError("");

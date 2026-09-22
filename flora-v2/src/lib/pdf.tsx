@@ -692,6 +692,7 @@ export function QuotationPDF({
         <View style={styles.header}>
           <View style={styles.brandBlock}>
             {logoSrc ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf Image renders into PDF, not HTML; no alt concept.
               <Image src={logoSrc} style={styles.logo} />
             ) : (
               <Text style={styles.companyInfo}>Flora Curtains LLC</Text>
