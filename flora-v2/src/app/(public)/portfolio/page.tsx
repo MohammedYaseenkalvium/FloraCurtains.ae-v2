@@ -24,7 +24,7 @@ const projects = [
     image: "/images/portfolio-3.jpg",
   },
   {
-    title: "Bespoke Curtain Installation",
+    title: "Custom Curtain Installation",
     category: "Residential",
     image: "/images/portfolio-4.jpg",
   },

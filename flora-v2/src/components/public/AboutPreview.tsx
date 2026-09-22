@@ -22,7 +22,7 @@ export function AboutPreview() {
 
       <div>
         <p className="text-base leading-7 text-flora-muted">
-          Flora Curtains creates bespoke curtains,
+          Flora Curtains creates custom curtains,
           wallpaper, sofas and flooring for residential
           and commercial spaces across the UAE — backed
           by industry experience since 1997.
