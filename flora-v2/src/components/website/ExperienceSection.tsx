@@ -20,9 +20,6 @@ export function ExperienceSection() {
               className="object-cover"
             />
           </div>
-          <p className="mt-4 font-display text-6xl leading-none text-flora-primary">
-            1997
-          </p>
         </Reveal>
 
         <Reveal delay={0.08}>
