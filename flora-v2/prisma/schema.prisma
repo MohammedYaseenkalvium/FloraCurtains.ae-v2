@@ -470,7 +470,7 @@ model AppSettings {
   currency          String   @default("AED")
   defaultVatRate    Float    @default(5)
   quoteValidityDays Int      @default(30)
-  logoUrl           String   @default("/images/logo.png")
+  logoUrl           String   @default("/images/flora-logo.png")
   updatedAt         DateTime @updatedAt
 
   @@map("app_settings")

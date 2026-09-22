@@ -38,7 +38,7 @@ const softGreen = "#EAF4F0";
 
    Existing logo:
 
-   public/images/Flora quotation logo.png
+   public/images/flora-logo.png
 
    We load it as Base64 so @react-pdf/renderer can render
    the local PNG reliably.
@@ -48,7 +48,7 @@ const logoPath = path.join(
   process.cwd(),
   "public",
   "images",
-  "Flora quotation logo.png"
+  "flora-logo.png"
 );
 
 // Phase 6: never crash the PDF route if the logo asset is missing
