@@ -1,4 +1,7 @@
 import type { PaymentScheduleDueType } from "@prisma/client";
+import { roundMoney } from "@/lib/finance";
+
+export { roundMoney };
 
 export type PaymentScheduleInput = {
   description: string;
@@ -9,9 +12,7 @@ export type PaymentScheduleInput = {
   notes?: string;
 };
 
-export function roundMoney(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
+/** Canonical money rounding lives in src/lib/finance.ts (single source). */
 
 export function calculateScheduleAmount(
   contractValue: number,
