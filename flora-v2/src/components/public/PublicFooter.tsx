@@ -65,6 +65,28 @@ export function PublicFooter() {
             </h3>
 
             <div className="space-y-3 text-sm text-white/65">
+              <p>
+                Murur Road, Opp. Mubadala Tower,
+                <br />
+                Abu Dhabi, UAE
+              </p>
+
+              <a
+                href="tel:+97125864545"
+                className="block hover:text-white"
+              >
+                +971 2 586 4545
+              </a>
+
+              <a
+                href="https://wa.me/971557464100"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:text-white"
+              >
+                WhatsApp: +971 55 746 4100
+              </a>
+
               <a
                 href="mailto:sayedflora1@gmail.com"
                 className="block hover:text-white"

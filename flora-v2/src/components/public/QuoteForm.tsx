@@ -262,20 +262,24 @@ export function QuoteForm() {
               Select a service
             </option>
 
-            <option value="Curtains">
-              Curtains
+            <option value="Curtains & Blinds">
+              Curtains &amp; Blinds
             </option>
 
-            <option value="Blinds">
-              Blinds
+            <option value="Wallpaper Solutions">
+              Wallpaper Solutions
             </option>
 
-            <option value="Motorized Curtains">
-              Motorized Curtains
+            <option value="Customized Sofas & Upholstery">
+              Customized Sofas &amp; Upholstery
             </option>
 
-            <option value="Custom Window Solutions">
-              Custom Window Solutions
+            <option value="Interior Decoration">
+              Interior Decoration
+            </option>
+
+            <option value="Carpet & Wooden Flooring">
+              Carpet &amp; Wooden Flooring
             </option>
           </select>
         </div>

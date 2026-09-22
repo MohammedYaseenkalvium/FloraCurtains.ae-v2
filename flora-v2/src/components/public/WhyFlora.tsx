@@ -1,47 +1,61 @@
 import {
-  Ruler,
-  Layers3,
   BadgeCheck,
-  Wrench,
+  HeartHandshake,
+  Layers3,
+  Ruler,
+  Sparkles,
+  Wallet,
 } from "lucide-react";
 
 const reasons = [
   {
-    icon: Ruler,
-    title: "Made to Measure",
+    icon: BadgeCheck,
+    title: "Premium Quality Materials",
     description:
-      "Every window is considered individually so the finished treatment fits the space properly.",
+      "Premium curtain fabrics, sheer and blackout collections, and finishes selected to last.",
+  },
+  {
+    icon: Sparkles,
+    title: "Modern & Customized Designs",
+    description:
+      "Contemporary and classic designs tailored to your space, style and requirements.",
+  },
+  {
+    icon: Ruler,
+    title: "Professional Installation Team",
+    description:
+      "Careful measurement and installation by an experienced curtain and upholstery team.",
+  },
+  {
+    icon: Wallet,
+    title: "Affordable Luxury Solutions",
+    description:
+      "A refined finish at a fair price — luxury that stays within reach.",
   },
   {
     icon: Layers3,
-    title: "Designed Around You",
+    title: "One-Stop Interior Solution",
     description:
-      "Choose fabrics, finishes and functionality that complement your interior.",
+      "Curtains, wallpaper, sofas, flooring and styling from a single trusted team.",
   },
   {
-    icon: BadgeCheck,
-    title: "Attention to Detail",
+    icon: HeartHandshake,
+    title: "Friendly & Reliable Service",
     description:
-      "From measurement to finishing, every stage is handled with care.",
-  },
-  {
-    icon: Wrench,
-    title: "Installation Support",
-    description:
-      "Professional installation helps ensure the finished result looks and functions as intended.",
+      "Clear communication and dependable follow-through from first visit to final fitting.",
   },
 ];
 
 export function WhyFlora() {
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
       {reasons.map((reason) => {
         const Icon = reason.icon;
 
         return (
           <div
             key={reason.title}
-            className="border-l border-[#C8A97E] pl-5"
+            className="border-l border-flora-gold pl-5"
           >
             <Icon
               size={21}

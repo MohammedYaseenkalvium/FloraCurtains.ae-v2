@@ -24,7 +24,7 @@ export function ContactCTA() {
 
           <Link
             href="/contact"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-flora-primary transition-colors hover:bg-flora-surface"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-flora-primary transition-colors hover:bg-flora-surface sm:w-auto"
           >
             Request a Quote
             <ArrowRight size={16} />

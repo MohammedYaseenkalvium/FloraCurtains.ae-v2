@@ -33,23 +33,28 @@ export default function AboutPage() {
 
           <div className="space-y-5 text-sm leading-7 text-flora-muted">
             <p>
-              Flora Curtains was established in 2023 with
-              a focus on creating considered curtain, blind
-              and window treatment solutions.
+              Flora Curtains was established in 2023 in
+              Abu Dhabi — but our founder&apos;s journey in
+              the interior and curtain industry began in
+              1997 with Blue Star Curtains.
             </p>
 
             <p>
-              Our approach combines practical experience,
-              careful measurement and attention to the
-              details that make a finished interior feel
-              complete.
+              That combination of decades of hands-on
+              experience with modern design and current
+              interior trends shapes every project: careful
+              measurement, premium fabrics, and attention
+              to the details that make a finished interior
+              feel complete.
             </p>
 
             <p>
-              Every project is different. Our role is to
-              understand the space, the requirements and
-              the desired result, then develop a solution
-              that fits.
+              Our stitching and upholstery team works with
+              premium curtain fabrics, sheer and blackout
+              collections, wallpaper, carpets and flooring
+              — serving villas, apartments, offices, cafés
+              and commercial projects across all Emirates
+              of the UAE.
             </p>
           </div>
         </div>

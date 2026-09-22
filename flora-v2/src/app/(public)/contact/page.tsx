@@ -1,4 +1,4 @@
-import { Mail, MessageSquare } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { QuoteForm } from "@/components/public/QuoteForm";
 
 export default function ContactPage() {
@@ -37,6 +37,64 @@ export default function ContactPage() {
           </p>
 
           <div className="mt-8 space-y-5">
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
+                <MapPin size={18} />
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
+                  Showroom
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-flora-foreground">
+                  Murur Road, Opp. Mubadala Tower,
+                  <br />
+                  Abu Dhabi, UAE
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
+                <Phone size={18} />
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
+                  Direct line
+                </p>
+
+                <a
+                  href="tel:+97125864545"
+                  className="mt-1 block text-sm font-medium text-flora-foreground hover:text-flora-primary"
+                >
+                  +971 2 586 4545
+                </a>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
+                <MessageSquare size={18} />
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
+                  WhatsApp
+                </p>
+
+                <a
+                  href="https://wa.me/971557464100"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block text-sm font-medium text-flora-foreground hover:text-flora-primary"
+                >
+                  +971 55 746 4100
+                </a>
+              </div>
+            </div>
+
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
                 <Mail size={18} />
