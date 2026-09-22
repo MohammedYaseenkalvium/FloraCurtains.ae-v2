@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 
 import { db } from "@/lib/db";
 import { PaymentLedger } from "@/components/crm/PaymentLedger";
+import { PaymentScheduleManager } from "@/components/crm/PaymentScheduleManager";
 import { ProjectStatusWorkflow } from "@/components/crm/ProjectStatusWorkflow";
 import { SiteVisitManager } from "@/components/crm/SiteVisitManager";
 import { TaskManager } from "@/components/crm/TaskManager";
@@ -28,6 +29,7 @@ const statusLabels: Record<ProjectStatus, string> = {
   SNAGGING: "Snagging",
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
+  CANCELLED: "Cancelled",
 };
 
 const statusStyles: Record<
@@ -72,6 +74,12 @@ const statusStyles: Record<
     background: "#FEF2F2",
     text: "#991B1B",
     border: "#E8BDBD",
+  },
+
+  CANCELLED: {
+    background: "#F5F5F4",
+    text: "#57534E",
+    border: "#D6D3D1",
   },
 };
 
@@ -118,6 +126,12 @@ export default async function ProjectDetailPage({
       payments: {
         orderBy: {
           paidAt: "asc",
+        },
+      },
+
+      paymentSchedules: {
+        orderBy: {
+          sequence: "asc",
         },
       },
 
@@ -172,12 +186,12 @@ export default async function ProjectDetailPage({
     "Untitled Project";
 
   return (
-    <div className="min-h-full bg-[#FFF8F5]">
+    <div className="min-h-full bg-flora-background">
       {/* Breadcrumb */}
-      <div className="mb-6 flex items-center gap-2 text-sm text-[#6B625A]">
+      <div className="mb-6 flex items-center gap-2 text-sm text-flora-muted">
         <Link
           href="/projects"
-          className="inline-flex items-center gap-1.5 transition-colors hover:text-[#5A0E12]"
+          className="inline-flex items-center gap-1.5 transition-colors hover:text-flora-primary"
         >
           <ArrowLeft size={15} />
           Projects
@@ -185,31 +199,31 @@ export default async function ProjectDetailPage({
 
         <span>/</span>
 
-        <span className="truncate text-[#1E1B18]">
+        <span className="truncate text-flora-foreground">
           {projectName}
         </span>
       </div>
 
       {/* Project Header */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2">
               <FolderKanban
                 size={19}
-                className="text-[#5A0E12]"
+                className="text-flora-primary"
               />
 
-              <span className="text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+              <span className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
                 Project Workspace
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+            <h1 className="text-2xl font-bold tracking-tight text-flora-foreground">
               {projectName}
             </h1>
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#6B625A]">
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-flora-muted">
               <span>{contact.name}</span>
 
               {company && (
@@ -256,7 +270,7 @@ export default async function ProjectDetailPage({
             {project.quotation && (
               <Link
                 href={`/quotations/${project.quotation.id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C9BC] bg-white px-3 py-2 text-xs font-medium text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-flora-border bg-white px-3 py-2 text-xs font-medium text-flora-primary transition-colors hover:bg-flora-surface"
               >
                 <FileText size={14} />
                 {project.quotation.quoteNumber}
@@ -269,12 +283,12 @@ export default async function ProjectDetailPage({
       {/* Financial Summary */}
       <section className="mb-6 grid gap-4 sm:grid-cols-3">
         {/* Contract */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Contract Value
           </p>
 
-          <p className="mt-2 text-xl font-bold text-[#5A0E12]">
+          <p className="mt-2 text-xl font-bold text-flora-primary">
             {formatAED(
               project.totalContractValue
             )}
@@ -282,14 +296,14 @@ export default async function ProjectDetailPage({
         </div>
 
         {/* Paid */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <CircleDollarSign
               size={15}
               className="text-[#0F6E56]"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Payments Received
             </p>
           </div>
@@ -300,8 +314,8 @@ export default async function ProjectDetailPage({
         </div>
 
         {/* Outstanding */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Outstanding
           </p>
 
@@ -314,27 +328,27 @@ export default async function ProjectDetailPage({
       {/* Customer + Project Information */}
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         {/* Customer */}
-        <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <section className="rounded-xl border border-flora-border bg-white p-5">
           <div className="mb-5 flex items-center gap-2">
             <UserRound
               size={17}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Customer
             </h2>
           </div>
 
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-[#6B625A]">
+              <p className="text-xs text-flora-muted">
                 Name
               </p>
 
               <Link
                 href={`/customers/${contact.id}`}
-                className="mt-1 block font-semibold text-[#1E1B18] hover:text-[#5A0E12] hover:underline"
+                className="mt-1 block font-semibold text-flora-foreground hover:text-flora-primary hover:underline"
               >
                 {contact.name}
               </Link>
@@ -342,7 +356,7 @@ export default async function ProjectDetailPage({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-[#6B625A]">
+                <p className="text-xs text-flora-muted">
                   Phone
                 </p>
 
@@ -352,7 +366,7 @@ export default async function ProjectDetailPage({
               </div>
 
               <div>
-                <p className="text-xs text-[#6B625A]">
+                <p className="text-xs text-flora-muted">
                   Email
                 </p>
 
@@ -363,8 +377,8 @@ export default async function ProjectDetailPage({
             </div>
 
             {company && (
-              <div className="border-t border-[#EFE7DF] pt-4">
-                <p className="text-xs text-[#6B625A]">
+              <div className="border-t border-flora-border/60 pt-4">
+                <p className="text-xs text-flora-muted">
                   Company
                 </p>
 
@@ -375,7 +389,7 @@ export default async function ProjectDetailPage({
                 {company.legalName &&
                   company.legalName !==
                     company.tradeName && (
-                    <p className="mt-1 text-xs text-[#6B625A]">
+                    <p className="mt-1 text-xs text-flora-muted">
                       {company.legalName}
                     </p>
                   )}
@@ -385,21 +399,21 @@ export default async function ProjectDetailPage({
         </section>
 
         {/* Project Information */}
-        <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <section className="rounded-xl border border-flora-border bg-white p-5">
           <div className="mb-5 flex items-center gap-2">
             <CalendarDays
               size={17}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Project Information
             </h2>
           </div>
 
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 Service
               </dt>
 
@@ -409,7 +423,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 Status
               </dt>
 
@@ -429,7 +443,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 Start Date
               </dt>
 
@@ -439,7 +453,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 End Date
               </dt>
 
@@ -449,7 +463,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 Installation Date
               </dt>
 
@@ -461,7 +475,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 PO Number
               </dt>
 
@@ -471,7 +485,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 PO Date
               </dt>
 
@@ -481,7 +495,7 @@ export default async function ProjectDetailPage({
             </div>
 
             <div>
-              <dt className="text-xs text-[#6B625A]">
+              <dt className="text-xs text-flora-muted">
                 Quotation
               </dt>
 
@@ -489,7 +503,7 @@ export default async function ProjectDetailPage({
                 {project.quotation ? (
                   <Link
                     href={`/quotations/${project.quotation.id}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-[#5A0E12] hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-flora-primary hover:underline"
                   >
                     {project.quotation.quoteNumber}
 
@@ -509,24 +523,24 @@ export default async function ProjectDetailPage({
       </div>
 
       {/* Site Information */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <MapPin
             size={17}
-            className="text-[#5A0E12]"
+            className="text-flora-primary"
           />
 
-          <h2 className="text-sm font-semibold text-[#5A0E12]">
+          <h2 className="text-sm font-semibold text-flora-primary">
             Site Information
           </h2>
         </div>
 
-        <div className="rounded-lg border border-[#EFE7DF] bg-[#FFF8F5] p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+        <div className="rounded-lg border border-flora-border/60 bg-flora-background p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
             Site Address
           </p>
 
-          <p className="mt-2 whitespace-pre-wrap text-sm font-medium text-[#1E1B18]">
+          <p className="mt-2 whitespace-pre-wrap text-sm font-medium text-flora-foreground">
             {project.siteAddress ||
               project.enquiry.siteAddress ||
               "No site address recorded."}
@@ -535,12 +549,12 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* Notes */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-[#5A0E12]">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold text-flora-primary">
           Project Notes
         </h2>
 
-        <p className="whitespace-pre-wrap text-sm leading-6 text-[#6B625A]">
+        <p className="whitespace-pre-wrap text-sm leading-6 text-flora-muted">
           {project.notes ||
             "No project notes recorded."}
         </p>
@@ -560,20 +574,20 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* Tasks */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Tasks
             </h2>
 
-            <p className="mt-1 text-xs text-[#6B625A]">
+            <p className="mt-1 text-xs text-flora-muted">
               Track operational work associated with
               this project.
             </p>
           </div>
 
-          <span className="rounded-full bg-[#F8F5F2] px-2.5 py-1 text-xs font-medium text-[#6B625A]">
+          <span className="rounded-full bg-flora-surface px-2.5 py-1 text-xs font-medium text-flora-muted">
             {project.tasks.length}{" "}
             {project.tasks.length === 1
               ? "task"
@@ -588,13 +602,13 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* Payment Ledger */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5">
-          <h2 className="text-sm font-semibold text-[#5A0E12]">
+          <h2 className="text-sm font-semibold text-flora-primary">
             Payment Ledger
           </h2>
 
-          <p className="mt-1 text-xs text-[#6B625A]">
+          <p className="mt-1 text-xs text-flora-muted">
             Track payments received against the project
             contract value.
           </p>
@@ -606,6 +620,27 @@ export default async function ProjectDetailPage({
             project.totalContractValue
           }
           payments={project.payments}
+        />
+      </section>
+
+      {/* Payment Schedule */}
+      <section className="rounded-xl border border-flora-border bg-white p-5">
+        <div className="mb-5">
+          <h2 className="text-sm font-semibold text-flora-primary">
+            Payment Schedule
+          </h2>
+
+          <p className="mt-1 text-xs text-flora-muted">
+            Milestone plan for the contract value. Actual
+            money received stays in the ledger above —
+            schedules and payments are tracked separately.
+          </p>
+        </div>
+
+        <PaymentScheduleManager
+          projectId={project.id}
+          contractValue={project.totalContractValue}
+          initialSchedules={project.paymentSchedules}
         />
       </section>
     </div>
