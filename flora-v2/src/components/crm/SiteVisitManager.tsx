@@ -54,10 +54,10 @@ type Props = {
 };
 
 const field =
-  "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
+  "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
 
 const label =
-  "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
 const statusStyles: Record<
   SiteVisit["status"],
@@ -113,6 +113,16 @@ export function SiteVisitManager({
   const [actionError, setActionError] = useState("");
 
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const [attachFormFor, setAttachFormFor] = useState<string | null>(null);
+  const [rescheduleFor, setRescheduleFor] = useState<string | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [attachForm, setAttachForm] = useState({
+    fileName: "",
+    fileUrl: "",
+    fileType: "PHOTO",
+    caption: "",
+  });
 
   const [form, setForm] = useState({
     scheduledAt: "",
@@ -196,7 +206,10 @@ export function SiteVisitManager({
       | "SCHEDULED"
       | "COMPLETED"
       | "CANCELLED"
+      | "RESCHEDULED",
+    scheduledAt?: string
   ) {
+    setActionError("");
     setLoading(true);
 
     try {
@@ -209,6 +222,7 @@ export function SiteVisitManager({
           },
           body: JSON.stringify({
             status,
+            ...(scheduledAt ? { scheduledAt } : {}),
           }),
         }
       );
@@ -218,7 +232,7 @@ export function SiteVisitManager({
           .json()
           .catch(() => null);
 
-        alert(
+        setActionError(
           data?.error ??
             "Failed to update site visit."
         );
@@ -239,11 +253,77 @@ export function SiteVisitManager({
         )
       );
 
+      setRescheduleFor(null);
       router.refresh();
     } catch {
-      alert(
+      setActionError(
         "Failed to update site visit."
       );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function addAttachment(visitId: string) {
+    if (!attachForm.fileName.trim() || !attachForm.fileUrl.trim()) {
+      setActionError("File name and URL are required to attach a file.");
+      return;
+    }
+    setActionError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/site-visits/${visitId}/attachments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: attachForm.fileName.trim(),
+          fileUrl: attachForm.fileUrl.trim(),
+          fileType: attachForm.fileType,
+          caption: attachForm.caption.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setActionError(data?.error ?? "Failed to attach file.");
+        return;
+      }
+      setVisits((current) =>
+        current.map((visit) =>
+          visit.id === visitId
+            ? { ...visit, attachments: [...visit.attachments, data] }
+            : visit
+        )
+      );
+      setAttachForm({ fileName: "", fileUrl: "", fileType: "PHOTO", caption: "" });
+      setAttachFormFor(null);
+      router.refresh();
+    } catch {
+      setActionError("Failed to attach file.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteAttachment(visitId: string, attachmentId: string) {
+    setActionError("");
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/attachments/${attachmentId}`, { method: "DELETE" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setActionError(data?.error ?? "Failed to remove attachment.");
+        return;
+      }
+      setVisits((current) =>
+        current.map((visit) =>
+          visit.id === visitId
+            ? { ...visit, attachments: visit.attachments.filter((a) => a.id !== attachmentId) }
+            : visit
+        )
+      );
+      router.refresh();
+    } catch {
+      setActionError("Failed to remove attachment.");
     } finally {
       setLoading(false);
     }
@@ -295,7 +375,7 @@ export function SiteVisitManager({
   }
 
   return (
-    <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
+    <div className="bg-white border border-flora-border rounded-xl p-5 mb-6">
       {actionError && (
         <p
           role="alert"
@@ -307,11 +387,11 @@ export function SiteVisitManager({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
         <div>
-          <h3 className="font-semibold text-sm text-[#5A0E12]">
+          <h3 className="font-semibold text-sm text-flora-primary">
             Site Visits
           </h3>
 
-          <p className="text-xs text-[#6B625A] mt-1">
+          <p className="text-xs text-flora-muted mt-1">
             Schedule visits, record measurements and
             track site progress.
           </p>
@@ -323,7 +403,7 @@ export function SiteVisitManager({
             onClick={() =>
               setShowForm(true)
             }
-            className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#74171C] transition-colors"
+            className="bg-flora-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-flora-primary-hover transition-colors"
           >
             + Schedule Visit
           </button>
@@ -332,14 +412,14 @@ export function SiteVisitManager({
 
       {/* Create Form */}
       {showForm && (
-        <div className="border border-[#D8C9BC] rounded-xl p-4 mb-5 bg-[#FCFAF8]">
+        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-[#FCFAF8]">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h4 className="font-semibold text-sm text-[#5A0E12]">
+              <h4 className="font-semibold text-sm text-flora-primary">
                 Schedule Site Visit
               </h4>
 
-              <p className="text-xs text-[#6B625A] mt-1">
+              <p className="text-xs text-flora-muted mt-1">
                 Add the visit schedule and site
                 instructions.
               </p>
@@ -351,7 +431,7 @@ export function SiteVisitManager({
                 setShowForm(false)
               }
               disabled={loading}
-              className="text-[#6B625A] hover:text-[#5A0E12] text-lg"
+              className="text-flora-muted hover:text-flora-primary text-lg"
             >
               ×
             </button>
@@ -444,7 +524,7 @@ export function SiteVisitManager({
               type="button"
               onClick={createVisit}
               disabled={loading}
-              className="bg-[#5A0E12] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#74171C] disabled:opacity-50"
+              className="bg-flora-primary text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-flora-primary-hover disabled:opacity-50"
             >
               {loading
                 ? "Saving..."
@@ -457,7 +537,7 @@ export function SiteVisitManager({
                 setShowForm(false)
               }
               disabled={loading}
-              className="bg-[#EFE7DF] text-[#6B625A] rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
+              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
             >
               Cancel
             </button>
@@ -468,16 +548,16 @@ export function SiteVisitManager({
       {/* Empty State */}
       {visits.length === 0 &&
         !showForm && (
-          <div className="border border-dashed border-[#D8C9BC] rounded-xl p-8 text-center">
+          <div className="border border-dashed border-flora-border rounded-xl p-8 text-center">
             <div className="text-2xl mb-2">
               📐
             </div>
 
-            <p className="text-sm font-medium text-[#5A0E12]">
+            <p className="text-sm font-medium text-flora-primary">
               No site visits scheduled
             </p>
 
-            <p className="text-xs text-[#6B625A] mt-1">
+            <p className="text-xs text-flora-muted mt-1">
               Schedule the first site visit to
               start capturing measurements.
             </p>
@@ -496,7 +576,7 @@ export function SiteVisitManager({
             return (
               <div
                 key={visit.id}
-                className="border border-[#D8C9BC] rounded-xl p-4"
+                className="border border-flora-border rounded-xl p-4"
               >
                 {/* Visit Header */}
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3">
@@ -522,7 +602,7 @@ export function SiteVisitManager({
                       </span>
                     </div>
 
-                    <p className="text-sm text-[#6B625A] mt-1">
+                    <p className="text-sm text-flora-muted mt-1">
                       {formatDate(
                         visit.scheduledAt
                       )}
@@ -545,6 +625,45 @@ export function SiteVisitManager({
                         className="text-xs bg-[#ECFDF5] text-[#166534] rounded-lg px-3 py-1.5 hover:bg-[#D1FAE5] disabled:opacity-50"
                       >
                         ✓ Complete
+                      </button>
+                    )}
+
+                    {visit.status ===
+                      "SCHEDULED" && (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => {
+                          setActionError("");
+                          setRescheduleDate(
+                            visit.scheduledAt
+                              ? new Date(visit.scheduledAt).toISOString().slice(0, 16)
+                              : ""
+                          );
+                          setRescheduleFor(
+                            rescheduleFor === visit.id ? null : visit.id
+                          );
+                        }}
+                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                      >
+                        Reschedule
+                      </button>
+                    )}
+
+                    {(visit.status === "RESCHEDULED" ||
+                      visit.status === "CANCELLED") && (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() =>
+                          updateStatus(
+                            visit.id,
+                            "SCHEDULED"
+                          )
+                        }
+                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                      >
+                        Re-schedule
                       </button>
                     )}
 
@@ -579,12 +698,47 @@ export function SiteVisitManager({
                       Delete
                     </button>
                   </div>
+
+                  {rescheduleFor === visit.id && (
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                      <input
+                        type="datetime-local"
+                        aria-label="New visit date and time"
+                        value={rescheduleDate}
+                        onChange={(e) => setRescheduleDate(e.target.value)}
+                        className="border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-white"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          disabled={loading || !rescheduleDate}
+                          onClick={() =>
+                            updateStatus(
+                              visit.id,
+                              "RESCHEDULED",
+                              new Date(rescheduleDate).toISOString()
+                            )
+                          }
+                          className="rounded-lg bg-flora-primary px-4 py-2 text-sm font-medium text-white hover:bg-flora-primary-hover disabled:opacity-50"
+                        >
+                          Confirm new date
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRescheduleFor(null)}
+                          className="rounded-lg border border-flora-border px-4 py-2 text-sm text-flora-muted hover:bg-flora-surface"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Visit Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-sm">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted">
                       Assigned To
                     </p>
 
@@ -595,7 +749,7 @@ export function SiteVisitManager({
                   </div>
 
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted">
                       Completed
                     </p>
 
@@ -608,7 +762,7 @@ export function SiteVisitManager({
 
                   {visit.siteAddress && (
                     <div className="sm:col-span-2">
-                      <p className="text-[10px] uppercase tracking-widest text-[#6B625A]">
+                      <p className="text-[10px] uppercase tracking-widest text-flora-muted">
                         Site Address
                       </p>
 
@@ -621,12 +775,12 @@ export function SiteVisitManager({
 
                 {/* Notes */}
                 {visit.notes && (
-                  <div className="mt-4 pt-4 border-t border-[#EFE7DF]">
-                    <p className="text-[10px] uppercase tracking-widest text-[#6B625A] mb-1">
+                  <div className="mt-4 pt-4 border-t border-flora-border/60">
+                    <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">
                       Notes
                     </p>
 
-                    <p className="text-sm text-[#6B625A] whitespace-pre-wrap">
+                    <p className="text-sm text-flora-muted whitespace-pre-wrap">
                       {visit.notes}
                     </p>
                   </div>
@@ -641,51 +795,147 @@ export function SiteVisitManager({
                 />
 
                 {/* Attachments */}
-                {visit.attachments.length >
-                  0 && (
-                  <div className="mt-5 pt-5 border-t border-[#EFE7DF]">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="font-semibold text-sm text-[#5A0E12]">
-                          Attachments
-                        </p>
+                <div className="mt-5 pt-5 border-t border-flora-border/60">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="font-semibold text-sm text-flora-primary">
+                        Attachments
+                      </p>
 
-                        <p className="text-xs text-[#6B625A] mt-1">
-                          {visit.attachments.length}{" "}
-                          file
-                          {visit.attachments
-                            .length === 1
-                            ? ""
-                            : "s"}{" "}
-                          attached
-                        </p>
-                      </div>
+                      <p className="text-xs text-flora-muted mt-1">
+                        {visit.attachments.length === 0
+                          ? "No files linked yet"
+                          : `${visit.attachments.length} file${
+                              visit.attachments.length === 1 ? "" : "s"
+                            } attached`}
+                      </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {visit.attachments.map(
-                        (attachment) => (
+                    {attachFormFor !== visit.id && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActionError("");
+                          setAttachForm({ fileName: "", fileUrl: "", fileType: "PHOTO", caption: "" });
+                          setAttachFormFor(visit.id);
+                        }}
+                        className="text-xs font-medium text-flora-primary hover:underline"
+                      >
+                        + Link file
+                      </button>
+                    )}
+                  </div>
+
+                  {visit.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {visit.attachments.map((attachment) => (
+                        <span
+                          key={attachment.id}
+                          className="inline-flex items-center gap-2 border border-flora-border rounded-lg px-3 py-2 text-xs text-flora-primary"
+                        >
                           <a
-                            key={
-                              attachment.id
-                            }
-                            href={
-                              attachment.fileUrl
-                            }
+                            href={attachment.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="border border-[#D8C9BC] rounded-lg px-3 py-2 text-xs text-[#5A0E12] hover:bg-[#F8F5F2]"
+                            className="hover:bg-flora-surface hover:underline"
                           >
-                            📎{" "}
-                            {
-                              attachment.fileName
-                            }
+                            📎 {attachment.fileName}
                           </a>
-                        )
-                      )}
+                          <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => deleteAttachment(visit.id, attachment.id)}
+                            aria-label={`Remove attachment ${attachment.fileName}`}
+                            title="Remove attachment (admin only)"
+                            className="text-[#991B1B] hover:underline disabled:opacity-50"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {attachFormFor === visit.id && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                      <div className="col-span-1">
+                        <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
+                          File name *
+                        </label>
+                        <input
+                          className="border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-white w-full"
+                          value={attachForm.fileName}
+                          onChange={(e) =>
+                            setAttachForm((f) => ({ ...f, fileName: e.target.value }))
+                          }
+                          placeholder="e.g. Living room photo"
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
+                          File URL *
+                        </label>
+                        <input
+                          className="border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-white w-full"
+                          value={attachForm.fileUrl}
+                          onChange={(e) =>
+                            setAttachForm((f) => ({ ...f, fileUrl: e.target.value }))
+                          }
+                          placeholder="https://…"
+                          inputMode="url"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
+                          Type
+                        </label>
+                        <select
+                          className="border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-white w-full"
+                          value={attachForm.fileType}
+                          onChange={(e) =>
+                            setAttachForm((f) => ({ ...f, fileType: e.target.value }))
+                          }
+                        >
+                          {["PHOTO", "DOCUMENT", "MEASUREMENT", "OTHER"].map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
+                          Caption
+                        </label>
+                        <input
+                          className="border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-white w-full"
+                          value={attachForm.caption}
+                          onChange={(e) =>
+                            setAttachForm((f) => ({ ...f, caption: e.target.value }))
+                          }
+                          placeholder="Optional note"
+                        />
+                      </div>
+                      <div className="col-span-1 sm:col-span-2 flex gap-2">
+                        <button
+                          type="button"
+                          disabled={loading}
+                          onClick={() => addAttachment(visit.id)}
+                          className="rounded-lg bg-flora-primary px-4 py-2 text-sm font-medium text-white hover:bg-flora-primary-hover disabled:opacity-50"
+                        >
+                          Attach file
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAttachFormFor(null)}
+                          className="rounded-lg border border-flora-border px-4 py-2 text-sm text-flora-muted hover:bg-flora-surface"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
