@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { QuoteWizard } from "@/components/public/QuoteWizard";
+
+export const metadata: Metadata = {
+  title: "Get a Quote | Flora Curtains Abu Dhabi",
+  description:
+    "Request a quotation in a few steps: tell us about your space, choose a service and get a fast, no-obligation response from Flora Curtains.",
+};
 
 export default function GetQuotePage() {
   return (

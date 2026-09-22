@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { PortfolioGallery } from "@/components/public/PortfolioGallery";
+
+export const metadata: Metadata = {
+  title: "Selected Work | Flora Curtains Portfolio",
+  description:
+    "A selection of residential and commercial curtain and interior projects across the UAE.",
+};
 
 const projects = [
   {

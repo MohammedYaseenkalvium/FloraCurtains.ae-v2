@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { WhyFlora } from "@/components/public/WhyFlora";
+
+export const metadata: Metadata = {
+  title: "About Flora Curtains | Abu Dhabi Interior Craft Since 1997",
+  description:
+    "Flora Curtains LLC was established in 2023 in Abu Dhabi; our founder's curtain and interior journey began in 1997. Premium curtains, wallpaper, upholstery and flooring across the UAE.",
+};
 
 export default function AboutPage() {
   return (

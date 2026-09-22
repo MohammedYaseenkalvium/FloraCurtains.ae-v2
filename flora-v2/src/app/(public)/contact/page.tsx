@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { QuoteForm } from "@/components/public/QuoteForm";
+
+export const metadata: Metadata = {
+  title: "Contact Flora Curtains | Abu Dhabi Showroom",
+  description:
+    "Visit our Abu Dhabi showroom on Murur Road, call +971 2 586 4545 or WhatsApp +971 55 746 4100. Send your project requirements for a fast response.",
+};
 
 export default function ContactPage() {
   return (
