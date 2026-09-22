@@ -5,6 +5,36 @@
 :root {
   --background: #fff8f5;
   --foreground: #1e1b18;
+
+  /* Flora design tokens (see docs/design-system.md) */
+  --flora-primary: #5a0e12;
+  --flora-primary-hover: #74171c;
+  --flora-gold: #c8a97e;
+  --flora-surface: #f8f5f2;
+  --flora-muted: #6b625a;
+  --flora-border: #d8c9bc;
+  --flora-success: #0f6e56;
+  --flora-warning: #854d0e;
+  --flora-danger: #991b1b;
+  --flora-info: #185fa5;
+
+  /* Glass surfaces: navigation, floating cards, overlays, dialogs */
+  --flora-glass-bg: rgba(255, 255, 255, 0.55);
+  --flora-glass-border: rgba(255, 255, 255, 0.35);
+  --flora-glass-blur: blur(16px);
+}
+
+/**
+ * Restrained glassmorphism — navigation, floating cards, overlays,
+ * dashboard widgets, dialog surfaces. Never for body copy sections.
+ */
+@layer components {
+  .glass-panel {
+    background: var(--flora-glass-bg);
+    border: 1px solid var(--flora-glass-border);
+    backdrop-filter: var(--flora-glass-blur);
+    -webkit-backdrop-filter: var(--flora-glass-blur);
+  }
 }
 
 html {
