@@ -45,14 +45,14 @@ export function WhyFlora() {
           >
             <Icon
               size={21}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <h3 className="mt-4 text-sm font-semibold text-[#1E1B18]">
+            <h3 className="mt-4 text-sm font-semibold text-flora-foreground">
               {reason.title}
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-[#6B625A]">
+            <p className="mt-2 text-sm leading-6 text-flora-muted">
               {reason.description}
             </p>
           </div>

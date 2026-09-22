@@ -124,16 +124,16 @@ export function QuoteForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-[#D8C9BC] bg-white p-8 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F2] text-[#5A0E12]">
+      <div className="rounded-xl border border-flora-border bg-white p-8 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-flora-primary">
           <CheckCircle2 size={24} />
         </div>
 
-        <h2 className="mt-5 font-serif text-3xl text-[#1E1B18]">
+        <h2 className="mt-5 font-display text-3xl text-flora-foreground">
           Enquiry received.
         </h2>
 
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#6B625A]">
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-flora-muted">
           Thank you for contacting Flora Curtains.
           Your enquiry has been received and our team
           will get back to you.
@@ -144,7 +144,7 @@ export function QuoteForm() {
           onClick={() =>
             setSuccess(false)
           }
-          className="mt-6 rounded-lg border border-[#D8C9BC] px-5 py-2.5 text-sm font-semibold text-[#5A0E12] hover:bg-[#F8F5F2]"
+          className="mt-6 rounded-lg border border-flora-border px-5 py-2.5 text-sm font-semibold text-flora-primary hover:bg-flora-surface"
         >
           Submit another enquiry
         </button>
@@ -155,14 +155,14 @@ export function QuoteForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-[#D8C9BC] bg-white p-6 sm:p-8"
+      className="rounded-xl border border-flora-border bg-white p-6 sm:p-8"
     >
       <div className="grid gap-5 md:grid-cols-2">
         {/* Name */}
         <div>
           <label
             htmlFor="name"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Name *
           </label>
@@ -172,7 +172,7 @@ export function QuoteForm() {
             name="name"
             required
             autoComplete="name"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Your name"
           />
         </div>
@@ -181,7 +181,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="email"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Email *
           </label>
@@ -192,7 +192,7 @@ export function QuoteForm() {
             type="email"
             required
             autoComplete="email"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="you@example.com"
           />
         </div>
@@ -201,7 +201,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="phone"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Phone *
           </label>
@@ -212,7 +212,7 @@ export function QuoteForm() {
             type="tel"
             required
             autoComplete="tel"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Phone number"
           />
         </div>
@@ -221,7 +221,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="customerType"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Customer Type
           </label>
@@ -230,7 +230,7 @@ export function QuoteForm() {
             id="customerType"
             name="customerType"
             defaultValue="B2C"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
           >
             <option value="B2C">
               Residential
@@ -246,7 +246,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="serviceWanted"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Service *
           </label>
@@ -256,7 +256,7 @@ export function QuoteForm() {
             name="serviceWanted"
             required
             defaultValue=""
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] bg-white px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
           >
             <option value="" disabled>
               Select a service
@@ -284,7 +284,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="projectName"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Project Name
           </label>
@@ -292,7 +292,7 @@ export function QuoteForm() {
           <input
             id="projectName"
             name="projectName"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Optional"
           />
         </div>
@@ -301,7 +301,7 @@ export function QuoteForm() {
         <div className="md:col-span-2">
           <label
             htmlFor="siteAddress"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Site Address
           </label>
@@ -310,7 +310,7 @@ export function QuoteForm() {
             id="siteAddress"
             name="siteAddress"
             rows={3}
-            className="w-full resize-none rounded-lg border border-[#D8C9BC] px-3 py-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Where is the project located?"
           />
         </div>
@@ -319,7 +319,7 @@ export function QuoteForm() {
         <div>
           <label
             htmlFor="budget"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Budget
           </label>
@@ -327,7 +327,7 @@ export function QuoteForm() {
           <input
             id="budget"
             name="budget"
-            className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Optional"
           />
         </div>
@@ -336,7 +336,7 @@ export function QuoteForm() {
         <div className="md:col-span-2">
           <label
             htmlFor="notes"
-            className="mb-2 block text-xs font-semibold text-[#1E1B18]"
+            className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
             Tell us about your project
           </label>
@@ -345,7 +345,7 @@ export function QuoteForm() {
             id="notes"
             name="notes"
             rows={5}
-            className="w-full resize-none rounded-lg border border-[#D8C9BC] px-3 py-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Tell us about your requirements, preferred style, number of windows, timeline, etc."
           />
         </div>
@@ -368,7 +368,7 @@ export function QuoteForm() {
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-flora-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? (
           <>

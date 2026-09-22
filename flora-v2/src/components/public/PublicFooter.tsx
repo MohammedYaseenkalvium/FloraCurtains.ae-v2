@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function PublicFooter() {
   return (
-    <footer className="bg-[#0F0C0B] text-white">
+    <footer className="bg-flora-footer text-white">
       <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
@@ -74,7 +74,7 @@ export function PublicFooter() {
 
               <Link
                 href="/contact"
-                className="block text-[#C8A97E] hover:text-white"
+                className="block text-flora-gold hover:text-white"
               >
                 Request a Quote
               </Link>

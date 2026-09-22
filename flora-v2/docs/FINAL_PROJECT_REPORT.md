@@ -8,14 +8,15 @@ Next.js 16 App Router + React 19 + TS strict + Tailwind 3 + Prisma 6/Postgres + 
 
 - Enquiry lifecycle incl. all statuses at API level, convert guards, soft-delete (ADMIN).
 - Quotations: server-authoritative totals, numbering, status machine, revise clone, PDF (soft-delete aware, logo fallback).
-- Projects: status machine, convert validation, finance display.
+- Projects: status machine incl. CANCELLED, convert validation, finance display, payment-schedule milestone plan (shipped 2026-09-22: replace-plan API + per-milestone edit/status/delete + project-page section; schedules and ledger kept separate by design).
 - Payments: project-scoped create + overpay guard + audit; unified outstanding; deduped ledger.
 - Tasks: parent-required + FK checks, deterministic order, ADMIN delete, a11y labels.
-- Visits/measurements: full CRUD + new ADMIN DELETE for visits.
-- Staff: ADMIN-gated, role enum `ADMIN|STAFF`, pw min 8, safe selects.
+- Visits/measurements: full CRUD + visit DELETE + RESCHEDULED with new-date flow + attachment linking (URL-based, ADMIN unlink) with ConfirmDialog.
+- Staff: ADMIN-gated, `UserRole` DB enum, pw min 8, safe selects, enum-aware search.
 - Settings: ADMIN write, defaults read.
-- Dashboard: project-scoped finance, correct labels, shared formatters.
-- Public enquiry: throttled + validated + audited.
+- Dashboard: project-scoped finance, correct labels incl. CANCELLED, GSAP metric reveal.
+- Public enquiry: throttled + validated + audited; public imagery on `next/image`.
+- CRM sidebar: mobile drawer with overlay, Esc-safe focus handling via native buttons, `aria-current` active states.
 
 ## 3. APIs
 
@@ -23,7 +24,7 @@ Next.js 16 App Router + React 19 + TS strict + Tailwind 3 + Prisma 6/Postgres + 
 
 ## 4. Database models
 
-Prisma source of truth, no migration this pass (smallest safe change). Noted: no `Customer` (Contact+Company by design), `Payment` dual-FK (project canonical, quotation display-only), `PaymentSchedule` unwired (decision deferred), `User.role` String validated at boundary, `Quotation.items` Json, soft-delete on Enquiry/Quotation/Project.
+Prisma source of truth. Migration `20260922120000_add_user_role_and_cancelled` (applied via `migrate deploy`, data-preserving: role strings normalized then cast, no drop): `User.role` is now `UserRole` enum (`ADMIN`/`STAFF`), `ProjectStatus` gains `CANCELLED` (terminal; reachable from NOT_STARTED/IN_PROGRESS/ON_HOLD). No `Customer` (Contact+Company by design), `Payment.projectId`+`quotationId` both optional (project canonical, quotation display-only), `Quotation.items` Json, soft-delete on Enquiry/Quotation/Project.
 
 ## 5. Security changes
 
@@ -35,7 +36,7 @@ Login throttle (kept) + public throttle (added); staff hardening; financial/cust
 
 ## 7. Tests
 
-`npm test`: 18/18 pass (12 quotation + 6 finance). `npm run lint`: 0 errors (pre-existing warnings only). `npm run build`: must be green before merge (run in CI/staging with DB env).
+`npm test`: 25/25 pass (12 quotation + 6 finance + 7 payment-schedule). `npm run lint`: 0 errors (5 remaining warnings, all pre-existing/informational). `npm run build`: green (incl. token migration + UserRole/CANCELLED).
 
 ## 8. Performance
 
@@ -47,7 +48,7 @@ Login throttle (kept) + public throttle (added); staff hardening; financial/cust
 
 ## 9. UI/UX improvements (functionality-safe only)
 
-No redesign. Added: `ui/ConfirmDialog` (Radix focus-trap/Esc) replacing `window.confirm` in visits/measurements with inline `role=alert` errors; `ui/Reveal` dashboard entrance; `(crm)` loading/not-found states; payments mobile overflow fix; search input label; `next/image` logos. Design-system token migration + full responsive overhaul explicitly deferred (see plan Phase 22) to avoid regressing working flows.
+No redesign. Added: `ui/ConfirmDialog` (Radix focus-trap/Esc) replacing `window.confirm` in visits/measurements with inline `role=alert` errors; `ui/Reveal` dashboard entrance; `(crm)` loading/not-found states; payments mobile overflow fix; search input label; `next/image` logos + hero + portfolio imagery; CRM mobile drawer. Token migration 2026-09-22: ~1170 hardcoded hex/font utilities mapped to `flora-*` tokens (`font-serif`→`font-display` for brand type) with zero visual change — same values, single source. Remaining out-of-palette one-offs (`#1A1A1A`, `#8B8178`, `#EFE7DF` fills, skeleton tones) and runtime style maps left intact deliberately.
 
 ## 10. GSAP usage
 
@@ -55,7 +56,7 @@ No redesign. Added: `ui/ConfirmDialog` (Radix focus-trap/Esc) replacing `window.
 
 ## 11. Known limitations
 
-See QA report §Remaining. Top: PaymentSchedule ship-or-delete; attachment upload; role enum migration; GET strict validation; per-page skeletons; measurement→quote handoff manual.
+GET filters now Zod-validated; per-page skeletons still limited to route-level `(crm)/loading.tsx` (empty states exist per page). Binary attachment uploads remain out of scope (no object storage — URL linking instead). Quotation direct PATCH→REVISED from SENT/REJECTED is retained as a valid fast path alongside the revise-by-clone endpoint (both audited). Full-screen responsive table redesign deferred (tables scroll horizontally on small screens, no data loss).
 
 ## 12. Deployment checklist
 

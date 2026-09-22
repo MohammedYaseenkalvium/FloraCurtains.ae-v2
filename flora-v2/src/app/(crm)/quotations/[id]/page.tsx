@@ -78,13 +78,13 @@ export default async function QuotationDetailPage({
   );
 
   return (
-    <div className="min-h-full bg-[#FFF8F5]">
+    <div className="min-h-full bg-flora-background">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-[#6B625A]">
+        <div className="flex items-center gap-2 text-sm text-flora-muted">
           <Link
             href="/quotations"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-[#5A0E12]"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-flora-primary"
           >
             <ArrowLeft size={15} />
             Quotations
@@ -92,30 +92,30 @@ export default async function QuotationDetailPage({
 
           <span>/</span>
 
-          <span className="text-[#1E1B18]">
+          <span className="text-flora-foreground">
             {quotation.quoteNumber}
           </span>
         </div>
 
         {/* Header */}
-        <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <section className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#F8F5F2] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                <span className="rounded-full bg-flora-surface px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                   Quotation
                 </span>
 
-                <span className="text-xs text-[#6B625A]">
+                <span className="text-xs text-flora-muted">
                   Created {formatDate(quotation.createdAt)}
                 </span>
               </div>
 
-              <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+              <h1 className="text-2xl font-bold tracking-tight text-flora-foreground">
                 {quotation.quoteNumber}
               </h1>
 
-              <p className="mt-1 text-sm text-[#6B625A]">
+              <p className="mt-1 text-sm text-flora-muted">
                 {quotation.enquiry.contact.name}
                 {quotation.enquiry.serviceWanted
                   ? ` · ${quotation.enquiry.serviceWanted}`
@@ -123,7 +123,7 @@ export default async function QuotationDetailPage({
               </p>
 
               {quotation.enquiry.projectName && (
-                <p className="mt-1 text-xs text-[#6B625A]">
+                <p className="mt-1 text-xs text-flora-muted">
                   Project: {quotation.enquiry.projectName}
                 </p>
               )}
@@ -132,7 +132,7 @@ export default async function QuotationDetailPage({
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/quotations/${quotation.id}/edit`}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#D8C9BC] px-3 py-2 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2]"
+                className="inline-flex items-center gap-2 rounded-lg border border-flora-border px-3 py-2 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface"
               >
                 <Pencil size={14} />
                 Edit
@@ -142,7 +142,7 @@ export default async function QuotationDetailPage({
                 href={`/api/quotations/${quotation.id}/pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-[#D8C9BC] px-3 py-2 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2]"
+                className="inline-flex items-center gap-2 rounded-lg border border-flora-border px-3 py-2 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface"
               >
                 <FileText size={14} />
                 PDF
@@ -151,7 +151,7 @@ export default async function QuotationDetailPage({
             </div>
           </div>
 
-          <div className="mt-5 border-t border-[#EFE7DF] pt-4">
+          <div className="mt-5 border-t border-flora-border/60 pt-4">
             <QuotationStatusWorkflow
               quotationId={quotation.id}
               currentStatus={quotation.status}
@@ -162,17 +162,17 @@ export default async function QuotationDetailPage({
         {/* Customer + Quotation Info */}
         <section className="grid gap-6 lg:grid-cols-2">
           {/* Customer */}
-          <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <div className="rounded-xl border border-flora-border bg-white p-5">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F8F5F2] text-[#5A0E12]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
                 <User size={17} />
               </div>
 
               <div>
-                <h2 className="text-sm font-semibold text-[#1E1B18]">
+                <h2 className="text-sm font-semibold text-flora-foreground">
                   Customer
                 </h2>
-                <p className="text-xs text-[#6B625A]">
+                <p className="text-xs text-flora-muted">
                   Customer and company information
                 </p>
               </div>
@@ -180,22 +180,22 @@ export default async function QuotationDetailPage({
 
             <div className="space-y-4">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                   Name
                 </p>
 
-                <p className="mt-1 text-sm font-medium text-[#1E1B18]">
+                <p className="mt-1 text-sm font-medium text-flora-foreground">
                   {quotation.enquiry.contact.name}
                 </p>
               </div>
 
               {quotation.enquiry.contact.phone && (
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                     Phone
                   </p>
 
-                  <p className="mt-1 text-sm text-[#1E1B18]">
+                  <p className="mt-1 text-sm text-flora-foreground">
                     {quotation.enquiry.contact.phone}
                   </p>
                 </div>
@@ -203,29 +203,29 @@ export default async function QuotationDetailPage({
 
               {quotation.enquiry.contact.email && (
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                  <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                     Email
                   </p>
 
-                  <p className="mt-1 break-all text-sm text-[#1E1B18]">
+                  <p className="mt-1 break-all text-sm text-flora-foreground">
                     {quotation.enquiry.contact.email}
                   </p>
                 </div>
               )}
 
               {quotation.enquiry.company && (
-                <div className="flex items-start gap-2 border-t border-[#EFE7DF] pt-4">
+                <div className="flex items-start gap-2 border-t border-flora-border/60 pt-4">
                   <Building2
                     size={15}
-                    className="mt-0.5 text-[#6B625A]"
+                    className="mt-0.5 text-flora-muted"
                   />
 
                   <div>
-                    <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                    <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                       Company
                     </p>
 
-                    <p className="mt-1 text-sm font-medium text-[#1E1B18]">
+                    <p className="mt-1 text-sm font-medium text-flora-foreground">
                       {quotation.enquiry.company.tradeName}
                     </p>
                   </div>
@@ -235,18 +235,18 @@ export default async function QuotationDetailPage({
           </div>
 
           {/* Quotation information */}
-          <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+          <div className="rounded-xl border border-flora-border bg-white p-5">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F8F5F2] text-[#5A0E12]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
                 <CalendarDays size={17} />
               </div>
 
               <div>
-                <h2 className="text-sm font-semibold text-[#1E1B18]">
+                <h2 className="text-sm font-semibold text-flora-foreground">
                   Quotation Information
                 </h2>
 
-                <p className="text-xs text-[#6B625A]">
+                <p className="text-xs text-flora-muted">
                   Commercial and site details
                 </p>
               </div>
@@ -254,37 +254,37 @@ export default async function QuotationDetailPage({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                   Service
                 </p>
 
-                <p className="mt-1 text-sm text-[#1E1B18]">
+                <p className="mt-1 text-sm text-flora-foreground">
                   {quotation.enquiry.serviceWanted || "—"}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                   Valid Until
                 </p>
 
-                <p className="mt-1 text-sm text-[#1E1B18]">
+                <p className="mt-1 text-sm text-flora-foreground">
                   {formatDate(quotation.validUntil)}
                 </p>
               </div>
 
               <div className="sm:col-span-2">
-                <p className="text-[10px] font-medium uppercase tracking-widest text-[#6B625A]">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-flora-muted">
                   Site Address
                 </p>
 
                 <div className="mt-1 flex items-start gap-2">
                   <MapPin
                     size={14}
-                    className="mt-0.5 shrink-0 text-[#6B625A]"
+                    className="mt-0.5 shrink-0 text-flora-muted"
                   />
 
-                  <p className="text-sm text-[#1E1B18]">
+                  <p className="text-sm text-flora-foreground">
                     {quotation.enquiry.siteAddress || "—"}
                   </p>
                 </div>
@@ -294,13 +294,13 @@ export default async function QuotationDetailPage({
         </section>
 
         {/* Items */}
-        <section className="overflow-hidden rounded-xl border border-[#D8C9BC] bg-white">
-          <div className="border-b border-[#D8C9BC] px-5 py-4">
-            <h2 className="text-sm font-semibold text-[#1E1B18]">
+        <section className="overflow-hidden rounded-xl border border-flora-border bg-white">
+          <div className="border-b border-flora-border px-5 py-4">
+            <h2 className="text-sm font-semibold text-flora-foreground">
               Quotation Items
             </h2>
 
-            <p className="mt-0.5 text-xs text-[#6B625A]">
+            <p className="mt-0.5 text-xs text-flora-muted">
               Products and services included in this quotation.
             </p>
           </div>
@@ -308,7 +308,7 @@ export default async function QuotationDetailPage({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="bg-[#F8F5F2] text-[10px] uppercase tracking-widest text-[#6B625A]">
+                <tr className="bg-flora-surface text-[10px] uppercase tracking-widest text-flora-muted">
                   <th className="p-3 text-left font-medium">
                     Description
                   </th>
@@ -335,7 +335,7 @@ export default async function QuotationDetailPage({
                   <tr>
                     <td
                       colSpan={6}
-                      className="p-8 text-center text-sm text-[#6B625A]"
+                      className="p-8 text-center text-sm text-flora-muted"
                     >
                       No quotation items.
                     </td>
@@ -350,9 +350,9 @@ export default async function QuotationDetailPage({
                     return (
                       <tr
                         key={`${item.description}-${index}`}
-                        className="border-t border-[#EFE7DF]"
+                        className="border-t border-flora-border/60"
                       >
-                        <td className="p-3 text-[#1E1B18]">
+                        <td className="p-3 text-flora-foreground">
                           {item.description}
                         </td>
 
@@ -360,7 +360,7 @@ export default async function QuotationDetailPage({
                           {item.qty}
                         </td>
 
-                        <td className="p-3 text-[#6B625A]">
+                        <td className="p-3 text-flora-muted">
                           {item.unit}
                         </td>
 
@@ -372,7 +372,7 @@ export default async function QuotationDetailPage({
                           {item.discount}%
                         </td>
 
-                        <td className="p-3 text-right font-medium text-[#5A0E12]">
+                        <td className="p-3 text-right font-medium text-flora-primary">
                           {formatAED(lineTotal)}
                         </td>
                       </tr>
@@ -386,14 +386,14 @@ export default async function QuotationDetailPage({
 
         {/* Financial Summary */}
         <section className="flex justify-end">
-          <div className="w-full rounded-xl border border-[#D8C9BC] bg-white p-5 sm:w-96">
-            <h2 className="mb-4 text-sm font-semibold text-[#1E1B18]">
+          <div className="w-full rounded-xl border border-flora-border bg-white p-5 sm:w-96">
+            <h2 className="mb-4 text-sm font-semibold text-flora-foreground">
               Financial Summary
             </h2>
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#6B625A]">
+                <span className="text-flora-muted">
                   Subtotal
                 </span>
 
@@ -401,15 +401,15 @@ export default async function QuotationDetailPage({
               </div>
 
               <div className="flex justify-between">
-                <span className="text-[#6B625A]">
+                <span className="text-flora-muted">
                   VAT ({quotation.vatRate}%)
                 </span>
 
                 <span>{formatAED(quotation.vatAmount)}</span>
               </div>
 
-              <div className="border-t border-[#D8C9BC] pt-3">
-                <div className="flex justify-between text-base font-bold text-[#5A0E12]">
+              <div className="border-t border-flora-border pt-3">
+                <div className="flex justify-between text-base font-bold text-flora-primary">
                   <span>Total</span>
                   <span>
                     {formatAED(quotation.totalAmount)}
@@ -417,9 +417,9 @@ export default async function QuotationDetailPage({
                 </div>
               </div>
 
-              <div className="mt-4 border-t border-[#EFE7DF] pt-4">
+              <div className="mt-4 border-t border-flora-border/60 pt-4">
                 <div className="flex justify-between">
-                  <span className="text-[#6B625A]">
+                  <span className="text-flora-muted">
                     Paid
                   </span>
 
@@ -429,7 +429,7 @@ export default async function QuotationDetailPage({
                 </div>
 
                 <div className="mt-2 flex justify-between">
-                  <span className="text-[#6B625A]">
+                  <span className="text-flora-muted">
                     Outstanding
                   </span>
 
@@ -446,24 +446,24 @@ export default async function QuotationDetailPage({
         {(quotation.notes || quotation.internalNotes) && (
           <section className="grid gap-6 lg:grid-cols-2">
             {quotation.notes && (
-              <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
-                <h2 className="mb-3 text-sm font-semibold text-[#1E1B18]">
+              <div className="rounded-xl border border-flora-border bg-white p-5">
+                <h2 className="mb-3 text-sm font-semibold text-flora-foreground">
                   Client Notes
                 </h2>
 
-                <p className="whitespace-pre-wrap text-sm leading-6 text-[#6B625A]">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-flora-muted">
                   {quotation.notes}
                 </p>
               </div>
             )}
 
             {quotation.internalNotes && (
-              <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+              <div className="rounded-xl border border-flora-border bg-white p-5">
                 <h2 className="mb-3 text-sm font-semibold text-[#991B1B]">
                   Internal Notes
                 </h2>
 
-                <p className="whitespace-pre-wrap text-sm leading-6 text-[#6B625A]">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-flora-muted">
                   {quotation.internalNotes}
                 </p>
               </div>
@@ -479,7 +479,7 @@ export default async function QuotationDetailPage({
                 Quotation Approved
               </h2>
 
-              <p className="mt-1 text-xs text-[#6B625A]">
+              <p className="mt-1 text-xs text-flora-muted">
                 This quotation has been approved. You can now convert the
                 enquiry into a project.
               </p>

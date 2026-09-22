@@ -142,14 +142,14 @@ export function QuotationBuilder({
       className="space-y-6"
     >
       {/* Line Items */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               Quotation Items
             </h2>
 
-            <p className="mt-1 text-xs text-[#6B625A]">
+            <p className="mt-1 text-xs text-flora-muted">
               Add the products or services included in this quotation.
             </p>
           </div>
@@ -157,7 +157,7 @@ export function QuotationBuilder({
           <button
             type="button"
             onClick={() => append(emptyItem)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-medium text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-flora-border px-3 py-2 text-xs font-medium text-flora-primary transition-colors hover:bg-flora-surface"
           >
             <PlusCircle size={14} />
             Add Item
@@ -168,10 +168,10 @@ export function QuotationBuilder({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="rounded-lg border border-[#EFE7DF] bg-[#FFF8F5] p-4"
+              className="rounded-lg border border-flora-border/60 bg-flora-background p-4"
             >
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                <p className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
                   Item {index + 1}
                 </p>
 
@@ -190,7 +190,7 @@ export function QuotationBuilder({
               <div className="grid gap-3 md:grid-cols-12">
                 {/* Description */}
                 <div className="md:col-span-5">
-                  <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+                  <label className="mb-1.5 block text-xs font-medium text-flora-muted">
                     Description
                   </label>
 
@@ -199,26 +199,26 @@ export function QuotationBuilder({
                       `items.${index}.description`
                     )}
                     placeholder="e.g. Blackout curtain installation"
-                    className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+                    className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
                   />
                 </div>
 
                 {/* Unit */}
                 <div className="md:col-span-2">
-                  <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+                  <label className="mb-1.5 block text-xs font-medium text-flora-muted">
                     Unit
                   </label>
 
                   <input
                     {...register(`items.${index}.unit`)}
                     placeholder="pcs"
-                    className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+                    className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
                   />
                 </div>
 
                 {/* Quantity */}
                 <div className="md:col-span-2">
-                  <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+                  <label className="mb-1.5 block text-xs font-medium text-flora-muted">
                     Quantity
                   </label>
 
@@ -232,13 +232,13 @@ export function QuotationBuilder({
                         valueAsNumber: true,
                       }
                     )}
-                    className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+                    className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
                   />
                 </div>
 
                 {/* Unit Price */}
                 <div className="md:col-span-3">
-                  <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+                  <label className="mb-1.5 block text-xs font-medium text-flora-muted">
                     Unit Price (AED)
                   </label>
 
@@ -252,13 +252,13 @@ export function QuotationBuilder({
                         valueAsNumber: true,
                       }
                     )}
-                    className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+                    className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
                   />
                 </div>
 
                 {/* Discount */}
                 <div className="md:col-span-3">
-                  <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+                  <label className="mb-1.5 block text-xs font-medium text-flora-muted">
                     Discount (%)
                   </label>
 
@@ -273,7 +273,7 @@ export function QuotationBuilder({
                         valueAsNumber: true,
                       }
                     )}
-                    className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+                    className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
                   />
                 </div>
               </div>
@@ -283,44 +283,44 @@ export function QuotationBuilder({
       </section>
 
       {/* Billing */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-5">
-          <h2 className="text-sm font-semibold text-[#5A0E12]">
+          <h2 className="text-sm font-semibold text-flora-primary">
             Billing Information
           </h2>
 
-          <p className="mt-1 text-xs text-[#6B625A]">
+          <p className="mt-1 text-xs text-flora-muted">
             Enter the billing information that should appear on the quotation.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               Billed To
             </label>
 
             <input
               {...register("billedToName")}
               placeholder="Customer or company name"
-              className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               TRN
             </label>
 
             <input
               {...register("billedToTrn")}
               placeholder="Tax Registration Number"
-              className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               Billing Address
             </label>
 
@@ -328,17 +328,17 @@ export function QuotationBuilder({
               {...register("billedToAddr")}
               rows={3}
               placeholder="Billing address"
-              className="w-full resize-none rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full resize-none rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
         </div>
       </section>
 
       {/* Validity + VAT */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               VAT Rate (%)
             </label>
 
@@ -349,29 +349,29 @@ export function QuotationBuilder({
               {...register("vatRate", {
                 valueAsNumber: true,
               })}
-              className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               Valid Until
             </label>
 
             <input
               type="date"
               {...register("validUntil")}
-              className="w-full rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
         </div>
       </section>
 
       {/* Notes */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="grid gap-5 md:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               Customer Notes
             </label>
 
@@ -379,12 +379,12 @@ export function QuotationBuilder({
               {...register("notes")}
               rows={5}
               placeholder="Notes visible to the customer"
-              className="w-full resize-none rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full resize-none rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#6B625A]">
+            <label className="mb-1.5 block text-xs font-medium text-flora-muted">
               Internal Notes
             </label>
 
@@ -392,28 +392,28 @@ export function QuotationBuilder({
               {...register("internalNotes")}
               rows={5}
               placeholder="Internal CRM notes"
-              className="w-full resize-none rounded-lg border border-[#D8C9BC] bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#5A0E12]"
+              className="w-full resize-none rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-flora-primary"
             />
           </div>
         </div>
       </section>
 
       {/* Totals */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="rounded-xl border border-flora-border bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <Calculator
             size={17}
-            className="text-[#5A0E12]"
+            className="text-flora-primary"
           />
 
-          <h2 className="text-sm font-semibold text-[#5A0E12]">
+          <h2 className="text-sm font-semibold text-flora-primary">
             Financial Summary
           </h2>
         </div>
 
         <div className="ml-auto max-w-sm space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-[#6B625A]">
+            <span className="text-flora-muted">
               Subtotal
             </span>
 
@@ -425,7 +425,7 @@ export function QuotationBuilder({
           </div>
 
           <div className="flex justify-between">
-            <span className="text-[#6B625A]">
+            <span className="text-flora-muted">
               VAT ({vatRate}%)
             </span>
 
@@ -436,13 +436,13 @@ export function QuotationBuilder({
             </span>
           </div>
 
-          <div className="border-t border-[#EFE7DF] pt-3">
+          <div className="border-t border-flora-border/60 pt-3">
             <div className="flex justify-between">
-              <span className="font-semibold text-[#1E1B18]">
+              <span className="font-semibold text-flora-foreground">
                 Total
               </span>
 
-              <span className="text-lg font-bold text-[#5A0E12]">
+              <span className="text-lg font-bold text-flora-primary">
                 AED {totalAmount.toLocaleString("en-AE", {
                   minimumFractionDigits: 2,
                 })}
@@ -470,7 +470,7 @@ export function QuotationBuilder({
                 : "/quotations"
             )
           }
-          className="rounded-lg border border-[#D8C9BC] bg-white px-5 py-2.5 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2]"
+          className="rounded-lg border border-flora-border bg-white px-5 py-2.5 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface"
         >
           Cancel
         </button>
@@ -478,7 +478,7 @@ export function QuotationBuilder({
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save size={15} />
 

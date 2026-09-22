@@ -28,6 +28,10 @@
 | `/api/quotations/[id]/revise` | POST | `requireAuth` | No body (clone op, no Zod needed) | `calcTotals` + new number, lineage in `ActivityLog.meta` | Yes CREATE | OK; direct PATCH→REVISED path documented as API-only |
 | `/api/quotations/[id]/pdf` | GET | `requireAuth` | id passthrough | `findFirst(deletedAt:null)` + includes | No | **Fixed: was `findUnique` without soft-delete filter**; logo fallback added |
 | `/api/projects/[id]/payments` | POST | `requireAuth` | `paymentSchema` (`amount>0`) | txn + overpay guard `contract−paid` | Yes CREATE | Canonical payment path (project scope). Duplicate `(crm)/projects/[id]/payments` REMOVED 2026-09-22 (no guards) |
+| `/api/projects/[id]/schedules` | GET, POST | `requireAuth` | replace-plan Zod + `validatePaymentSchedule` (total == contract) | txn replace + audit | Yes | **Added 2026-09-22 — ships the dead PaymentSchedule model** |
+| `/api/schedules/[id]` | PATCH, DELETE | `requireAuth` / `requireRole(ADMIN)` (DELETE) | Zod + plan-total recheck on amount change | txn + audit, visiting paid guard | Yes | **Added 2026-09-22** |
+| `/api/site-visits/[id]/attachments` | POST | `requireAuth` | Zod (URL-based, no binary — no object storage) | create + audit | Yes | **Added 2026-09-22 — was list-only UI** |
+| `/api/attachments/[id]` | DELETE | `requireRole(ADMIN)` | — | delete + audit | Yes | **Added 2026-09-22** |
 | `/api/projects/[id]/status` | PATCH | `requireAuth` | `statusSchema` + transitions | `findFirst(deletedAt:null)` + update | Yes STATUS_CHANGE | OK |
 | `/api/customers/[id]/financial` | GET | `requireAuth` (via wrapper) | id passthrough | `getCustomerFinancialSummary` | No | **Fixed: was manual `auth()` without wrapper** |
 | `/api/measurements` | GET | `requireAuth` | `siteVisitId` required | `findMany` | No | **Fixed: was 500 on missing param, now 400** |
@@ -48,6 +52,7 @@
 ## Duplicates resolved / documented
 
 - Enquiry edit: `[id]/edit PATCH` marked deprecated duplicate of `[id] PATCH` (kept for compat, same fields).
+- List GETs (`enquiries`, `tasks`, `site-visits`, `measurements`) validate query via shared `parseQuery` (422 on bad status/page/ids) — added 2026-09-22.
 - Payments: project API is canonical. `lib/actions/payments.ts` (`quotationId` scope, zero UI callers) retained read-only for legacy quotation ledger display; **duplicate `(crm)/projects/[id]/payments` deleted**; `payment-schedule.ts roundMoney` re-exports `lib/finance` (single source).
 - Quotation math: server `calcTotals` authoritative; builder preview now calls it (was 4th implementation).
 - Outstanding: single formula in `src/lib/finance.ts` reused by customer summary + dashboard (was ×3).

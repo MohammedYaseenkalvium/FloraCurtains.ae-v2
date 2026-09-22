@@ -61,7 +61,7 @@ export default async function EnquiryDetailPage({
   return (
     <div className="max-w-4xl">
       {/* Breadcrumb */}
-      <div className="text-sm text-[#6B625A] mb-5">
+      <div className="text-sm text-flora-muted mb-5">
         <Link href="/enquiries" className="hover:underline">
           Enquiries
         </Link>
@@ -79,12 +79,12 @@ export default async function EnquiryDetailPage({
           </h1>
 
           {enquiry.company && (
-            <p className="text-[#6B625A] text-sm">
+            <p className="text-flora-muted text-sm">
               {enquiry.company.tradeName}
             </p>
           )}
 
-          <p className="text-[#6B625A] text-sm">
+          <p className="text-flora-muted text-sm">
             {enquiry.contact.phone}
           </p>
         </div>
@@ -103,7 +103,7 @@ export default async function EnquiryDetailPage({
           {!hasWonOrLost && (
             <Link
               href={`/quotations/new?enquiryId=${enquiry.id}`}
-              className="bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22]"
+              className="bg-flora-primary text-white rounded-lg px-4 py-2 text-sm hover:bg-flora-primary-hover"
             >
               + Create Quote
             </Link>
@@ -134,8 +134,8 @@ export default async function EnquiryDetailPage({
         )}
 
       {/* Edit Enquiry */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">
+      <div className="bg-white border border-flora-border rounded-xl p-5 mb-6">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">
           Edit Enquiry
         </h3>
 
@@ -144,8 +144,8 @@ export default async function EnquiryDetailPage({
 
       {/* Enquiry Details + Call Notes */}
       <div className="grid grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">
+        <div className="bg-white border border-flora-border rounded-xl p-5">
+          <h3 className="font-semibold text-sm mb-4 text-flora-primary">
             Enquiry Details
           </h3>
 
@@ -183,7 +183,7 @@ export default async function EnquiryDetailPage({
               },
             ].map(({ label, value }) => (
               <div key={label} className="flex gap-2">
-                <dt className="text-[#6B625A] w-36 shrink-0">
+                <dt className="text-flora-muted w-36 shrink-0">
                   {label}
                 </dt>
 
@@ -195,18 +195,18 @@ export default async function EnquiryDetailPage({
           </dl>
         </div>
 
-        <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-          <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">
+        <div className="bg-white border border-flora-border rounded-xl p-5">
+          <h3 className="font-semibold text-sm mb-4 text-flora-primary">
             Call Notes
           </h3>
 
-          <p className="text-sm text-[#6B625A] whitespace-pre-wrap">
+          <p className="text-sm text-flora-muted whitespace-pre-wrap">
             {enquiry.remarks ?? "No notes recorded."}
           </p>
 
           {enquiry.interestLevel && (
             <div className="mt-4">
-              <p className="text-xs text-[#6B625A] mb-1">
+              <p className="text-xs text-flora-muted mb-1">
                 Interest Level
               </p>
 
@@ -230,16 +230,16 @@ export default async function EnquiryDetailPage({
       </div>
 
       {/* Quotations */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5 mb-6">
+      <div className="bg-white border border-flora-border rounded-xl p-5 mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-sm text-[#5A0E12]">
+          <h3 className="font-semibold text-sm text-flora-primary">
             Quotations
           </h3>
 
           {!hasWonOrLost && (
             <Link
               href={`/quotations/new?enquiryId=${enquiry.id}`}
-              className="text-xs text-[#5A0E12] hover:underline"
+              className="text-xs text-flora-primary hover:underline"
             >
               + New Quote
             </Link>
@@ -247,7 +247,7 @@ export default async function EnquiryDetailPage({
         </div>
 
         {enquiry.quotations.length === 0 ? (
-          <p className="text-sm text-[#6B625A]">
+          <p className="text-sm text-flora-muted">
             No quotations yet.
           </p>
         ) : (
@@ -255,17 +255,17 @@ export default async function EnquiryDetailPage({
             {enquiry.quotations.map((q) => (
               <div
                 key={q.id}
-                className="flex justify-between items-center py-2 border-b border-[#EFE7DF] last:border-0"
+                className="flex justify-between items-center py-2 border-b border-flora-border/60 last:border-0"
               >
                 <div>
                   <Link
                     href={`/quotations/${q.id}`}
-                    className="font-medium text-sm text-[#5A0E12] hover:underline"
+                    className="font-medium text-sm text-flora-primary hover:underline"
                   >
                     {q.quoteNumber}
                   </Link>
 
-                  <span className="ml-2 text-xs text-[#6B625A]">
+                  <span className="ml-2 text-xs text-flora-muted">
                     {q.status}
                   </span>
                 </div>
@@ -279,7 +279,7 @@ export default async function EnquiryDetailPage({
                     href={`/api/quotations/${q.id}/pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs border border-[#D8C9BC] rounded-lg px-3 py-1 text-[#6B625A] hover:bg-[#EFE7DF]"
+                    className="text-xs border border-flora-border rounded-lg px-3 py-1 text-flora-muted hover:bg-[#EFE7DF]"
                   >
                     📄 PDF
                   </a>
@@ -298,8 +298,8 @@ export default async function EnquiryDetailPage({
       />
 
       {/* Tasks */}
-      <div className="bg-white border border-[#D8C9BC] rounded-xl p-5">
-        <h3 className="font-semibold text-sm mb-4 text-[#5A0E12]">
+      <div className="bg-white border border-flora-border rounded-xl p-5">
+        <h3 className="font-semibold text-sm mb-4 text-flora-primary">
           Tasks
         </h3>
 

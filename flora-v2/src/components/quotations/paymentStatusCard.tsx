@@ -171,7 +171,7 @@ export function PaymentStatusCard({
         {!isAdding ? (
           <button
             onClick={() => setIsAdding(true)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-[#5A0E12] rounded-md hover:bg-[#4a0c0f] transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-flora-primary rounded-md hover:bg-[#4a0c0f] transition-colors"
           >
             <Plus className="w-4 h-4" />
             Record Payment
@@ -186,7 +186,7 @@ export function PaymentStatusCard({
                 required
                 value={newPayment.amount}
                 onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#5A0E12] focus:border-[#5A0E12]"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
                 placeholder="0.00"
               />
             </div>
@@ -196,7 +196,7 @@ export function PaymentStatusCard({
               <select
                 value={newPayment.method}
                 onChange={(e) => setNewPayment({ ...newPayment, method: e.target.value as Payment["method"] })}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#5A0E12] focus:border-[#5A0E12]"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
               >
                 {Object.entries(methodLabels).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -210,7 +210,7 @@ export function PaymentStatusCard({
                 type="text"
                 value={newPayment.reference}
                 onChange={(e) => setNewPayment({ ...newPayment, reference: e.target.value })}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#5A0E12] focus:border-[#5A0E12]"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
                 placeholder="Cheque #, Transaction ID..."
               />
             </div>
@@ -221,7 +221,7 @@ export function PaymentStatusCard({
                 type="text"
                 value={newPayment.notes}
                 onChange={(e) => setNewPayment({ ...newPayment, notes: e.target.value })}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#5A0E12] focus:border-[#5A0E12]"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
                 placeholder="Additional notes..."
               />
             </div>
@@ -230,7 +230,7 @@ export function PaymentStatusCard({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 px-3 py-2 text-sm font-medium text-white bg-[#5A0E12] rounded-md hover:bg-[#4a0c0f] transition-colors disabled:opacity-50"
+                className="flex-1 px-3 py-2 text-sm font-medium text-white bg-flora-primary rounded-md hover:bg-[#4a0c0f] transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? "Saving..." : "Save Payment"}
               </button>

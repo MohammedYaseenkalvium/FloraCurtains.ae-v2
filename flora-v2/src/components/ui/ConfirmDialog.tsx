@@ -33,12 +33,12 @@ export function ConfirmDialog({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[#D8C9BC] bg-white p-5 shadow-lg"
+          className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-flora-border bg-white p-5 shadow-lg"
         >
-          <Dialog.Title className="text-sm font-semibold text-[#5A0E12]">
+          <Dialog.Title className="text-sm font-semibold text-flora-primary">
             {title}
           </Dialog.Title>
-          <Dialog.Description className="mt-2 text-sm leading-6 text-[#6B625A]">
+          <Dialog.Description className="mt-2 text-sm leading-6 text-flora-muted">
             {description}
           </Dialog.Description>
           <div className="mt-5 flex justify-end gap-2">
@@ -46,7 +46,7 @@ export function ConfirmDialog({
               <button
                 type="button"
                 disabled={loading}
-                className="rounded-lg border border-[#D8C9BC] bg-white px-4 py-2 text-sm font-medium text-[#6B625A] transition-colors hover:bg-[#F8F5F2] disabled:opacity-50"
+                className="rounded-lg border border-flora-border bg-white px-4 py-2 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-surface disabled:opacity-50"
               >
                 {cancelLabel}
               </button>

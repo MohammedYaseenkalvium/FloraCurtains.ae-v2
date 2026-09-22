@@ -12,9 +12,9 @@ import {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#FFF8F5] text-[#1E1B18]">
+    <div className="min-h-screen bg-flora-background text-flora-foreground">
       {/* Navigation */}
-      <nav className="border-b border-[#D8C9BC] bg-[#FFF8F5]">
+      <nav className="border-b border-flora-border bg-flora-background">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link
             href="/"
@@ -28,7 +28,7 @@ export default function Home() {
               className="h-auto w-20 object-contain"
             />
 
-            <span className="text-lg font-semibold tracking-[0.25em] text-[#5A0E12]">
+            <span className="text-lg font-semibold tracking-[0.25em] text-flora-primary">
               FLORA
             </span>
           </Link>
@@ -36,28 +36,28 @@ export default function Home() {
           <div className="hidden items-center gap-8 md:flex">
             <Link
               href="#services"
-              className="text-sm font-medium text-[#1E1B18] transition-colors hover:text-[#5A0E12]"
+              className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
             >
               Services
             </Link>
 
             <Link
               href="#portfolio"
-              className="text-sm font-medium text-[#1E1B18] transition-colors hover:text-[#5A0E12]"
+              className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
             >
               Portfolio
             </Link>
 
             <Link
               href="#about"
-              className="text-sm font-medium text-[#1E1B18] transition-colors hover:text-[#5A0E12]"
+              className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
             >
               About
             </Link>
 
             <Link
               href="/contact"
-              className="rounded-lg bg-[#5A0E12] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+              className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
             >
               Get a Quote
             </Link>
@@ -66,14 +66,14 @@ export default function Home() {
           <div className="flex items-center gap-2 md:hidden">
             <Link
               href="/contact"
-              className="rounded-lg bg-[#5A0E12] px-4 py-2 text-xs font-semibold text-white"
+              className="rounded-lg bg-flora-primary px-4 py-2 text-xs font-semibold text-white"
             >
               Get a Quote
             </Link>
 
             <Menu
               size={21}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
           </div>
         </div>
@@ -81,24 +81,24 @@ export default function Home() {
 
       {/* Hero */}
       <main>
-        <section className="border-b border-[#D8C9BC]">
+        <section className="border-b border-flora-border">
           <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-2 lg:items-center lg:px-8 lg:py-28">
             <div>
-              <span className="inline-flex rounded-full border border-[#D8C9BC] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+              <span className="inline-flex rounded-full border border-flora-border bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-flora-primary">
                 Bespoke Window Solutions
               </span>
 
-              <h1 className="mt-6 max-w-2xl font-serif text-5xl leading-[1] tracking-tight text-[#1E1B18] sm:text-6xl lg:text-7xl">
+              <h1 className="mt-6 max-w-2xl font-display text-5xl leading-[1] tracking-tight text-flora-foreground sm:text-6xl lg:text-7xl">
                 Curtains and
                 <br />
                 interiors with
                 <br />
-                <span className="text-[#5A0E12]">
+                <span className="text-flora-primary">
                   character.
                 </span>
               </h1>
 
-              <p className="mt-7 max-w-xl text-base leading-7 text-[#6B625A] sm:text-lg">
+              <p className="mt-7 max-w-xl text-base leading-7 text-flora-muted sm:text-lg">
                 Bespoke curtains, blinds and window
                 treatments designed around your space,
                 lifestyle and interior.
@@ -107,7 +107,7 @@ export default function Home() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/contact"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5A0E12] px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#74171C]"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
                 >
                   Start Your Project
                   <ArrowRight size={16} />
@@ -115,7 +115,7 @@ export default function Home() {
 
                 <Link
                   href="#services"
-                  className="inline-flex items-center justify-center rounded-lg border border-[#D8C9BC] bg-white px-6 py-3.5 text-sm font-semibold text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+                  className="inline-flex items-center justify-center rounded-lg border border-flora-border bg-white px-6 py-3.5 text-sm font-semibold text-flora-primary transition-colors hover:bg-flora-surface"
                 >
                   Explore Services
                 </Link>
@@ -129,11 +129,11 @@ export default function Home() {
                 ].map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center gap-2 text-xs font-medium text-[#6B625A]"
+                    className="inline-flex items-center gap-2 text-xs font-medium text-flora-muted"
                   >
                     <CheckCircle2
                       size={14}
-                      className="text-[#5A0E12]"
+                      className="text-flora-primary"
                     />
 
                     {item}
@@ -144,7 +144,7 @@ export default function Home() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-[#D8C9BC] bg-[#F8F5F2]">
+              <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-flora-border bg-flora-surface">
                 <Image
                   src="/images/hero-curtains.jpg"
                   alt="Bespoke curtains in an elegant interior"
@@ -154,12 +154,12 @@ export default function Home() {
                 />
               </div>
 
-              <div className="absolute -bottom-5 -left-5 max-w-xs rounded-xl border border-[#D8C9BC] bg-white p-5 shadow-sm">
-                <p className="font-serif text-xl text-[#5A0E12]">
+              <div className="absolute -bottom-5 -left-5 max-w-xs rounded-xl border border-flora-border bg-white p-5 shadow-sm">
+                <p className="font-display text-xl text-flora-primary">
                   Made for your space.
                 </p>
 
-                <p className="mt-2 text-xs leading-5 text-[#6B625A]">
+                <p className="mt-2 text-xs leading-5 text-flora-muted">
                   From consultation and measurement to
                   the final installation.
                 </p>
@@ -174,17 +174,17 @@ export default function Home() {
           className="mx-auto max-w-7xl px-5 py-20 lg:px-8"
         >
           <div className="mb-10 max-w-2xl">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
               What we do
             </span>
 
-            <h2 className="mt-3 font-serif text-4xl leading-tight text-[#1E1B18] sm:text-5xl">
+            <h2 className="mt-3 font-display text-4xl leading-tight text-flora-foreground sm:text-5xl">
               Window solutions
               <br />
               made around you.
             </h2>
 
-            <p className="mt-4 text-sm leading-6 text-[#6B625A]">
+            <p className="mt-4 text-sm leading-6 text-flora-muted">
               Thoughtfully designed solutions for
               residential and commercial interiors.
             </p>
@@ -223,9 +223,9 @@ export default function Home() {
                 <Link
                   key={service.title}
                   href="/contact"
-                  className="group rounded-xl border border-[#D8C9BC] bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#C8A97E]"
+                  className="group rounded-xl border border-flora-border bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#C8A97E]"
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#F8F5F2] text-[#5A0E12]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
                     <Icon size={21} />
                   </div>
 
@@ -233,11 +233,11 @@ export default function Home() {
                     {service.title}
                   </h3>
 
-                  <p className="mt-3 text-sm leading-6 text-[#6B625A]">
+                  <p className="mt-3 text-sm leading-6 text-flora-muted">
                     {service.description}
                   </p>
 
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#5A0E12]">
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-flora-primary">
                     Enquire
                     <ArrowRight size={14} />
                   </span>
@@ -248,14 +248,14 @@ export default function Home() {
         </section>
 
         {/* Approach */}
-        <section className="border-y border-[#D8C9BC] bg-[#F8F5F2]">
+        <section className="border-y border-flora-border bg-flora-surface">
           <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
             <div className="mb-10 max-w-2xl">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
                 The Flora approach
               </span>
 
-              <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
                 From first measurement
                 <br />
                 to final installation.
@@ -264,7 +264,7 @@ export default function Home() {
 
             <div className="grid gap-8 md:grid-cols-3">
               <div className="border-l border-[#C8A97E] pl-5">
-                <span className="font-serif text-3xl text-[#C8A97E]">
+                <span className="font-display text-3xl text-flora-gold">
                   01
                 </span>
 
@@ -272,14 +272,14 @@ export default function Home() {
                   Understand
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-[#6B625A]">
+                <p className="mt-2 text-sm leading-6 text-flora-muted">
                   We begin by understanding your space,
                   requirements, style and practical needs.
                 </p>
               </div>
 
               <div className="border-l border-[#C8A97E] pl-5">
-                <span className="font-serif text-3xl text-[#C8A97E]">
+                <span className="font-display text-3xl text-flora-gold">
                   02
                 </span>
 
@@ -287,7 +287,7 @@ export default function Home() {
                   Measure & Design
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-[#6B625A]">
+                <p className="mt-2 text-sm leading-6 text-flora-muted">
                   Measurements, materials and finishes are
                   considered together to create the right
                   solution.
@@ -295,7 +295,7 @@ export default function Home() {
               </div>
 
               <div className="border-l border-[#C8A97E] pl-5">
-                <span className="font-serif text-3xl text-[#C8A97E]">
+                <span className="font-display text-3xl text-flora-gold">
                   03
                 </span>
 
@@ -303,7 +303,7 @@ export default function Home() {
                   Install
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-[#6B625A]">
+                <p className="mt-2 text-sm leading-6 text-flora-muted">
                   The finished treatment is installed with
                   attention to detail and the final result.
                 </p>
@@ -319,11 +319,11 @@ export default function Home() {
         >
           <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
                 Selected work
               </span>
 
-              <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
                 Spaces we&apos;ve
                 <br />
                 helped shape.
@@ -332,7 +332,7 @@ export default function Home() {
 
             <Link
               href="/portfolio"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#5A0E12]"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-flora-primary"
             >
               View Portfolio
               <ArrowRight size={15} />
@@ -357,9 +357,9 @@ export default function Home() {
               <Link
                 key={project.title}
                 href="/portfolio"
-                className="group overflow-hidden rounded-xl border border-[#D8C9BC] bg-white"
+                className="group overflow-hidden rounded-xl border border-flora-border bg-white"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-[#F8F5F2]">
+                <div className="aspect-[4/3] overflow-hidden bg-flora-surface">
                   <Image
                     src={project.image}
                     alt={project.title}
@@ -374,7 +374,7 @@ export default function Home() {
                     {project.title}
                   </h3>
 
-                  <span className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#5A0E12]">
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-flora-primary">
                     View project
                     <ArrowRight size={13} />
                   </span>
@@ -387,34 +387,34 @@ export default function Home() {
         {/* About */}
         <section
           id="about"
-          className="border-y border-[#D8C9BC] bg-white"
+          className="border-y border-flora-border bg-white"
         >
           <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center lg:px-8">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
                 About Flora
               </span>
 
-              <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
                 Thoughtful window
                 <br />
                 solutions for
                 <br />
-                <span className="text-[#5A0E12]">
+                <span className="text-flora-primary">
                   considered spaces.
                 </span>
               </h2>
             </div>
 
             <div>
-              <p className="text-base leading-7 text-[#6B625A]">
+              <p className="text-base leading-7 text-flora-muted">
                 Flora Curtains was established in 2023
                 with a focus on creating bespoke curtains,
                 blinds and window treatment solutions for
                 residential and commercial spaces.
               </p>
 
-              <p className="mt-5 text-base leading-7 text-[#6B625A]">
+              <p className="mt-5 text-base leading-7 text-flora-muted">
                 Our approach combines practical experience,
                 careful measurement and attention to the
                 details that make a finished interior feel
@@ -423,7 +423,7 @@ export default function Home() {
 
               <Link
                 href="/about"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#5A0E12]"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-flora-primary"
               >
                 Discover Flora
                 <ArrowRight size={15} />
@@ -433,14 +433,14 @@ export default function Home() {
         </section>
 
         {/* CTA */}
-        <section className="bg-[#5A0E12]">
+        <section className="bg-flora-primary">
           <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-16 lg:flex-row lg:items-end lg:justify-between lg:px-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#C8A97E]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-flora-gold">
                 Start your project
               </p>
 
-              <h2 className="mt-3 max-w-2xl font-serif text-4xl leading-tight text-white sm:text-5xl">
+              <h2 className="mt-3 max-w-2xl font-display text-4xl leading-tight text-white sm:text-5xl">
                 Ready to transform
                 your windows?
               </h2>
@@ -453,7 +453,7 @@ export default function Home() {
 
             <Link
               href="/contact"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-flora-primary transition-colors hover:bg-flora-surface"
             >
               Request a Quote
               <ArrowRight size={16} />
@@ -463,7 +463,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#0F0C0B] text-white">
+      <footer className="bg-flora-footer text-white">
         <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
             <div>

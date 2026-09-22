@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
+  Menu,
   Users,
   FileText,
   FolderKanban,
@@ -16,6 +18,7 @@ import {
   LogOut,
   BriefcaseBusiness,
   Package,
+  X,
 } from "lucide-react";
 
 const navigation = [
@@ -98,12 +101,43 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col overflow-hidden border-r border-flora-border bg-white">
-      {/* Brand */}
-      <div className="flex h-[76px] shrink-0 items-center border-b border-flora-border px-6">
-        <Link href="/dashboard" className="flex items-center gap-3">
+    <>
+      {/* Mobile hamburger */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation"
+        aria-expanded={open}
+        aria-controls="crm-sidebar"
+        className="fixed left-4 top-4 z-30 rounded-lg border border-flora-border bg-white p-2 text-flora-primary shadow-sm md:hidden"
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* Mobile overlay */}
+      {open && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+        />
+      )}
+
+      <aside
+        id="crm-sidebar"
+        className={[
+          "fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-flora-border bg-white transition-transform duration-200",
+          "md:static md:z-auto md:translate-x-0",
+          open ? "translate-x-0" : "",
+        ].join(" ")}
+      >
+        {/* Brand row */}
+        <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-flora-border px-6">
+          <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-3">
           <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
             <Image
               src="/images/logo.png"
@@ -123,8 +157,17 @@ export function Sidebar() {
               Interior Operations
             </div>
           </div>
-        </Link>
-      </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close navigation"
+            className="rounded-lg p-1.5 text-flora-muted hover:bg-flora-surface md:hidden"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
       {/* Navigation */}
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:thin]">
@@ -148,6 +191,8 @@ export function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
                     className={[
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                       "transition-colors duration-150",
@@ -187,6 +232,7 @@ export function Sidebar() {
           <span>Sign out</span>
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

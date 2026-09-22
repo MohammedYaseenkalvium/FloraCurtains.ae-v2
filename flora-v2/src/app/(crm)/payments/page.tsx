@@ -80,13 +80,13 @@ export default async function PaymentsPage({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Payment Details</h1>
-          <p className="text-sm text-[#6B625A] mt-1">
+          <p className="text-sm text-flora-muted mt-1">
             {payments.length} payments · AED {totalCollected.toLocaleString("en-AE", { minimumFractionDigits: 2 })} total collected
           </p>
         </div>
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-sm text-[#6B625A] hover:text-[#5A0E12] transition-colors"
+          className="flex items-center gap-2 text-sm text-flora-muted hover:text-flora-primary transition-colors"
         >
           <ArrowLeft size={16} /> Back to Dashboard
         </Link>
@@ -98,7 +98,7 @@ export default async function PaymentsPage({
           <select
             name="method"
             defaultValue={method || ""}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#5A0E12] focus:border-[#5A0E12]"
+            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
           >
             <option value="">All Methods</option>
             {Object.entries(methodLabels).map(([value, label]) => (
@@ -107,7 +107,7 @@ export default async function PaymentsPage({
           </select>
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-[#5A0E12] rounded-md hover:bg-[#4a0c0f] transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-flora-primary rounded-md hover:bg-[#4a0c0f] transition-colors"
           >
             Filter
           </button>
@@ -126,19 +126,19 @@ export default async function PaymentsPage({
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="bg-[#F8F5F2] text-left">
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Date</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Source</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Customer</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Method</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A]">Reference</th>
-              <th className="px-4 py-3 font-semibold text-[#6B625A] text-right">Amount</th>
+            <tr className="bg-flora-surface text-left">
+              <th className="px-4 py-3 font-semibold text-flora-muted">Date</th>
+              <th className="px-4 py-3 font-semibold text-flora-muted">Source</th>
+              <th className="px-4 py-3 font-semibold text-flora-muted">Customer</th>
+              <th className="px-4 py-3 font-semibold text-flora-muted">Method</th>
+              <th className="px-4 py-3 font-semibold text-flora-muted">Reference</th>
+              <th className="px-4 py-3 font-semibold text-flora-muted text-right">Amount</th>
             </tr>
           </thead>
           <tbody>
             {payments.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[#6B625A]">
+                <td colSpan={6} className="px-4 py-8 text-center text-flora-muted">
                   No payments recorded yet
                 </td>
               </tr>
@@ -177,7 +177,7 @@ export default async function PaymentsPage({
                     <td className="px-4 py-3">
                       <Link
                         href={source.href}
-                        className="text-[#5A0E12] hover:underline font-medium"
+                        className="text-flora-primary hover:underline font-medium"
                       >
                         {source.label}
                       </Link>
@@ -185,11 +185,11 @@ export default async function PaymentsPage({
                     <td className="px-4 py-3">{customerName}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Icon size={14} className="text-[#6B625A]" />
+                        <Icon size={14} className="text-flora-muted" />
                         <span>{methodLabels[payment.method]}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[#6B625A]">
+                    <td className="px-4 py-3 text-flora-muted">
                       {payment.reference || "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-medium">

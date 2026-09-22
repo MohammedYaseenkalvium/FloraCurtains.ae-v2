@@ -26,21 +26,21 @@ export function ServiceCards() {
           <Link
             key={service.title}
             href="/contact"
-            className="group rounded-xl border border-[#D8C9BC] bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#C8A97E]"
+            className="group rounded-xl border border-flora-border bg-white p-6 transition-all hover:-translate-y-1 hover:border-[#C8A97E]"
           >
-            <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-[#F8F5F2] text-[#5A0E12]">
+            <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
               <Icon size={21} />
             </div>
 
-            <h3 className="text-lg font-semibold text-[#1E1B18]">
+            <h3 className="text-lg font-semibold text-flora-foreground">
               {service.title}
             </h3>
 
-            <p className="mt-3 text-sm leading-6 text-[#6B625A]">
+            <p className="mt-3 text-sm leading-6 text-flora-muted">
               {service.description}
             </p>
 
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#5A0E12]">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-flora-primary">
               Learn more
               <ArrowUpRight
                 size={14}

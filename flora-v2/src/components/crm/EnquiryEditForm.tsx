@@ -22,8 +22,8 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
     projectName: enquiry.projectName ?? "",
   });
 
-  const field = "border border-[#D8C9BC] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#5A0E12] bg-[#F8F5F2] w-full";
-  const label = "text-[10px] uppercase tracking-widest text-[#6B625A] block mb-1";
+  const field = "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
+  const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
 
   async function handleSave() {
     setLoading(true);
@@ -138,7 +138,7 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="bg-[#5A0E12] text-white rounded-lg px-8 py-2.5 text-sm font-medium hover:bg-[#7A1E22] disabled:opacity-50 transition-colors"
+          className="bg-flora-primary text-white rounded-lg px-8 py-2.5 text-sm font-medium hover:bg-flora-primary-hover disabled:opacity-50 transition-colors"
         >
           {loading ? "Saving…" : "Save Changes"}
         </button>

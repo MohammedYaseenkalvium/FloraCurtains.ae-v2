@@ -132,39 +132,39 @@ export default async function SiteVisitsPage() {
     );
 
   return (
-    <div className="min-h-full bg-[#FFF8F5]">
+    <div className="min-h-full bg-flora-background">
       {/* Header */}
-      <section className="mb-6 rounded-xl border border-[#D8C9BC] bg-white p-5">
+      <section className="mb-6 rounded-xl border border-flora-border bg-white p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2">
               <CalendarDays
                 size={19}
-                className="text-[#5A0E12]"
+                className="text-flora-primary"
               />
 
-              <span className="text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+              <span className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
                 Operations
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-[#1E1B18]">
+            <h1 className="text-2xl font-bold tracking-tight text-flora-foreground">
               Site Visits
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6B625A]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-flora-muted">
               Schedule, track and review site visits
               and the measurements captured during
               each visit.
             </p>
           </div>
 
-          <div className="rounded-lg border border-[#D8C9BC] bg-[#FFF8F5] px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+          <div className="rounded-lg border border-flora-border bg-flora-background px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
               Total Visits
             </p>
 
-            <p className="mt-1 text-xl font-bold text-[#5A0E12]">
+            <p className="mt-1 text-xl font-bold text-flora-primary">
               {visits.length}
             </p>
           </div>
@@ -174,87 +174,87 @@ export default async function SiteVisitsPage() {
       {/* Summary */}
       <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Scheduled */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <Clock3
               size={16}
               className="text-[#9A3412]"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Scheduled
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {scheduledCount}
           </p>
         </div>
 
         {/* Completed */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <CheckCircle2
               size={16}
               className="text-[#166534]"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Completed
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {completedCount}
           </p>
         </div>
 
         {/* Cancelled */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <XCircle
               size={16}
               className="text-[#991B1B]"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Cancelled
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {cancelledCount}
           </p>
         </div>
 
         {/* Measurements */}
-        <div className="rounded-xl border border-[#D8C9BC] bg-white p-5">
+        <div className="rounded-xl border border-flora-border bg-white p-5">
           <div className="flex items-center gap-2">
             <MapPin
               size={16}
-              className="text-[#5A0E12]"
+              className="text-flora-primary"
             />
 
-            <p className="text-xs font-medium uppercase tracking-wide text-[#6B625A]">
+            <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
               Measurements
             </p>
           </div>
 
-          <p className="mt-2 text-2xl font-bold text-[#1E1B18]">
+          <p className="mt-2 text-2xl font-bold text-flora-foreground">
             {measurementCount}
           </p>
         </div>
       </section>
 
       {/* Visits */}
-      <section className="rounded-xl border border-[#D8C9BC] bg-white">
-        <div className="border-b border-[#D8C9BC] p-5">
+      <section className="rounded-xl border border-flora-border bg-white">
+        <div className="border-b border-flora-border p-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#5A0E12]">
+            <h2 className="text-sm font-semibold text-flora-primary">
               All Site Visits
             </h2>
 
-            <p className="mt-1 text-xs text-[#6B625A]">
+            <p className="mt-1 text-xs text-flora-muted">
               Review scheduled and completed site
               visits across leads and projects.
             </p>
@@ -263,18 +263,18 @@ export default async function SiteVisitsPage() {
 
         {visits.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F8F5F2]">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-flora-surface">
               <CalendarDays
                 size={22}
-                className="text-[#5A0E12]"
+                className="text-flora-primary"
               />
             </div>
 
-            <h3 className="text-sm font-semibold text-[#1E1B18]">
+            <h3 className="text-sm font-semibold text-flora-foreground">
               No site visits yet
             </h3>
 
-            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-[#6B625A]">
+            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-flora-muted">
               Site visits will appear here once they
               are scheduled from a lead or project.
             </p>
@@ -283,32 +283,32 @@ export default async function SiteVisitsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px]">
               <thead>
-                <tr className="border-b border-[#EFE7DF] text-left">
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                <tr className="border-b border-flora-border/60 text-left">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Customer
                   </th>
 
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Project
                   </th>
 
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Visit
                   </th>
 
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Assigned To
                   </th>
 
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Measurements
                   </th>
 
-                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Status
                   </th>
 
-                  <th className="px-5 py-3 text-right text-[10px] font-semibold uppercase tracking-widest text-[#6B625A]">
+                  <th className="px-5 py-3 text-right text-[10px] font-semibold uppercase tracking-widest text-flora-muted">
                     Action
                   </th>
                 </tr>
@@ -330,13 +330,13 @@ export default async function SiteVisitsPage() {
                   return (
                     <tr
                       key={visit.id}
-                      className="border-b border-[#EFE7DF] last:border-b-0"
+                      className="border-b border-flora-border/60 last:border-b-0"
                     >
                       {/* Customer */}
                       <td className="px-5 py-4">
                         <Link
                           href={`/customers/${visit.enquiry.contact.id}`}
-                          className="font-semibold text-sm text-[#1E1B18] hover:text-[#5A0E12] hover:underline"
+                          className="font-semibold text-sm text-flora-foreground hover:text-flora-primary hover:underline"
                         >
                           {
                             visit.enquiry
@@ -345,7 +345,7 @@ export default async function SiteVisitsPage() {
                         </Link>
 
                         {visit.enquiry.company && (
-                          <p className="mt-1 text-xs text-[#6B625A]">
+                          <p className="mt-1 text-xs text-flora-muted">
                             {
                               visit.enquiry
                                 .company
@@ -360,7 +360,7 @@ export default async function SiteVisitsPage() {
                         {visit.project ? (
                           <Link
                             href={`/projects/${visit.project.id}`}
-                            className="inline-flex items-center gap-1 text-sm font-medium text-[#5A0E12] hover:underline"
+                            className="inline-flex items-center gap-1 text-sm font-medium text-flora-primary hover:underline"
                           >
                             {projectName}
 
@@ -369,7 +369,7 @@ export default async function SiteVisitsPage() {
                             />
                           </Link>
                         ) : (
-                          <span className="text-sm text-[#6B625A]">
+                          <span className="text-sm text-flora-muted">
                             Lead Visit
                           </span>
                         )}
@@ -377,14 +377,14 @@ export default async function SiteVisitsPage() {
 
                       {/* Date / Address */}
                       <td className="px-5 py-4">
-                        <p className="text-sm font-medium text-[#1E1B18]">
+                        <p className="text-sm font-medium text-flora-foreground">
                           {formatDate(
                             visit.scheduledAt
                           )}
                         </p>
 
                         {visit.siteAddress && (
-                          <div className="mt-1 flex max-w-[240px] items-start gap-1 text-xs text-[#6B625A]">
+                          <div className="mt-1 flex max-w-[240px] items-start gap-1 text-xs text-flora-muted">
                             <MapPin
                               size={12}
                               className="mt-0.5 shrink-0"
@@ -401,7 +401,7 @@ export default async function SiteVisitsPage() {
 
                       {/* Assigned */}
                       <td className="px-5 py-4">
-                        <span className="text-sm text-[#1E1B18]">
+                        <span className="text-sm text-flora-foreground">
                           {visit.assignedTo ??
                             "Not assigned"}
                         </span>
@@ -409,7 +409,7 @@ export default async function SiteVisitsPage() {
 
                       {/* Measurements */}
                       <td className="px-5 py-4">
-                        <span className="inline-flex rounded-full bg-[#F8F5F2] px-2.5 py-1 text-xs font-medium text-[#6B625A]">
+                        <span className="inline-flex rounded-full bg-flora-surface px-2.5 py-1 text-xs font-medium text-flora-muted">
                           {
                             visit
                               .measurements
@@ -449,7 +449,7 @@ export default async function SiteVisitsPage() {
                         {visit.project ? (
                           <Link
                             href={`/projects/${visit.project.id}`}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-medium text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-flora-border px-3 py-2 text-xs font-medium text-flora-primary transition-colors hover:bg-flora-surface"
                           >
                             Open Project
 
@@ -460,7 +460,7 @@ export default async function SiteVisitsPage() {
                         ) : (
                           <Link
                             href={`/enquiries/${visit.enquiryId}`}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C9BC] px-3 py-2 text-xs font-medium text-[#5A0E12] transition-colors hover:bg-[#F8F5F2]"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-flora-border px-3 py-2 text-xs font-medium text-flora-primary transition-colors hover:bg-flora-surface"
                           >
                             Open Lead
 

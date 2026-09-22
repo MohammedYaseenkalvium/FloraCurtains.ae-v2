@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const projects = [
   {
     title: "Residential Interiors",
@@ -34,17 +36,17 @@ const projects = [
 export default function PortfolioPage() {
   return (
     <>
-      <section className="border-b border-[#D8C9BC]">
+      <section className="border-b border-flora-border">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
             Portfolio
           </span>
 
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-[#1E1B18] sm:text-6xl">
+          <h1 className="mt-4 font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
             Selected work.
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[#6B625A]">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
             A selection of spaces and window treatments
             created with attention to proportion, material
             and function.
@@ -57,22 +59,25 @@ export default function PortfolioPage() {
           {projects.map((project) => (
             <article
               key={project.title}
-              className="overflow-hidden rounded-xl border border-[#D8C9BC] bg-white"
+              className="overflow-hidden rounded-xl border border-flora-border bg-white"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-[#F8F5F2]">
-                <img
+              <div className="relative aspect-[4/3] overflow-hidden bg-flora-surface">
+                <Image
                   src={project.image}
                   alt={project.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
                 />
               </div>
 
               <div className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#6B625A]">
+                <p className="text-xs font-semibold uppercase tracking-wide text-flora-muted">
                   {project.category}
                 </p>
 
-                <h2 className="mt-2 font-semibold text-[#1E1B18]">
+                <h2 className="mt-2 font-semibold text-flora-foreground">
                   {project.title}
                 </h2>
               </div>

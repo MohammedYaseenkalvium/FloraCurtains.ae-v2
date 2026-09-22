@@ -13,11 +13,11 @@ export default function HomePage() {
       {/* Services */}
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="mb-10 max-w-2xl">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
             What we do
           </span>
 
-          <h2 className="mt-3 font-serif text-4xl text-[#1E1B18] sm:text-5xl">
+          <h2 className="mt-3 font-display text-4xl text-flora-foreground sm:text-5xl">
             Window solutions
             <br />
             made around you.
@@ -28,14 +28,14 @@ export default function HomePage() {
       </section>
 
       {/* Why Flora */}
-      <section className="border-y border-[#D8C9BC] bg-[#F8F5F2]">
+      <section className="border-y border-flora-border bg-flora-surface">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="mb-10 max-w-2xl">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
               The Flora approach
             </span>
 
-            <h2 className="mt-3 font-serif text-4xl text-[#1E1B18] sm:text-5xl">
+            <h2 className="mt-3 font-display text-4xl text-flora-foreground sm:text-5xl">
               From first measurement
               <br />
               to final installation.
@@ -50,11 +50,11 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#5A0E12]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
               Selected work
             </span>
 
-            <h2 className="mt-3 font-serif text-4xl text-[#1E1B18] sm:text-5xl">
+            <h2 className="mt-3 font-display text-4xl text-flora-foreground sm:text-5xl">
               Spaces we&apos;ve
               <br />
               helped shape.
@@ -66,7 +66,7 @@ export default function HomePage() {
       </section>
 
       {/* About */}
-      <section className="border-y border-[#D8C9BC] bg-white">
+      <section className="border-y border-flora-border bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <AboutPreview />
         </div>
