@@ -15,8 +15,11 @@ const config: Config = {
 
           primary: "#5A0E12",
           "primary-hover": "#74171C",
+          ink: "#3E080B",
 
           gold: "#C8A97E",
+          sand: "#E8DED4",
+          taupe: "#A99A8D",
 
           surface: "#f8f5f2",
           "surface-highest": "#ffffff",

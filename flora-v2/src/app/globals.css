@@ -9,7 +9,10 @@
   /* Flora design tokens (see docs/design-system.md) */
   --flora-primary: #5a0e12;
   --flora-primary-hover: #74171c;
+  --flora-ink: #3e080b;
   --flora-gold: #c8a97e;
+  --flora-sand: #e8ded4;
+  --flora-taupe: #a99a8d;
   --flora-surface: #f8f5f2;
   --flora-muted: #6b625a;
   --flora-border: #d8c9bc;

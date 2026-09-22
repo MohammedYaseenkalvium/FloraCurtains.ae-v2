@@ -2,19 +2,57 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+const links = [
+  ["Home", "/"],
+  ["About", "/about"],
+  ["Services", "/services"],
+  ["Projects", "/portfolio"],
+  ["Contact", "/contact"],
+] as const;
+
+/**
+ * Transparent over the hero, glass on scroll (subtle blur + warm
+ * translucent background + smooth transition). Mobile drawer included.
+ * Logo asset is the approved master — never altered.
+ */
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const overHero = pathname === "/";
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const transparent = overHero && !scrolled && !open;
+  const linkTone = transparent
+    ? "text-white/85 hover:text-white"
+    : "text-flora-foreground hover:text-flora-primary";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-flora-border bg-flora-background/95 backdrop-blur">
+    <>
+    <header
+      className={[
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        transparent
+          ? "border-b border-transparent bg-transparent"
+          : "border-b border-flora-border bg-flora-background/80 shadow-flora-sm backdrop-blur-[16px]",
+      ].join(" ")}
+    >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link
           href="/"
           className="flex items-center"
           onClick={() => setOpen(false)}
+          aria-label="Flora Curtains — home"
         >
           <Image
             src="/images/Flora quotation logo.png"
@@ -22,42 +60,27 @@ export function PublicHeader() {
             width={176}
             height={44}
             priority
-            className="h-11 w-auto object-contain"
+            className={[
+              "h-11 w-auto object-contain transition-all duration-300",
+              transparent ? "brightness-0 invert" : "",
+            ].join(" ")}
           />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link
-            href="/"
-            className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
-          >
-            Home
-          </Link>
-
-          <Link
-            href="/services"
-            className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
-          >
-            Services
-          </Link>
-
-          <Link
-            href="/portfolio"
-            className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
-          >
-            Portfolio
-          </Link>
-
-          <Link
-            href="/about"
-            className="text-sm font-medium text-flora-foreground transition-colors hover:text-flora-primary"
-          >
-            About
-          </Link>
+        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
+          {links.map(([label, href]) => (
+            <Link
+              key={href}
+              href={href}
+              className={`text-sm font-medium transition-colors ${linkTone}`}
+            >
+              {label}
+            </Link>
+          ))}
 
           <Link
             href="/get-quote"
-            className="rounded-full bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+            className="rounded-full bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-flora-primary-hover"
           >
             Get a Quote
           </Link>
@@ -66,7 +89,7 @@ export function PublicHeader() {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="rounded-lg p-2 text-flora-primary md:hidden"
+          className={`rounded-lg p-2 md:hidden ${transparent ? "text-white" : "text-flora-primary"}`}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-nav"
@@ -78,12 +101,7 @@ export function PublicHeader() {
       {open && (
         <div id="mobile-nav" className="border-t border-flora-border bg-flora-background md:hidden">
           <nav aria-label="Mobile" className="mx-auto flex max-w-7xl flex-col px-5 py-4">
-            {[
-              ["Home", "/"],
-              ["Services", "/services"],
-              ["Portfolio", "/portfolio"],
-              ["About", "/about"],
-            ].map(([label, href]) => (
+            {links.map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -105,5 +123,8 @@ export function PublicHeader() {
         </div>
       )}
     </header>
+    {/* Flow spacer on non-hero pages (home hero pads itself) */}
+    {!overHero && <div aria-hidden="true" className="h-20" />}
+    </>
   );
 }
