@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireAuth, parseBody, withErrorHandling } from "@/lib/api";
+import { requireAuth, parseBody, withErrorHandling, notFound, badRequest } from "@/lib/api";
 import { logActivity } from "@/lib/activity";
 
 const taskSchema = z.object({
@@ -23,7 +23,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 
   const tasks = await db.task.findMany({
     where: { enquiryId, projectId },
-    orderBy: [{ priority: "desc" }, { dueDate: "asc" }],
+    orderBy: [{ done: "asc" }, { dueDate: "asc" }, { createdAt: "desc" }],
     include: { enquiry: { include: { contact: true } }, project: true },
   });
 
@@ -33,6 +33,26 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 export const POST = withErrorHandling(async (req: NextRequest) => {
   const session = await requireAuth();
   const data = await parseBody(req, taskSchema);
+
+  // Phase 10: prevent floating/orphan tasks — require at least one parent
+  // and verify referenced parents exist.
+  if (!data.enquiryId && !data.projectId) {
+    throw badRequest("Task must be linked to an enquiry or a project.");
+  }
+  if (data.enquiryId) {
+    const enquiry = await db.enquiry.findFirst({
+      where: { id: data.enquiryId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!enquiry) throw notFound("Enquiry not found.");
+  }
+  if (data.projectId) {
+    const project = await db.project.findFirst({
+      where: { id: data.projectId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!project) throw notFound("Project not found.");
+  }
 
   const task = await db.task.create({
     data: {

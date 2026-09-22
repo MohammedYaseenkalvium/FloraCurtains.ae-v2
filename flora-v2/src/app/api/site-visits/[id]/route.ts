@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import {
   requireAuth,
+  requireRole,
   parseBody,
   withErrorHandling,
   notFound,
@@ -243,5 +244,38 @@ export const PATCH = withErrorHandling(
     });
 
     return NextResponse.json(siteVisit);
+  }
+);
+
+/**
+ * DELETE /api/site-visits/:id
+ * Fixes UI 405: SiteVisitManager calls DELETE but only GET/PATCH existed.
+ * Cascade-deletes measurements + attachments via Prisma relations.
+ */
+export const DELETE = withErrorHandling(
+  async (_req: NextRequest, { params }: Context) => {
+    const session = await requireRole("ADMIN");
+    const { id } = await params;
+
+    const existing = await db.siteVisit.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) {
+      throw notFound("Site visit not found");
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.siteVisit.delete({ where: { id } });
+      await logActivity(
+        {
+          session,
+          action: "DELETE",
+          entityType: "SiteVisit",
+          entityId: id,
+          summary: "Deleted site visit",
+        },
+        tx
+      );
+    });
+
+    return NextResponse.json({ success: true });
   }
 );

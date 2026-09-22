@@ -86,10 +86,9 @@ export default function InventoryPage() {
 
           <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#6B625A]">
             The inventory workspace is planned for a
-            later phase. The structure is already prepared
-            so materials and stock management can be
-            introduced without changing the rest of
-            FloraFlow.
+            later phase. No inventory tables exist in the
+            database yet, so this page is intentionally
+            read-only until the domain model is approved.
           </p>
 
           <div className="mt-6 inline-flex items-center gap-2 rounded-lg border border-[#D8C9BC] bg-[#FFF8F5] px-4 py-2.5 text-xs font-medium text-[#6B625A]">

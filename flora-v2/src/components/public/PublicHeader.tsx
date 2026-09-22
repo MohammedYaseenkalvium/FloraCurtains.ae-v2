@@ -63,15 +63,17 @@ export function PublicHeader() {
           type="button"
           onClick={() => setOpen(!open)}
           className="rounded-lg p-2 text-[#5A0E12] md:hidden"
-          aria-label="Toggle menu"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
         >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-[#D8C9BC] bg-[#FFF8F5] md:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col px-5 py-4">
+        <div id="mobile-nav" className="border-t border-[#D8C9BC] bg-[#FFF8F5] md:hidden">
+          <nav aria-label="Mobile" className="mx-auto flex max-w-7xl flex-col px-5 py-4">
             {[
               ["Home", "/"],
               ["Services", "/services"],

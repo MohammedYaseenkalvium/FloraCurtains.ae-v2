@@ -7,9 +7,9 @@ import Link from "next/link";
 import { format } from "date-fns";
 import type { CustomerFinancialSummary } from "@/lib/customer-financial";
 import {
-  TrendingUp, TrendingDown, Wallet, FileText, FolderOpen, 
+  TrendingUp, Wallet, FolderOpen,
   CreditCard, Receipt, Phone, Mail, Building, AlertCircle,
-  CheckCircle2, Clock, ChevronDown, ChevronUp, Download, Plus,
+  CheckCircle2, Plus, ChevronDown, ChevronUp,
   LucideIcon
 } from "lucide-react";
 
@@ -41,7 +41,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
   const {
     customerName, customerPhone, customerEmail, companyName, companyType,
     lifetimeRevenue, totalPaid, outstanding, totalQuoted, totalContractValue,
-    enquiryCount, quotationCount, projectCount, paymentCount, activeProjectCount,
+    quotationCount, projectCount, paymentCount, activeProjectCount,
     enquiries, quotations, projects, payments, ledger,
   } = summary;
 
@@ -103,12 +103,28 @@ export function CustomerFinancialDashboard({ summary }: Props) {
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 bg-[#EFE7DF] border border-[#D8C9BC] rounded-lg px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#D8C9BC] transition-colors">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-2 bg-[#EFE7DF] border border-[#D8C9BC] rounded-lg px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#D8C9BC] transition-colors"
+          >
             <Receipt size={14} /> Statement PDF
           </button>
-          <button className="flex items-center gap-2 bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22] transition-colors">
-            <Plus size={14} /> Record Payment
-          </button>
+          {projects.length > 0 ? (
+            <Link
+              href={`/projects/${projects[0].id}`}
+              className="flex items-center gap-2 bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm hover:bg-[#7A1E22] transition-colors"
+            >
+              <Plus size={14} /> Record Payment
+            </Link>
+          ) : (
+            <span
+              title="No project yet — payments are recorded on projects"
+              className="flex items-center gap-2 bg-[#5A0E12] text-white rounded-lg px-4 py-2 text-sm opacity-50 cursor-not-allowed"
+            >
+              <Plus size={14} /> Record Payment
+            </span>
+          )}
         </div>
       </div>
 
@@ -193,11 +209,10 @@ export function CustomerFinancialDashboard({ summary }: Props) {
       {/* Tab Content */}
       <div className="min-h-[400px]">
         {activeTab === "overview" && (
-          <OverviewTab 
-            enquiries={enquiries} 
+          <OverviewTab
+            enquiries={enquiries}
             recentPayments={payments.slice(0, 5)}
             projects={projects}
-            quotations={quotations}
             totalQuoted={totalQuoted}
             totalContractValue={totalContractValue}
             totalPaid={totalPaid}
@@ -227,11 +242,10 @@ export function CustomerFinancialDashboard({ summary }: Props) {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function OverviewTab({ 
-  enquiries, 
-  recentPayments, 
-  projects, 
-  quotations,
+function OverviewTab({
+  enquiries,
+  recentPayments,
+  projects,
   totalQuoted,
   totalContractValue,
   totalPaid,
@@ -240,7 +254,6 @@ function OverviewTab({
   enquiries: CustomerFinancialSummary["enquiries"];
   recentPayments: CustomerFinancialSummary["payments"];
   projects: CustomerFinancialSummary["projects"];
-  quotations: CustomerFinancialSummary["quotations"];
   totalQuoted: number;
   totalContractValue: number;
   totalPaid: number;

@@ -171,6 +171,7 @@ export function QuoteForm() {
             id="name"
             name="name"
             required
+            autoComplete="name"
             className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
             placeholder="Your name"
           />
@@ -190,6 +191,7 @@ export function QuoteForm() {
             name="email"
             type="email"
             required
+            autoComplete="email"
             className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
             placeholder="you@example.com"
           />
@@ -207,7 +209,9 @@ export function QuoteForm() {
           <input
             id="phone"
             name="phone"
+            type="tel"
             required
+            autoComplete="tel"
             className="h-11 w-full rounded-lg border border-[#D8C9BC] px-3 text-sm outline-none focus:border-[#5A0E12] focus:ring-1 focus:ring-[#5A0E12]"
             placeholder="Phone number"
           />
@@ -348,13 +352,14 @@ export function QuoteForm() {
       </div>
 
       {error && (
-        <div className="mt-5 flex items-start gap-3 rounded-lg border border-[#D8C9BC] bg-[#F8F5F2] p-4">
+        <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4">
           <AlertCircle
             size={17}
-            className="mt-0.5 shrink-0 text-[#5A0E12]"
+            aria-hidden="true"
+            className="mt-0.5 shrink-0 text-red-700"
           />
 
-          <p className="text-sm text-[#5A0E12]">
+          <p className="text-sm text-red-800">
             {error}
           </p>
         </div>
