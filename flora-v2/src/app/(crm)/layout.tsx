@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { TopHeader } from "@/components/layout/TopHeader";
+import { BottomNav } from "@/components/crm/layout/BottomNav";
 
 export default async function CRMLayout({
   children,
@@ -15,17 +15,17 @@ export default async function CRMLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-flora-background">
-      <Sidebar />
-
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <div className="min-h-screen bg-flora-background overflow-x-hidden">
+      <div className="max-w-[1400px] mx-auto p-4 sm:p-6">
         <TopHeader user={session.user} />
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className="mx-auto min-h-full w-full max-w-[1600px] px-6 py-8 lg:px-8">
+        <main className="flex-1 overflow-y-auto pb-0">
+          <div className="prose lg:prose-lg max-w-none">
             {children}
           </div>
         </main>
+
+        <BottomNav />
       </div>
     </div>
   );

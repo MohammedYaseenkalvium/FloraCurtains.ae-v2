@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #fff8f5;
+  --background: #F7F5F0;
   --foreground: #1e1b18;
 
   /* Flora design tokens (see docs/design-system.md) */
@@ -13,18 +13,18 @@
   --flora-gold: #c8a97e;
   --flora-sand: #e8ded4;
   --flora-taupe: #a99a8d;
-  --flora-surface: #f8f5f2;
+  --flora-surface: #F7F5F0;
   --flora-muted: #6b625a;
-  --flora-border: #d8c9bc;
-  --flora-success: #0f6e56;
-  --flora-warning: #854d0e;
-  --flora-danger: #991b1b;
-  --flora-info: #185fa5;
+  --flora-border: #D8C9BC;
+  --flora-success: #0F6E56;
+  --flora-warning: #854D0E;
+  --flora-danger: #991B1B;
+  --flora-info: #185FA5;
 
   /* Glass surfaces: navigation, floating cards, overlays, dialogs */
-  --flora-glass-bg: rgba(255, 255, 255, 0.55);
+  --flora-glass-bg: rgba(255, 255, 255, 0.6);
   --flora-glass-border: rgba(255, 255, 255, 0.35);
-  --flora-glass-blur: blur(16px);
+  --flora-glass-blur: blur(20px);
 }
 
 /**
