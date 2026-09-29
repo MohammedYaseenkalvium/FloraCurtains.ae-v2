@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUpRight,
   CircleDollarSign,
   FileText,
@@ -12,6 +13,7 @@ import {
 
 import { db } from "@/lib/db";
 import type { QuotationStatus } from "@prisma/client";
+import { statusStyles } from "@/lib/status-styles";
 
 const PAGE_SIZE = 20;
 
@@ -31,28 +33,23 @@ const statusLabels: Record<string, string> = {
   REVISED: "Revised",
 };
 
-const statusStyles: Record<
+const statusIcons: Record<
   string,
-  { badge: string; icon: typeof FileText }
+  { icon: typeof FileText }
 > = {
   DRAFT: {
-    badge: "bg-flora-surface text-flora-muted",
     icon: FileText,
   },
   SENT: {
-    badge: "bg-blue-50 text-blue-700",
     icon: Send,
   },
   APPROVED: {
-    badge: "bg-emerald-50 text-emerald-700",
     icon: CheckCircle2,
   },
   REJECTED: {
-    badge: "bg-red-50 text-red-700",
     icon: XCircle,
   },
   REVISED: {
-    badge: "bg-amber-50 text-amber-800",
     icon: RotateCcw,
   },
 };
@@ -76,13 +73,6 @@ function formatDate(date: Date | null | undefined) {
 
 function getStatusLabel(status: string) {
   return statusLabels[status] ?? status.replace(/_/g, " ");
-}
-
-function getStatusClass(status: string) {
-  return (
-    statusStyles[status]?.badge ??
-    "bg-flora-surface text-flora-muted"
-  );
 }
 
 export default async function QuotationsPage({
@@ -172,15 +162,11 @@ export default async function QuotationsPage({
       : {}),
   };
 
-  const [
-    quotations,
-    total,
-    draftCount,
-    sentCount,
-    approvedCount,
-    rejectedCount,
-    revisedCount,
-  ] = await Promise.all([
+  // Tab counts respect the search query but not the selected status tab.
+  // Prisma ignores `undefined` fields, so this equals `where` minus status.
+  const countWhere = { ...where, status: undefined };
+
+  const [quotations, total, statusGroups] = await Promise.all([
     db.quotation.findMany({
       where,
 
@@ -211,41 +197,25 @@ export default async function QuotationsPage({
       where,
     }),
 
-    db.quotation.count({
-      where: {
-        ...where,
-        status: "DRAFT",
-      },
-    }),
-
-    db.quotation.count({
-      where: {
-        ...where,
-        status: "SENT",
-      },
-    }),
-
-    db.quotation.count({
-      where: {
-        ...where,
-        status: "APPROVED",
-      },
-    }),
-
-    db.quotation.count({
-      where: {
-        ...where,
-        status: "REJECTED",
-      },
-    }),
-
-    db.quotation.count({
-      where: {
-        ...where,
-        status: "REVISED",
+    // Single GROUP BY instead of one COUNT per status (was 5 round trips).
+    db.quotation.groupBy({
+      by: ["status"],
+      where: countWhere,
+      _count: {
+        _all: true,
       },
     }),
   ]);
+
+  const countByStatus = new Map<string, number>(
+    statusGroups.map((group) => [group.status, group._count._all])
+  );
+
+  const draftCount = countByStatus.get("DRAFT") ?? 0;
+  const sentCount = countByStatus.get("SENT") ?? 0;
+  const approvedCount = countByStatus.get("APPROVED") ?? 0;
+  const rejectedCount = countByStatus.get("REJECTED") ?? 0;
+  const revisedCount = countByStatus.get("REVISED") ?? 0;
 
   const totalPages = Math.max(
     1,
@@ -424,7 +394,7 @@ export default async function QuotationsPage({
             <CheckCircle2
               size={18}
               strokeWidth={1.8}
-              className="text-emerald-600"
+              className="text-flora-success"
             />
           </div>
 
@@ -598,7 +568,7 @@ export default async function QuotationsPage({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1050px] text-sm">
               <thead>
-                <tr className="border-b border-flora-border bg-flora-surface text-left">
+                <tr className="border-b border-flora-border bg-flora-cream text-left">
                   <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-flora-muted">
                     Quote
                   </th>
@@ -646,13 +616,19 @@ export default async function QuotationsPage({
                   );
 
                   const StatusIcon =
-                    statusStyles[quotation.status]?.icon ??
+                    statusIcons[quotation.status]?.icon ??
                     FileText;
+
+                  const quotationStatusStyle =
+                    statusStyles.quotation[quotation.status] ?? {
+                      background: "#F8F5F2",
+                      text: "#6B625A",
+                    };
 
                   return (
                     <tr
                       key={quotation.id}
-                      className="border-b border-flora-surface last:border-b-0 transition-colors hover:bg-flora-background"
+                      className="border-b border-flora-border/50 last:border-b-0 transition-colors hover:bg-flora-background"
                     >
                       {/* Quote */}
                       <td className="px-5 py-4">
@@ -707,9 +683,13 @@ export default async function QuotationsPage({
                       {/* Status */}
                       <td className="px-5 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(
-                            quotation.status
-                          )}`}
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                          style={{
+                            background:
+                              quotationStatusStyle.background,
+                            color:
+                              quotationStatusStyle.text,
+                          }}
                         >
                           <StatusIcon size={13} />
                           {getStatusLabel(
@@ -732,7 +712,7 @@ export default async function QuotationsPage({
                         <span
                           className={
                             paid > 0
-                              ? "font-medium text-emerald-700"
+                              ? "font-medium text-flora-success"
                               : "text-flora-muted"
                           }
                         >
@@ -824,13 +804,15 @@ export default async function QuotationsPage({
             {page < totalPages ? (
               <Link
                 href={pageHref(page + 1)}
-                className="rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface hover:text-flora-foreground"
+                className="inline-flex items-center gap-1 rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface hover:text-flora-foreground"
               >
-                Next →
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
-                Next →
+              <span className="inline-flex items-center gap-1 cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </span>
             )}
           </div>
