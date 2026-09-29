@@ -10,26 +10,27 @@ const config: Config = {
     extend: {
       colors: {
         flora: {
-          background: "#fff8f5",
-          foreground: "#1e1b18",
+          // Surfaces — DESIGN.md Warm Ivory / Cream
+          background: "#F8F5F2",
+          foreground: "#1A1A1A",
+          surface: "#F8F5F2",
+          cream: "#EFE7DF",
+          "surface-highest": "#FFFFFF",
 
+          // Brand
           primary: "#5A0E12",
           "primary-hover": "#74171C",
-          ink: "#3E080B",
-
+          ink: "#3D080B",
           gold: "#C8A97E",
+
+          // Neutrals
           sand: "#E8DED4",
           taupe: "#A99A8D",
-
-          surface: "#f8f5f2",
-          "surface-highest": "#ffffff",
-
-          footer: "#0F0C0B",
-
           muted: "#6B625A",
           border: "#D8C9BC",
+          footer: "#0F0C0B",
 
-          // Semantic states (professional, restrained — see docs/design-system.md)
+          // Semantic states (restrained — see DESIGN.md / MASTER.md)
           success: "#0F6E56",
           "success-surface": "#EDF7F3",
           warning: "#854D0E",
@@ -43,7 +44,15 @@ const config: Config = {
 
       fontFamily: {
         sans: ["Inter", "Arial", "Helvetica", "sans-serif"],
+        // Cormorant Garamond ships self-hosted via src/app/fonts.css (static @font-face, no build-time fetch);
+        // Georgia remains the deliberate editorial fallback.
         display: ["Cormorant Garamond", "Georgia", "serif"],
+      },
+
+      // DESIGN.md §4 editorial spacing scale (Tailwind defaults cover all but 120)
+      spacing: {
+        18: "4.5rem",
+        120: "30rem",
       },
 
       borderRadius: {
@@ -55,9 +64,34 @@ const config: Config = {
       },
 
       boxShadow: {
-        "flora-sm": "0 1px 2px rgba(30, 27, 24, 0.05)",
-        "flora-md": "0 4px 16px rgba(30, 27, 24, 0.07)",
-        "flora-lg": "0 12px 40px rgba(30, 27, 24, 0.12)",
+        "flora-sm": "0 1px 2px rgba(26, 26, 26, 0.05)",
+        "flora-md": "0 4px 16px rgba(26, 26, 26, 0.07)",
+        "flora-lg": "0 12px 40px rgba(26, 26, 26, 0.12)",
+      },
+
+      letterSpacing: {
+        eyebrow: "0.18em",
+        editorial: "0.02em",
+      },
+
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
+
+      keyframes: {
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(16px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+      },
+
+      animation: {
+        "fade-up": "fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "fade-in": "fade-in 0.4s ease both",
       },
     },
   },

@@ -15,3 +15,12 @@
   font-weight: 100 900;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/CormorantGaramond/CormorantGaramond-VariableFont.ttf")
+    format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
