@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
+import { statusStyles } from "@/lib/status-styles";
 import { MeasurementManager } from "@/components/crm/MeasurementManager";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
@@ -58,31 +60,6 @@ const field =
 
 const label =
   "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
-
-const statusStyles: Record<
-  SiteVisit["status"],
-  { bg: string; text: string }
-> = {
-  SCHEDULED: {
-    bg: "#FFF7ED",
-    text: "#9A3412",
-  },
-
-  COMPLETED: {
-    bg: "#ECFDF5",
-    text: "#166534",
-  },
-
-  CANCELLED: {
-    bg: "#FEF2F2",
-    text: "#991B1B",
-  },
-
-  RESCHEDULED: {
-    bg: "#EFF6FF",
-    text: "#185FA5",
-  },
-};
 
 function formatDate(value: Date | string | null) {
   if (!value) return "—";
@@ -379,7 +356,7 @@ export function SiteVisitManager({
       {actionError && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+          className="mb-4 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger"
         >
           {actionError}
         </p>
@@ -405,7 +382,8 @@ export function SiteVisitManager({
             }
             className="bg-flora-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-flora-primary-hover transition-colors"
           >
-            + Schedule Visit
+            <Plus size={16} aria-hidden="true" />
+            Schedule Visit
           </button>
         )}
       </div>
@@ -569,7 +547,7 @@ export function SiteVisitManager({
         <div className="space-y-4">
           {visits.map((visit) => {
             const style =
-              statusStyles[
+              statusStyles.siteVisit[
                 visit.status
               ];
 
@@ -590,7 +568,7 @@ export function SiteVisitManager({
                         className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wide"
                         style={{
                           background:
-                            style.bg,
+                            style.background,
                           color:
                             style.text,
                         }}
@@ -678,7 +656,7 @@ export function SiteVisitManager({
                             "CANCELLED"
                           )
                         }
-                        className="text-xs bg-[#FEF2F2] text-[#991B1B] rounded-lg px-3 py-1.5 hover:bg-[#FEE2E2] disabled:opacity-50"
+                        className="text-xs bg-flora-danger-surface text-flora-danger rounded-lg px-3 py-1.5 hover:bg-flora-danger/10 disabled:opacity-50"
                       >
                         Cancel Visit
                       </button>
@@ -693,7 +671,7 @@ export function SiteVisitManager({
                         )
                       }
                       aria-label={`Delete site visit ${visit.id}`}
-                      className="text-xs text-[#991B1B] border border-[#FECACA] rounded-lg px-3 py-1.5 hover:bg-[#FEF2F2] disabled:opacity-50"
+                      className="text-xs text-flora-danger border border-flora-danger/30 rounded-lg px-3 py-1.5 hover:bg-flora-danger-surface disabled:opacity-50"
                     >
                       Delete
                     </button>
@@ -821,7 +799,8 @@ export function SiteVisitManager({
                         }}
                         className="text-xs font-medium text-flora-primary hover:underline"
                       >
-                        + Link file
+                        <Plus size={16} aria-hidden="true" />
+                        Link file
                       </button>
                     )}
                   </div>
@@ -847,7 +826,7 @@ export function SiteVisitManager({
                             onClick={() => deleteAttachment(visit.id, attachment.id)}
                             aria-label={`Remove attachment ${attachment.fileName}`}
                             title="Remove attachment (admin only)"
-                            className="text-[#991B1B] hover:underline disabled:opacity-50"
+                            className="text-flora-danger hover:underline disabled:opacity-50"
                           >
                             ×
                           </button>
