@@ -15,8 +15,8 @@
 |---|---|---|
 | `flora-primary` / `primary-hover` | `#5A0E12` / `#74171C` | CTAs, active states, brand text |
 | `flora-gold` | `#C8A97E` | Eyebrows, accents, dividers |
-| `flora-background` / `surface` / `surface-highest` | `#FFF8F5` / `#F8F5F2` / `#FFF` | Page / section / card |
-| `flora-foreground` / `muted` / `border` | `#1E1B18` / `#6B625A` / `#D8C9BC` | Text / secondary / dividers |
+| `flora-background` / `surface` / `surface-highest` | `#F8F5F2` / `#F8F5F2` / `#FFF` | Page / section / card |
+| `flora-foreground` / `muted` / `border` | `#1A1A1A` / `#6B625A` / `#D8C9BC` | Text / secondary / dividers |
 | `flora-footer` | `#0F0C0B` | Footer ground |
 | `flora-success[-surface]` | `#0F6E56` / `#EDF7F3` | Paid, completed, confirmations |
 | `flora-warning[-surface]` | `#854D0E` / `#FEF9E7` | Pending, on-hold, due |
@@ -25,9 +25,11 @@
 
 Rules: no hardcoded palette hex in `className` (runtime `style` maps excepted); state is never color-only (pair with label/icon).
 
+Taupe / border two-tone: `flora-taupe` = `#A99A8D`, `flora-border` = `#D8C9BC`. Where DESIGN.md §2 or `design-system/flora-curtains/MASTER.md` labels `#D8C9BC` as "taupe", that label refers to the **border tone** — the shipped token values in this table are authoritative.
+
 ## Glass (`glass-panel` utility)
 
-- `rgba(255,255,255,0.55)` + `rgba(255,255,255,0.35)` border + `blur(16px)`.
+- `rgba(255,255,255,0.6)` + `rgba(255,255,255,0.35)` border + `blur(20px)`.
 - Allowed: sticky nav, floating hero card, overlays, dashboard widgets, dialogs, floating actions.
 - Forbidden: body-copy sections, tables, forms (readability first).
 
