@@ -273,7 +273,7 @@ export default async function EnquiryDetailPage({
                     href={`/api/quotations/${q.id}/pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs border border-flora-border rounded-lg px-3 py-1 text-flora-muted hover:bg-[#EFE7DF]"
+                    className="text-xs border border-flora-border rounded-lg px-3 py-1 text-flora-muted hover:bg-flora-cream"
                   >
                     📄 PDF
                   </a>

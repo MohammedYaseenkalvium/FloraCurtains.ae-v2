@@ -1,6 +1,6 @@
 import { getAllOutstandingBalances } from "@/lib/customer-financial";
 import Link from "next/link";
-import { AlertTriangle, Clock, Phone } from "lucide-react";
+import { AlertTriangle, ArrowRight, Clock, Phone } from "lucide-react";
 
 export default async function OutstandingBalancesPage() {
   const customers = await getAllOutstandingBalances();
@@ -23,15 +23,15 @@ export default async function OutstandingBalancesPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Total Outstanding</div>
-          <div className="text-3xl font-extrabold text-[#991B1B]">AED {totalOutstanding.toLocaleString()}</div>
+          <div className="text-3xl font-extrabold text-flora-danger">AED {totalOutstanding.toLocaleString()}</div>
         </div>
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Overdue (&gt;30 days)</div>
-          <div className="text-3xl font-extrabold text-[#854D0E]">{overdueCustomers.length}</div>
+          <div className="text-3xl font-extrabold text-flora-warning">{overdueCustomers.length}</div>
         </div>
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Customers</div>
-          <div className="text-3xl font-extrabold text-[#1A1A1A]">{customers.length}</div>
+          <div className="text-3xl font-extrabold text-flora-foreground">{customers.length}</div>
         </div>
       </div>
 
@@ -39,7 +39,7 @@ export default async function OutstandingBalancesPage() {
       <div className="bg-white border border-flora-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
+            <tr className="bg-flora-cream text-flora-muted text-[10px] uppercase tracking-widest">
               <th className="text-left px-5 py-3 font-medium">Customer</th>
               <th className="text-left px-5 py-3 font-medium">Company</th>
               <th className="text-right px-5 py-3 font-medium">Lifetime Value</th>
@@ -55,7 +55,7 @@ export default async function OutstandingBalancesPage() {
               const isStale = (c.daysSincePayment ?? 0) > 14;
               
               return (
-                <tr key={c.customerId} className="border-t border-flora-surface hover:bg-flora-surface/60">
+                <tr key={c.customerId} className="border-t border-flora-border/50 hover:bg-flora-surface/60">
                   <td className="px-5 py-3">
                     <div className="font-medium">{c.customerName}</div>
                     <div className="text-xs text-flora-muted flex items-center gap-1">
@@ -66,33 +66,34 @@ export default async function OutstandingBalancesPage() {
                   <td className="px-5 py-3 text-right font-medium">
                     AED {c.lifetimeValue.toLocaleString()}
                   </td>
-                  <td className="px-5 py-3 text-right text-[#0F6E56]">
+                  <td className="px-5 py-3 text-right text-flora-success">
                     AED {c.totalPaid.toLocaleString()}
                   </td>
                   <td className="px-5 py-3 text-right">
-                    <span className={`font-bold ${isOverdue ? "text-[#991B1B]" : "text-[#1A1A1A]"}`}>
+                    <span className={`font-bold ${isOverdue ? "text-flora-danger" : "text-flora-foreground"}`}>
                       AED {c.outstanding.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-center">
                     {c.lastPaymentDate ? (
                       <span className={`text-xs flex items-center justify-center gap-1 ${
-                        isOverdue ? "text-[#991B1B]" : isStale ? "text-[#854D0E]" : "text-flora-muted"
+                        isOverdue ? "text-flora-danger" : isStale ? "text-flora-warning" : "text-flora-muted"
                       }`}>
                         {isOverdue && <AlertTriangle size={12} />}
                         {isStale && !isOverdue && <Clock size={12} />}
                         {c.daysSincePayment}d ago
                       </span>
                     ) : (
-                      <span className="text-xs text-[#8B8178]">Never</span>
+                      <span className="text-xs text-flora-meta-text">Never</span>
                     )}
                   </td>
                   <td className="px-5 py-3">
                     <Link 
                       href={`/customers/${c.customerId}`}
-                      className="text-flora-primary text-xs hover:underline font-medium"
+                      className="inline-flex items-center gap-1 text-flora-primary text-xs hover:underline font-medium"
                     >
-                      View →
+                      View
+                      <ArrowRight size={12} aria-hidden="true" />
                     </Link>
                   </td>
                 </tr>

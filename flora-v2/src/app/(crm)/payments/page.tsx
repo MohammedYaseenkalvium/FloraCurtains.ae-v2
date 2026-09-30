@@ -79,7 +79,7 @@ export default async function PaymentsPage({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1A1A1A]">Payment Details</h1>
+          <h1 className="text-2xl font-bold text-flora-foreground">Payment Details</h1>
           <p className="text-sm text-flora-muted mt-1">
             {payments.length} payments · AED {totalCollected.toLocaleString("en-AE", { minimumFractionDigits: 2 })} total collected
           </p>
@@ -98,7 +98,7 @@ export default async function PaymentsPage({
           <select
             name="method"
             defaultValue={method || ""}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
+            className="px-3 py-2 text-sm border border-flora-border rounded-md focus:ring-1 focus:ring-flora-primary focus:border-flora-primary"
           >
             <option value="">All Methods</option>
             {Object.entries(methodLabels).map(([value, label]) => (
@@ -107,14 +107,14 @@ export default async function PaymentsPage({
           </select>
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-flora-primary rounded-md hover:bg-[#4a0c0f] transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-flora-primary rounded-md hover:bg-flora-primary-deep transition-colors"
           >
             Filter
           </button>
           {method && (
             <Link
               href="/payments"
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-flora-muted bg-flora-surface rounded-md hover:bg-flora-cream transition-colors"
             >
               Clear
             </Link>
@@ -123,10 +123,10 @@ export default async function PaymentsPage({
       </div>
 
       {/* Payments Table */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-lg border border-flora-border shadow-sm overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="bg-flora-surface text-left">
+            <tr className="bg-flora-cream text-left">
               <th className="px-4 py-3 font-semibold text-flora-muted">Date</th>
               <th className="px-4 py-3 font-semibold text-flora-muted">Source</th>
               <th className="px-4 py-3 font-semibold text-flora-muted">Customer</th>
@@ -170,7 +170,7 @@ export default async function PaymentsPage({
                   : { label: "—", href: "#" };
 
                 return (
-                  <tr key={payment.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <tr key={payment.id} className="border-t border-flora-border/40 hover:bg-flora-background">
                     <td className="px-4 py-3">
                       {format(new Date(payment.paidAt), "dd MMM yyyy")}
                     </td>

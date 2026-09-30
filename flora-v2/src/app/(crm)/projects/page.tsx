@@ -600,7 +600,7 @@ export default async function ProjectsPage({
                   >
                     <FolderKanban
                       size={28}
-                      className="mx-auto mb-3 text-[#D8C9BC]"
+                      className="mx-auto mb-3 text-flora-border"
                     />
 
                     <p className="text-sm font-semibold text-flora-foreground">
@@ -640,7 +640,7 @@ export default async function ProjectsPage({
                   Previous
                 </Link>
               ) : (
-                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-flora-disabled-text-light">
                   Previous
                 </span>
               )}
@@ -661,7 +661,7 @@ export default async function ProjectsPage({
                   Next
                 </Link>
               ) : (
-                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-flora-disabled-text-light">
                   Next
                 </span>
               )}
