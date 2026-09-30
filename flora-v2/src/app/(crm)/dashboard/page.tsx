@@ -12,8 +12,9 @@ import {
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { calcLifetimeRevenue, calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
-import { formatDate, formatFullDate, formatRowDate } from "@/lib/format";
+import { formatFullDate, formatRowDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
+import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { MetricCard } from "@/components/ui/MetricCard";
@@ -100,7 +101,7 @@ export default async function DashboardPage() {
     }),
 
     db.activityLog.findMany({
-      take: 6,
+      take: 5,
       orderBy: {
         createdAt: "desc",
       },
@@ -466,55 +467,10 @@ export default async function DashboardPage() {
       </div>
       </Reveal>
 
-      {/* Financial Snapshot */}
-      <Reveal delay={0.08}>
-      <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Contract Value
-          </p>
-
-          <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatAED(totalContractValue, { decimals: false })}
-          </p>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            Sum of project contract values (all statuses)
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Payments Received
-          </p>
-
-          <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatAED(totalPaymentsReceived, { decimals: false })}
-          </p>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            All recorded payments (project + quotation)
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Outstanding
-          </p>
-
-          <p className="mt-3 text-2xl font-semibold text-flora-primary">
-            {formatAED(outstandingAmount, { decimals: false })}
-          </p>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            Lifetime revenue less all payments
-          </p>
-        </div>
-      </section>
-      </Reveal>
-
-      {/* Pending Quotations */}
-      <section>
+      {/* Row B — Pending Quotations + Payment Overview */}
+      <Reveal delay={0.18}>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* Pending Quotations */}
         <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
           <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
             <div>
@@ -567,10 +523,75 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
-      </section>
 
+        {/* Payment Overview */}
+        <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
+          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-flora-foreground">
+                Payment Overview
+              </h2>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                Contract value, payments received and outstanding
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
+                Contract Value
+              </p>
+
+              <p className="mt-3 text-3xl font-semibold text-flora-foreground">
+                {formatAED(totalContractValue, { decimals: false })}
+              </p>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                Sum of project contract values (all statuses)
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
+                Payments Received
+              </p>
+
+              <p className="mt-3 text-3xl font-semibold text-flora-foreground">
+                {formatAED(totalPaymentsReceived, { decimals: false })}
+              </p>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                All recorded payments (project + quotation)
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
+                Outstanding
+              </p>
+
+              <Link
+                href="/dashboard/outstanding"
+                className="mt-3 block text-3xl font-semibold text-flora-primary hover:underline"
+              >
+                {formatAED(outstandingAmount, { decimals: false })}
+              </Link>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                Lifetime revenue less all payments
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </Reveal>
+
+      {/* Recent Activity */}
+      <Reveal delay={0.24}>
       <section>
-        <div className="rounded-xl border border-flora-border bg-white">
+        <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
           <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
             <div>
               <h2 className="font-semibold text-flora-foreground">
@@ -584,41 +605,36 @@ export default async function DashboardPage() {
           </div>
 
           {recentActivity.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
+            <div className="px-5 py-12 text-center text-base text-flora-muted">
               No activity recorded yet.
             </div>
           ) : (
             <div className="divide-y divide-flora-border/50">
               {recentActivity.map((activity) => (
-                <div key={activity.id} className="px-5 py-4">
-                  <div className="flex gap-3">
-                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-flora-primary" />
+                <div
+                  key={activity.id}
+                  className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+                >
+                  <Badge tone="muted">{activity.entityType}</Badge>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm font-medium text-flora-foreground">
-                          {activity.summary ||
-                            `${formatActivityAction(activity.action)} ${activity.entityType}`}
-                        </p>
+                  <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                    {activity.summary ||
+                      `${formatActivityAction(activity.action)} ${activity.entityType}`}
+                    {activity.userName && (
+                      <span className="text-flora-muted"> · {activity.userName}</span>
+                    )}
+                  </span>
 
-                        <span className="shrink-0 text-[11px] text-flora-muted">
-                          {formatDate(new Date(activity.createdAt))}
-                        </span>
-                      </div>
-
-                      {activity.userName && (
-                        <p className="mt-1 text-xs text-flora-muted">
-                          {activity.userName}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                    {formatRowDate(new Date(activity.createdAt))}
+                  </span>
                 </div>
               ))}
             </div>
           )}
         </div>
       </section>
+      </Reveal>
     </div>
   );
 }
