@@ -12,7 +12,7 @@ import {
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { calcLifetimeRevenue, calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
-import { formatDate, formatFullDate } from "@/lib/format";
+import { formatDate, formatFullDate, formatRowDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
@@ -53,6 +53,8 @@ export default async function DashboardPage() {
     leadGroups,
     approvedQuotations,
     pendingQuotationCount,
+    activeProjects,
+    pendingQuotations,
   ] = await Promise.all([
     db.enquiry.count({
       where: {
@@ -66,7 +68,7 @@ export default async function DashboardPage() {
     db.contact.count(),
 
     db.enquiry.findMany({
-      take: 8,
+      take: 5,
       where: {
         deletedAt: null,
       },
@@ -134,6 +136,36 @@ export default async function DashboardPage() {
         deletedAt: null,
         status: { in: ["DRAFT", "SENT", "REVISED"] },
       },
+    }),
+
+    // Active projects list card — same status set as the ongoing-projects KPI.
+    db.project.findMany({
+      take: 5,
+      where: {
+        deletedAt: null,
+        status: { in: ["IN_PROGRESS", "INSTALLATION", "SNAGGING"] },
+      },
+      include: {
+        enquiry: {
+          include: { contact: true },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+    }),
+
+    // Pending quotations list card — DRAFT/SENT/REVISED (same set as the count above).
+    db.quotation.findMany({
+      take: 5,
+      where: {
+        deletedAt: null,
+        status: { in: ["DRAFT", "SENT", "REVISED"] },
+      },
+      include: {
+        enquiry: {
+          include: { contact: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
     }),
   ]);
 
@@ -326,6 +358,114 @@ export default async function DashboardPage() {
       </section>
       </Reveal>
 
+      {/* Row A — Recent Enquiries + Active Projects */}
+      <Reveal delay={0.12}>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* Recent Enquiries */}
+        <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
+          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-flora-foreground">
+                Recent Enquiries
+              </h2>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                Latest customer opportunities
+              </p>
+            </div>
+
+            <Link
+              href="/enquiries"
+              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
+            >
+              View all
+              <ArrowRight size={12} aria-hidden="true" />
+            </Link>
+          </div>
+
+          {recentEnquiries.length === 0 ? (
+            <div className="px-5 py-12 text-center text-base text-flora-muted">
+              No enquiries yet.
+            </div>
+          ) : (
+            <div className="divide-y divide-flora-border/50">
+              {recentEnquiries.map((enquiry) => (
+                <Link
+                  key={enquiry.id}
+                  href={`/enquiries/${enquiry.id}`}
+                  className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+                >
+                  <StatusBadge domain="enquiry" status={enquiry.status} />
+
+                  <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                    {enquiry.contact.name}
+                    <span className="text-flora-muted"> · {enquiry.serviceWanted}</span>
+                  </span>
+
+                  <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                    {formatRowDate(new Date(enquiry.createdAt))}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Active Projects */}
+        <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
+          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-flora-foreground">
+                Active Projects
+              </h2>
+
+              <p className="mt-1 text-xs text-flora-muted">
+                Latest projects in progress
+              </p>
+            </div>
+
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
+            >
+              View all
+              <ArrowRight size={12} aria-hidden="true" />
+            </Link>
+          </div>
+
+          {activeProjects.length === 0 ? (
+            <div className="px-5 py-12 text-center text-base text-flora-muted">
+              No active projects yet.
+            </div>
+          ) : (
+            <div className="divide-y divide-flora-border/50">
+              {activeProjects.map((project) => (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.id}`}
+                  className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+                >
+                  <StatusBadge domain="project" status={project.status} />
+
+                  <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                    {project.enquiry.projectName ?? project.enquiry.contact.name}
+                  </span>
+
+                  <span className="shrink-0 text-base font-semibold tabular-nums text-flora-foreground">
+                    {formatAED(project.totalContractValue, { decimals: false })}
+                  </span>
+
+                  <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                    {formatRowDate(new Date(project.updatedAt))}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      </Reveal>
+
       {/* Financial Snapshot */}
       <Reveal delay={0.08}>
       <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -373,22 +513,22 @@ export default async function DashboardPage() {
       </section>
       </Reveal>
 
+      {/* Pending Quotations */}
       <section>
-        {/* Recent Enquiries */}
-        <div className="overflow-hidden rounded-xl border border-flora-border bg-white">
+        <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm">
           <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
             <div>
               <h2 className="font-semibold text-flora-foreground">
-                Recent Enquiries
+                Pending Quotations
               </h2>
 
               <p className="mt-1 text-xs text-flora-muted">
-                Latest customer opportunities
+                Latest quotations awaiting response
               </p>
             </div>
 
             <Link
-              href="/enquiries"
+              href="/quotations"
               className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
             >
               View all
@@ -396,58 +536,34 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {recentEnquiries.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
-              No enquiries yet.
+          {pendingQuotations.length === 0 ? (
+            <div className="px-5 py-12 text-center text-base text-flora-muted">
+              No pending quotations yet.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[650px] text-sm">
-                <thead>
-                  <tr className="bg-flora-cream text-left text-[10px] uppercase tracking-wider text-flora-muted">
-                    <th className="px-5 py-3 font-medium">Client</th>
-                    <th className="px-5 py-3 font-medium">Service</th>
-                    <th className="px-5 py-3 font-medium">Status</th>
-                    <th className="px-5 py-3 font-medium">Date</th>
-                  </tr>
-                </thead>
+            <div className="divide-y divide-flora-border/50">
+              {pendingQuotations.map((quotation) => (
+                <Link
+                  key={quotation.id}
+                  href={`/quotations/${quotation.id}`}
+                  className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+                >
+                  <StatusBadge domain="quotation" status={quotation.status} />
 
-                <tbody>
-                  {recentEnquiries.map((enquiry) => (
-                    <tr
-                      key={enquiry.id}
-                      className="border-t border-flora-border/50 transition hover:bg-flora-background"
-                    >
-                      <td className="px-5 py-4">
-                        <Link
-                          href={`/enquiries/${enquiry.id}`}
-                          className="font-medium text-flora-primary hover:underline"
-                        >
-                          {enquiry.contact.name}
-                        </Link>
+                  <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                    {quotation.quoteNumber}
+                    <span className="text-flora-muted"> · {quotation.enquiry.contact.name}</span>
+                  </span>
 
-                        {enquiry.company && (
-                          <p className="mt-0.5 text-xs text-flora-muted">
-                            {enquiry.company.tradeName}
-                          </p>
-                        )}
-                      </td>
+                  <span className="shrink-0 text-base font-semibold tabular-nums text-flora-foreground">
+                    {formatAED(quotation.totalAmount, { decimals: false })}
+                  </span>
 
-                      <td className="px-5 py-4 text-flora-muted">
-                        {enquiry.serviceWanted}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <StatusBadge domain="enquiry" status={enquiry.status} />
-                      </td>
-
-                      <td className="px-5 py-4 text-xs text-flora-muted">
-                        {formatDate(new Date(enquiry.createdAt))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                    {formatRowDate(new Date(quotation.createdAt))}
+                  </span>
+                </Link>
+              ))}
             </div>
           )}
         </div>
