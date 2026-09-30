@@ -12,7 +12,7 @@ import {
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { calcLifetimeRevenue, calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
-import { formatFullDate } from "@/lib/format";
+import { formatDate, formatFullDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
@@ -28,52 +28,6 @@ const leadStatuses = [
   "WON",
   "LOST",
 ] as const;
-
-const projectStatuses = [
-  "NOT_STARTED",
-  "IN_PROGRESS",
-  "INSTALLATION",
-  "SNAGGING",
-  "COMPLETED",
-  "ON_HOLD",
-  "CANCELLED",
-] as const;
-
-const statusLabels: Record<string, string> = {
-  NEW: "New",
-  CONTACTED: "Contacted",
-  VISIT_SCHEDULED: "Visit Scheduled",
-  QUOTED: "Quoted",
-  NEGOTIATING: "Negotiating",
-  WON: "Won",
-  LOST: "Lost",
-  NOT_STARTED: "Not Started",
-  IN_PROGRESS: "In Progress",
-  INSTALLATION: "Installation",
-  SNAGGING: "Snagging",
-  COMPLETED: "Completed",
-  ON_HOLD: "On Hold",
-  CANCELLED: "Cancelled",
-};
-
-function formatCurrency(value: number) {
-  return formatAED(value, { decimals: false });
-}
-
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en-AE", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(value);
-}
-
-function formatTime(value: Date) {
-  return new Intl.DateTimeFormat("en-AE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(value);
-}
 
 function formatActivityAction(action: string) {
   return action
@@ -93,7 +47,6 @@ export default async function DashboardPage() {
     activeLeads,
     totalCustomers,
     recentEnquiries,
-    upcomingVisits,
     projects,
     payments,
     recentActivity,
@@ -126,26 +79,6 @@ export default async function DashboardPage() {
       },
     }),
 
-    db.siteVisit.findMany({
-      take: 5,
-      where: {
-        status: "SCHEDULED",
-        scheduledAt: {
-          gte: now,
-        },
-      },
-      orderBy: {
-        scheduledAt: "asc",
-      },
-      include: {
-        enquiry: {
-          include: {
-            contact: true,
-          },
-        },
-      },
-    }),
-
     db.project.findMany({
       where: {
         deletedAt: null,
@@ -171,7 +104,7 @@ export default async function DashboardPage() {
       },
     }),
 
-    // Lead pipeline — single GROUP BY instead of one COUNT per status
+    // Enquiry pipeline — single GROUP BY instead of one COUNT per status
     // (was 7 sequential round trips on every dashboard load).
     db.enquiry.groupBy({
       by: ["status"],
@@ -248,7 +181,7 @@ export default async function DashboardPage() {
   const outstandingAmount = calcOutstanding(lifetimeRevenue, totalPaymentsReceived);
 
   /*
-   * Lead pipeline — derived from the grouped counts fetched above.
+   * Enquiry pipeline — derived from the grouped counts fetched above.
    */
   const leadCountByStatus = new Map<string, number>(
     leadGroups.map((group) => [group.status, group._count._all])
@@ -257,14 +190,6 @@ export default async function DashboardPage() {
   const leadPipeline = leadStatuses.map((status) => ({
     status,
     count: leadCountByStatus.get(status) ?? 0,
-  }));
-
-  /*
-   * Project pipeline
-   */
-  const projectPipeline = projectStatuses.map((status) => ({
-    status,
-    count: projects.filter((project) => project.status === status).length,
   }));
 
   const kpis = [
@@ -410,7 +335,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatCurrency(totalContractValue)}
+            {formatAED(totalContractValue, { decimals: false })}
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
@@ -424,7 +349,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatCurrency(totalPaymentsReceived)}
+            {formatAED(totalPaymentsReceived, { decimals: false })}
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
@@ -438,7 +363,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-3 text-2xl font-semibold text-flora-primary">
-            {formatCurrency(outstandingAmount)}
+            {formatAED(outstandingAmount, { decimals: false })}
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
@@ -448,58 +373,7 @@ export default async function DashboardPage() {
       </section>
       </Reveal>
 
-      {/* Lead Pipeline */}
-      <section className="rounded-xl border border-flora-border bg-white">
-        <div className="border-b border-flora-border px-5 py-4">
-          <h2 className="font-semibold text-flora-foreground">
-            Lead Pipeline
-          </h2>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            Current enquiry distribution across the sales process
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 divide-x divide-flora-border md:grid-cols-4 xl:grid-cols-7">
-          {leadPipeline.map((item) => (
-            <Link
-              key={item.status}
-              href="/enquiries"
-              className="group px-4 py-5 transition hover:bg-flora-background"
-            >
-              <p className="text-[10px] font-medium uppercase leading-4 tracking-wider text-flora-muted">
-                {statusLabels[item.status]}
-              </p>
-
-              <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-                {item.count}
-              </p>
-
-              <div className="mt-3 h-1 overflow-hidden rounded-full bg-flora-surface">
-                <div
-                  className="h-full rounded-full bg-flora-primary transition-all group-hover:bg-flora-primary-hover"
-                  style={{
-                    width: `${Math.min(
-                      item.count === 0
-                        ? 0
-                        : (item.count /
-                            Math.max(
-                              ...leadPipeline.map((pipeline) => pipeline.count),
-                              1,
-                            )) *
-                          100,
-                      100,
-                    )}%`,
-                  }}
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Operational Overview */}
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_1fr]">
+      <section>
         {/* Recent Enquiries */}
         <div className="overflow-hidden rounded-xl border border-flora-border bg-white">
           <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
@@ -577,125 +451,9 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
-
-        {/* Upcoming Site Visits */}
-        <div className="rounded-xl border border-flora-border bg-white">
-          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-flora-foreground">
-                Upcoming Site Visits
-              </h2>
-
-              <p className="mt-1 text-xs text-flora-muted">
-                Scheduled field operations
-              </p>
-            </div>
-
-            <Link
-              href="/site-visits"
-              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
-            >
-              View all
-              <ArrowRight size={12} aria-hidden="true" />
-            </Link>
-          </div>
-
-          {upcomingVisits.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
-              No upcoming site visits.
-            </div>
-          ) : (
-            <div className="divide-y divide-flora-border/50">
-              {upcomingVisits.map((visit) => (
-                <Link
-                  key={visit.id}
-                  href={`/site-visits/${visit.id}`}
-                  className="block px-5 py-4 transition hover:bg-flora-background"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-flora-foreground">
-                        {visit.enquiry.contact.name}
-                      </p>
-
-                      <p className="mt-1 text-xs text-flora-muted">
-                        {visit.siteAddress}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0 text-right">
-                      {visit.scheduledAt ? (
-                        <>
-                          <p className="text-sm font-medium text-flora-primary">
-                            {formatDate(new Date(visit.scheduledAt))}
-                          </p>
-
-                          <p className="mt-1 text-xs text-flora-muted">
-                            {formatTime(new Date(visit.scheduledAt))}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-xs text-flora-muted">TBD</p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
       </section>
 
-      {/* Project Status + Activity */}
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        {/* Project Status */}
-        <div className="rounded-xl border border-flora-border bg-white">
-          <div className="border-b border-flora-border px-5 py-4">
-            <h2 className="font-semibold text-flora-foreground">
-              Project Status
-            </h2>
-
-            <p className="mt-1 text-xs text-flora-muted">
-              Current project distribution
-            </p>
-          </div>
-
-          <div className="divide-y divide-flora-border/50">
-            {projectPipeline.map((item) => (
-              <Link
-                key={item.status}
-                href="/projects"
-                className="flex items-center justify-between px-5 py-3.5 transition hover:bg-flora-background"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      item.status === "COMPLETED"
-                        ? "bg-flora-success"
-                        : item.status === "ON_HOLD"
-                          ? "bg-flora-warning"
-                          : item.status === "CANCELLED"
-                            ? "bg-flora-taupe"
-                            : item.status === "INSTALLATION"
-                              ? "bg-flora-gold"
-                              : "bg-flora-primary"
-                    }`}
-                  />
-
-                  <span className="text-sm text-flora-foreground">
-                    {statusLabels[item.status]}
-                  </span>
-                </div>
-
-                <span className="text-sm font-semibold text-flora-foreground">
-                  {item.count}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
+      <section>
         <div className="rounded-xl border border-flora-border bg-white">
           <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
             <div>

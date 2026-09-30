@@ -14,7 +14,7 @@ export function MetricCard({ label, value, description, href, icon: Icon }: Metr
   return (
     <Link
       href={href}
-      className="group rounded-xl border border-flora-border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-flora-md"
+      className="group rounded-flora-md border border-flora-border bg-white p-5 shadow-flora-sm transition-colors hover:border-flora-taupe"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -23,7 +23,7 @@ export function MetricCard({ label, value, description, href, icon: Icon }: Metr
           <p className="mt-1 text-xs text-flora-muted">{description}</p>
         </div>
         {Icon ? (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-flora-sm bg-flora-surface text-flora-primary">
             <Icon size={17} aria-hidden="true" />
           </span>
         ) : (
