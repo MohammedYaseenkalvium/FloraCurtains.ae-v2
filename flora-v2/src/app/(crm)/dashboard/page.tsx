@@ -1,17 +1,22 @@
 import Link from "next/link";
 import {
+  ArrowRight,
+  Banknote,
   FileText,
   FolderKanban,
+  MapPin,
+  Plus,
   Users,
   Wrench,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
+import { calcLifetimeRevenue, calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
+import { formatFullDate } from "@/lib/format";
+import { statusStyles } from "@/lib/status-styles";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { MetricCard } from "@/components/ui/MetricCard";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const leadStatuses = [
@@ -92,6 +97,9 @@ export default async function DashboardPage() {
     projects,
     payments,
     recentActivity,
+    leadGroups,
+    approvedQuotations,
+    pendingQuotationCount,
   ] = await Promise.all([
     db.enquiry.count({
       where: {
@@ -146,11 +154,11 @@ export default async function DashboardPage() {
         id: true,
         status: true,
         totalContractValue: true,
+        quotationId: true,
       },
     }),
 
     db.payment.findMany({
-      where: { projectId: { not: null } },
       select: {
         amount: true,
       },
@@ -160,6 +168,38 @@ export default async function DashboardPage() {
       take: 6,
       orderBy: {
         createdAt: "desc",
+      },
+    }),
+
+    // Lead pipeline — single GROUP BY instead of one COUNT per status
+    // (was 7 sequential round trips on every dashboard load).
+    db.enquiry.groupBy({
+      by: ["status"],
+      where: {
+        deletedAt: null,
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+
+    // Approved quotations without a project count as outstanding revenue —
+    // canonical lifetime-revenue inputs for src/lib/finance.ts.
+    db.quotation.findMany({
+      where: {
+        deletedAt: null,
+        status: "APPROVED",
+      },
+      select: {
+        id: true,
+        totalAmount: true,
+      },
+    }),
+
+    db.quotation.count({
+      where: {
+        deletedAt: null,
+        status: { in: ["DRAFT", "SENT", "REVISED"] },
       },
     }),
   ]);
@@ -181,28 +221,43 @@ export default async function DashboardPage() {
   );
 
   /*
-   * Payment calculations — project-scoped (Phase 15).
-   * Quotation-linked payments (write-orphans, no create endpoint) must NOT
-   * deflate project outstanding. Canonical helpers in src/lib/finance.ts.
+   * Payment calculations — canonical portfolio definition (src/lib/finance.ts).
+   *
+   * Lifetime revenue = project contract values + approved quotations that
+   * never became a project. Payments = every recorded payment (project- and
+   * quotation-scoped). This matches /dashboard/outstanding and
+   * getCustomerFinancialSummary, so the KPI and the detail page agree.
+   *
+   * Residual difference: the detail page clamps each customer at 0, so any
+   * pre-existing overpayment credit is invisible there but still reduces the
+   * portfolio figure here (see CONCERNS — overpayment credit).
    */
   const totalPaymentsReceived = sumPayments(payments);
 
-  const outstandingAmount = calcOutstanding(totalContractValue, totalPaymentsReceived);
+  const { lifetimeRevenue } = calcLifetimeRevenue({
+    projects: projects.map((project) => ({
+      totalContractValue: project.totalContractValue,
+      quotationId: project.quotationId,
+    })),
+    approvedQuotations: approvedQuotations.map((quotation) => ({
+      id: quotation.id,
+      totalAmount: quotation.totalAmount,
+    })),
+  });
+
+  const outstandingAmount = calcOutstanding(lifetimeRevenue, totalPaymentsReceived);
 
   /*
-   * Lead pipeline
+   * Lead pipeline — derived from the grouped counts fetched above.
    */
-  const leadPipeline = await Promise.all(
-    leadStatuses.map(async (status) => ({
-      status,
-      count: await db.enquiry.count({
-        where: {
-          deletedAt: null,
-          status,
-        },
-      }),
-    })),
+  const leadCountByStatus = new Map<string, number>(
+    leadGroups.map((group) => [group.status, group._count._all])
   );
+
+  const leadPipeline = leadStatuses.map((status) => ({
+    status,
+    count: leadCountByStatus.get(status) ?? 0,
+  }));
 
   /*
    * Project pipeline
@@ -243,21 +298,58 @@ export default async function DashboardPage() {
     },
   ];
 
+  const overviewChips = [
+    { figure: ongoingProjects.toString(), label: "Active Projects" },
+    { figure: pendingQuotationCount.toString(), label: "Pending Quotations" },
+    {
+      figure: formatAED(outstandingAmount, { decimals: false }),
+      label: "Outstanding",
+    },
+    ...leadPipeline
+      .filter((item) => item.count > 0)
+      .map((item) => ({
+        figure: item.count.toString(),
+        label: statusStyles.enquiry[item.status].label,
+      })),
+  ];
+
   return (
     <div className="space-y-8">
-      <PageHeader
-        eyebrow={`${daypart}, ${firstName}`}
-        title="Operations Dashboard"
-        description="A live overview of your leads, projects, installations and financial operations."
-        actions={
-          <>
-            <Button variant="secondary" href="/enquiries/new">
-              + New Lead
-            </Button>
-            <Button href="/quotations/new">+ Create Quote</Button>
-          </>
-        }
-      />
+      {/* Hero — greeting + business overview (PRD §4 regions 1-2) */}
+      <section
+        aria-label="Overview"
+        className="relative overflow-hidden rounded-flora-xl bg-gradient-to-br from-flora-primary to-flora-ink p-6 text-white shadow-flora-sm sm:p-8 lg:p-12 on-dark"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-flora-xl"
+        >
+          <div className="absolute -left-16 -top-20 h-64 w-64 rounded-full bg-flora-background/[0.08] blur-3xl" />
+          <div className="absolute inset-y-0 right-[14%] w-px bg-flora-background/[0.07]" />
+          <div className="absolute inset-y-0 right-[26%] w-px bg-flora-background/[0.05]" />
+          <div className="absolute inset-y-0 right-[38%] w-px bg-flora-background/[0.04]" />
+        </div>
+
+        <div className="relative z-10">
+          <p className="eyebrow text-xs text-flora-gold">Operations Dashboard</p>
+
+          <h1 className="mt-2 font-display text-5xl leading-[1.05] text-white">{`${daypart}, ${firstName}`}</h1>
+
+          <p className="mt-2 text-base text-flora-background/80">{formatFullDate(now)}</p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {overviewChips.map((chip) => (
+              <span
+                key={chip.label}
+                className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs"
+              >
+                <span className="font-semibold text-white">{chip.figure}</span>
+                <span className="text-flora-background/85">{chip.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* KPI Cards */}
       <Reveal>
@@ -275,6 +367,40 @@ export default async function DashboardPage() {
       </section>
       </Reveal>
 
+      {/* Quick actions */}
+      <Reveal delay={0.06}>
+      <section
+        aria-label="Quick actions"
+        className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm"
+      >
+        <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+          <h2 className="font-semibold text-flora-foreground">Quick actions</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
+          <Button variant="secondary" size="md" href="/enquiries/new">
+            <Plus size={16} aria-hidden="true" />
+            New Enquiry
+          </Button>
+
+          <Button variant="secondary" size="md" href="/quotations/new">
+            <Plus size={16} aria-hidden="true" />
+            New Quotation
+          </Button>
+
+          <Button variant="secondary" size="md" href="/payments">
+            <Banknote size={16} aria-hidden="true" />
+            Record Payment
+          </Button>
+
+          <Button variant="secondary" size="md" href="/site-visits">
+            <MapPin size={16} aria-hidden="true" />
+            New Site Visit
+          </Button>
+        </div>
+      </section>
+      </Reveal>
+
       {/* Financial Snapshot */}
       <Reveal delay={0.08}>
       <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -288,7 +414,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
-            Total project value (all statuses)
+            Sum of project contract values (all statuses)
           </p>
         </div>
 
@@ -302,7 +428,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
-            Recorded payments
+            All recorded payments (project + quotation)
           </p>
         </div>
 
@@ -316,7 +442,7 @@ export default async function DashboardPage() {
           </p>
 
           <p className="mt-1 text-xs text-flora-muted">
-            Contract value less recorded payments
+            Lifetime revenue less all payments
           </p>
         </div>
       </section>
@@ -389,9 +515,10 @@ export default async function DashboardPage() {
 
             <Link
               href="/enquiries"
-              className="text-xs font-medium text-flora-primary hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
             >
-              View all →
+              View all
+              <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
 
@@ -403,7 +530,7 @@ export default async function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[650px] text-sm">
                 <thead>
-                  <tr className="bg-flora-surface text-left text-[10px] uppercase tracking-wider text-flora-muted">
+                  <tr className="bg-flora-cream text-left text-[10px] uppercase tracking-wider text-flora-muted">
                     <th className="px-5 py-3 font-medium">Client</th>
                     <th className="px-5 py-3 font-medium">Service</th>
                     <th className="px-5 py-3 font-medium">Status</th>
@@ -415,7 +542,7 @@ export default async function DashboardPage() {
                   {recentEnquiries.map((enquiry) => (
                     <tr
                       key={enquiry.id}
-                      className="border-t border-flora-surface transition hover:bg-flora-background"
+                      className="border-t border-flora-border/50 transition hover:bg-flora-background"
                     >
                       <td className="px-5 py-4">
                         <Link
@@ -466,9 +593,10 @@ export default async function DashboardPage() {
 
             <Link
               href="/site-visits"
-              className="text-xs font-medium text-flora-primary hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
             >
-              View all →
+              View all
+              <ArrowRight size={12} aria-hidden="true" />
             </Link>
           </div>
 
@@ -477,7 +605,7 @@ export default async function DashboardPage() {
               No upcoming site visits.
             </div>
           ) : (
-            <div className="divide-y divide-flora-surface">
+            <div className="divide-y divide-flora-border/50">
               {upcomingVisits.map((visit) => (
                 <Link
                   key={visit.id}
@@ -532,7 +660,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="divide-y divide-flora-surface">
+          <div className="divide-y divide-flora-border/50">
             {projectPipeline.map((item) => (
               <Link
                 key={item.status}
@@ -543,13 +671,13 @@ export default async function DashboardPage() {
                   <span
                     className={`h-2 w-2 rounded-full ${
                       item.status === "COMPLETED"
-                        ? "bg-green-600"
+                        ? "bg-flora-success"
                         : item.status === "ON_HOLD"
-                          ? "bg-red-500"
+                          ? "bg-flora-warning"
                           : item.status === "CANCELLED"
-                            ? "bg-stone-400"
+                            ? "bg-flora-taupe"
                             : item.status === "INSTALLATION"
-                              ? "bg-amber-500"
+                              ? "bg-flora-gold"
                               : "bg-flora-primary"
                     }`}
                   />
@@ -586,7 +714,7 @@ export default async function DashboardPage() {
               No activity recorded yet.
             </div>
           ) : (
-            <div className="divide-y divide-flora-surface">
+            <div className="divide-y divide-flora-border/50">
               {recentActivity.map((activity) => (
                 <div key={activity.id} className="px-5 py-4">
                   <div className="flex gap-3">
