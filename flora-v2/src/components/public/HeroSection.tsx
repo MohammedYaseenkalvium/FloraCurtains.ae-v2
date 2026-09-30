@@ -52,8 +52,8 @@ export function HeroSection() {
           className="object-cover"
         />
         {/* Restrained grade: image stays visible */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#2A0E11]/80 via-[#2A0E11]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1C0A0C]/70 via-transparent to-[#1C0A0C]/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-flora-hero-scrim/80 via-flora-hero-scrim/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-flora-hero-scrim-deep/70 via-transparent to-flora-hero-scrim-deep/25" />
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-24 pt-36 lg:px-8 lg:pb-28 lg:pt-40">
@@ -77,18 +77,18 @@ export function HeroSection() {
 
           <div className="hero-rise mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/services"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-flora-lg transition-all hover:-translate-y-0.5 hover:bg-flora-primary-hover"
+              href="/get-quote"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-flora-lg transition-colors duration-200 hover:bg-flora-primary-hover"
             >
-              Explore Services
+              Get a Quote
               <ArrowRight size={15} />
             </Link>
 
             <Link
-              href="/get-quote"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
+              href="/portfolio"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-white/10"
             >
-              Get a Quote
+              Explore Our Work
             </Link>
           </div>
         </div>
@@ -97,8 +97,8 @@ export function HeroSection() {
         <div className="hero-fade mt-14 max-w-xs sm:absolute sm:bottom-24 sm:right-5 lg:right-8">
           <GlassCard
             eyebrow="Experience"
-            value="25+ Years"
-            description="Interior craftsmanship rooted in experience."
+            value="Since 1997"
+            description="Interior craftsmanship rooted in decades of hands-on work."
           />
         </div>
 

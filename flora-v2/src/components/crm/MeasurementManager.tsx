@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type Measurement = {
@@ -309,21 +310,22 @@ export function MeasurementManager({
             onClick={startCreate}
             className="bg-flora-primary text-white rounded-lg px-3 py-2 text-xs font-medium hover:bg-flora-primary-hover transition-colors"
           >
-            + Add Measurement
+            <Plus size={16} aria-hidden="true" />
+            Add Measurement
           </button>
         )}
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-lg border border-[#E8B4B4] bg-[#FEF2F2] px-3 py-2 text-sm text-[#991B1B]">
+        <div className="mb-4 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {error}
         </div>
       )}
 
       {/* Form */}
       {showForm && (
-        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-[#FCFAF8]">
+        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-flora-panel">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h5 className="font-semibold text-sm text-flora-primary">
@@ -607,7 +609,7 @@ export function MeasurementManager({
               type="button"
               onClick={resetForm}
               disabled={loading}
-              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
+              className="bg-flora-cream text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-flora-cream-hover"
             >
               Cancel
             </button>
@@ -637,7 +639,7 @@ export function MeasurementManager({
           {measurements.map((measurement, index) => (
             <div
               key={measurement.id}
-              className="border border-flora-border rounded-xl p-4 bg-[#FCFAF8]"
+              className="border border-flora-border rounded-xl p-4 bg-flora-panel"
             >
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 {/* Main */}
@@ -749,7 +751,7 @@ export function MeasurementManager({
                       startEdit(measurement)
                     }
                     disabled={loading}
-                    className="border border-flora-border rounded-lg px-3 py-1.5 text-xs text-flora-primary hover:bg-[#EFE7DF] disabled:opacity-50"
+                    className="border border-flora-border rounded-lg px-3 py-1.5 text-xs text-flora-primary hover:bg-flora-cream disabled:opacity-50"
                   >
                     Edit
                   </button>
@@ -763,7 +765,7 @@ export function MeasurementManager({
                     }
                     disabled={loading}
                     aria-label={`Delete measurement ${measurement.roomName}`}
-                    className="border border-[#E8B4B4] rounded-lg px-3 py-1.5 text-xs text-[#991B1B] hover:bg-[#FEF2F2] disabled:opacity-50"
+                    className="border border-flora-danger/30 rounded-lg px-3 py-1.5 text-xs text-flora-danger hover:bg-flora-danger-surface disabled:opacity-50"
                   >
                     Delete
                   </button>

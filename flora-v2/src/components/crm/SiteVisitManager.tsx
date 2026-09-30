@@ -390,7 +390,7 @@ export function SiteVisitManager({
 
       {/* Create Form */}
       {showForm && (
-        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-[#FCFAF8]">
+        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-flora-panel">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h4 className="font-semibold text-sm text-flora-primary">
@@ -515,7 +515,7 @@ export function SiteVisitManager({
                 setShowForm(false)
               }
               disabled={loading}
-              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
+              className="bg-flora-cream text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-flora-cream-hover"
             >
               Cancel
             </button>
@@ -560,7 +560,7 @@ export function SiteVisitManager({
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-sm text-[#2E2925]">
+                      <span className="font-semibold text-sm text-flora-heading">
                         Site Visit
                       </span>
 
@@ -600,7 +600,7 @@ export function SiteVisitManager({
                             "COMPLETED"
                           )
                         }
-                        className="text-xs bg-[#ECFDF5] text-[#166534] rounded-lg px-3 py-1.5 hover:bg-[#D1FAE5] disabled:opacity-50"
+                        className="text-xs bg-flora-success-soft text-flora-success-text rounded-lg px-3 py-1.5 hover:bg-flora-success-soft-hover disabled:opacity-50"
                       >
                         ✓ Complete
                       </button>
@@ -622,7 +622,7 @@ export function SiteVisitManager({
                             rescheduleFor === visit.id ? null : visit.id
                           );
                         }}
-                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                        className="text-xs bg-flora-info-soft text-flora-info rounded-lg px-3 py-1.5 hover:bg-flora-info-soft-hover disabled:opacity-50"
                       >
                         Reschedule
                       </button>
@@ -639,7 +639,7 @@ export function SiteVisitManager({
                             "SCHEDULED"
                           )
                         }
-                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                        className="text-xs bg-flora-info-soft text-flora-info rounded-lg px-3 py-1.5 hover:bg-flora-info-soft-hover disabled:opacity-50"
                       >
                         Re-schedule
                       </button>
@@ -678,7 +678,7 @@ export function SiteVisitManager({
                   </div>
 
                   {rescheduleFor === visit.id && (
-                    <div className="mt-3 flex flex-col sm:flex-row gap-2 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 rounded-lg bg-flora-panel border border-flora-border p-3">
                       <input
                         type="datetime-local"
                         aria-label="New visit date and time"
@@ -836,7 +836,7 @@ export function SiteVisitManager({
                   )}
 
                   {attachFormFor === visit.id && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg bg-flora-panel border border-flora-border p-3">
                       <div className="col-span-1">
                         <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
                           File name *

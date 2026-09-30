@@ -219,7 +219,7 @@ export function ProjectStatusWorkflow({
 
         {actions.length > 0 && (
           <>
-            <span className="text-[#D8C9BC]">
+            <span className="text-flora-border">
               <ArrowRight size={12} aria-hidden="true" />
             </span>
 
@@ -250,7 +250,7 @@ export function ProjectStatusWorkflow({
                     isHold
                       ? "border border-flora-danger/30 bg-flora-danger-surface text-flora-danger hover:bg-flora-danger-surface"
                       : isComplete
-                        ? "border border-[#B7D8CC] bg-[#EDF7F3] text-[#166534] hover:bg-[#E0F1EB]"
+                        ? "border border-flora-success-border bg-flora-success-surface text-flora-success-text hover:bg-flora-success-surface-hover"
                         : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >

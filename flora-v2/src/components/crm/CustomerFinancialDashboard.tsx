@@ -91,7 +91,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {companyName && (
               <span className="flex items-center gap-1">
                 <Building size={14} /> {companyName}
-                {companyType && <span className="text-xs text-[#8B8178]">({companyType.replace(/_/g, " ")})</span>}
+                {companyType && <span className="text-xs text-flora-meta-text">({companyType.replace(/_/g, " ")})</span>}
               </span>
             )}
           </div>
@@ -100,7 +100,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-2 bg-[#EFE7DF] border border-flora-border rounded-lg px-4 py-2 text-sm text-flora-foreground hover:bg-flora-border transition-colors"
+            className="flex items-center gap-2 bg-flora-cream border border-flora-border rounded-lg px-4 py-2 text-sm text-flora-foreground hover:bg-flora-border transition-colors"
           >
             <Receipt size={14} /> Statement PDF
           </button>
@@ -136,9 +136,9 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {/* Progress bar for paid vs outstanding */}
             {label === "Lifetime Revenue" && (
               <div className="mt-3">
-                <div className="h-1.5 bg-[#EFE7DF] rounded-full overflow-hidden flex">
-                  <div className="h-full bg-[#0F6E56] rounded-full" style={{ width: `${paidPercentage}%` }} />
-                  <div className="h-full bg-[#991B1B] rounded-full" style={{ width: `${outstandingPercentage}%` }} />
+                <div className="h-1.5 bg-flora-cream rounded-full overflow-hidden flex">
+                  <div className="h-full bg-flora-success rounded-full" style={{ width: `${paidPercentage}%` }} />
+                  <div className="h-full bg-flora-danger rounded-full" style={{ width: `${outstandingPercentage}%` }} />
                 </div>
                 <div className="flex justify-between text-[10px] text-flora-muted mt-1">
                   <span className="text-flora-success">{paidPercentage.toFixed(0)}% paid</span>
@@ -158,7 +158,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {paidPercentage.toFixed(1)}% collected
           </span>
         </div>
-        <div className="h-3 bg-[#EFE7DF] rounded-full overflow-hidden">
+        <div className="h-3 bg-flora-cream rounded-full overflow-hidden">
           <div 
             className="h-full bg-flora-primary rounded-full transition-all"
             style={{ width: `${Math.min(paidPercentage, 100)}%` }}
@@ -428,7 +428,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 filter === f 
                   ? "bg-flora-primary text-white" 
-                  : "bg-flora-surface text-flora-muted hover:bg-[#EFE7DF]"
+                  : "bg-flora-surface text-flora-muted hover:bg-flora-cream"
               }`}
             >
               {f === "all" ? "All" : f === "PROJECT" ? "Projects" : "Quotations"}
@@ -539,8 +539,8 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
               </div>
               
               {/* Mini progress bar */}
-              <div className="mt-3 h-1.5 bg-[#EFE7DF] rounded-full overflow-hidden">
-                <div className="h-full bg-[#0F6E56] rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
+              <div className="mt-3 h-1.5 bg-flora-cream rounded-full overflow-hidden">
+                <div className="h-full bg-flora-success rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
               </div>
             </div>
 

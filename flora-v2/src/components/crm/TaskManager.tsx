@@ -188,7 +188,7 @@ export function TaskManager({
             </button>
             <button
               onClick={() => setOpen(false)}
-              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-6 py-2 text-sm"
+              className="bg-flora-cream text-flora-muted rounded-lg px-6 py-2 text-sm"
             >
               Cancel
             </button>

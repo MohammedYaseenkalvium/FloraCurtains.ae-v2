@@ -202,7 +202,7 @@ export function QuotationStatusWorkflow({
 
         {actions.length > 0 && (
           <>
-            <span className="text-[#D8C9BC]">
+            <span className="text-flora-border">
               <ArrowRight size={12} aria-hidden="true" />
             </span>
 
@@ -229,7 +229,7 @@ export function QuotationStatusWorkflow({
                     isReject
                       ? "border border-flora-danger/30 bg-flora-danger-surface text-flora-danger hover:bg-flora-danger-surface"
                       : isRevise
-                        ? "border border-[#E6D19B] bg-[#FEF9E7] text-flora-warning hover:bg-[#FDF3CF]"
+                        ? "border border-flora-warning-border bg-flora-warning-surface text-flora-warning hover:bg-flora-warning-hover"
                         : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >
