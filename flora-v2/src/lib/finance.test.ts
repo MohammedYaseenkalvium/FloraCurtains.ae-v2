@@ -68,6 +68,16 @@ describe("calcCredit", () => {
     expect(calcCredit(1500, 1000)).toBe(0);
     expect(calcCredit(1000, 1010.006)).toBe(10.01);
   });
+
+  it("header contract: credit is the rounded overpayment when totalPaid exceeds lifetimeRevenue", () => {
+    expect(calcCredit(2000, 2100.5)).toBe(100.5);
+    expect(calcCredit(900, 1010.006)).toBe(110.01);
+  });
+
+  it("header contract: credit clamps to zero when lifetime revenue covers every payment", () => {
+    expect(calcCredit(2000, 2000)).toBe(0);
+    expect(calcCredit(2000, 1900)).toBe(0);
+  });
 });
 
 describe("calcPortfolioSummary", () => {
@@ -103,11 +113,55 @@ describe("calcPortfolioSummary", () => {
     expect(r.credit).toBe(calcCredit(r.lifetimeRevenue, r.totalPaid));
     expect(r.projectValues + r.standaloneQuotes).toBe(r.lifetimeRevenue);
   });
+
+  it("header contract: calcPortfolioSummary contract guards keep outstanding and credit mutually exclusive", () => {
+    const inputs = {
+      projects: [{ totalContractValue: 2500, quotationId: "qP" }],
+      approvedQuotations: [{ id: "qP", totalAmount: 2400 }],
+      payments: [{ amount: 2600 }],
+    };
+    const overpaid = calcPortfolioSummary(inputs);
+    expect(overpaid.outstanding).toBe(0);
+    expect(overpaid.credit).toBe(100);
+
+    const settled = calcPortfolioSummary({ ...inputs, payments: [{ amount: 2400 }] });
+    expect(settled.credit).toBe(0);
+    expect(settled.outstanding).toBe(100);
+    expect(settled.outstanding).toBe(calcOutstanding(2500, 2400));
+  });
+
+  it("header contract: outstanding derives from lifetime revenue composed of project values plus standalone quotes", () => {
+    const r = calcPortfolioSummary({
+      projects: [{ totalContractValue: 2000, quotationId: "qA" }],
+      approvedQuotations: [
+        { id: "qA", totalAmount: 1800 },
+        { id: "qB", totalAmount: 400 },
+      ],
+      payments: [{ amount: 900 }],
+    });
+    expect(r.projectValues).toBe(2000);
+    expect(r.standaloneQuotes).toBe(400);
+    expect(r.lifetimeRevenue).toBe(2400);
+    expect(r.outstanding).toBe(1500);
+  });
+
+  it("header contract: zero outstanding and credit figures render as AED 0 through formatAED", () => {
+    const r = calcPortfolioSummary({ projects: [], approvedQuotations: [], payments: [] });
+    expect(r.outstanding).toBe(0);
+    expect(r.credit).toBe(0);
+    expect(formatAED(r.outstanding, { decimals: false })).toBe("AED 0");
+  });
 });
 
 describe("sumQuotationTotals", () => {
   it("sums quotation totals and rounds", () => {
     expect(sumQuotationTotals([{ totalAmount: 100 }, { totalAmount: 200.005 }])).toBe(300.01);
     expect(sumQuotationTotals([])).toBe(0);
+  });
+
+  it("header contract: sumQuotationTotals rounds the sum of all quotation totals", () => {
+    expect(
+      sumQuotationTotals([{ totalAmount: 1000 }, { totalAmount: 2000.5 }, { totalAmount: 3000.25 }])
+    ).toBe(6000.75);
   });
 });
