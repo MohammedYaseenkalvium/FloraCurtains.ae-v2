@@ -1,15 +1,17 @@
 /**
  * Canonical financial semantics for Flora CRM.
  *
- * Source of truth for:
- * - totalQuoted: sum of ALL quotation totals (any status) — sumQuotationTotals
- * - totalContractValue / projectValues: sum of project.totalContractValue
- * - totalPaid: sum of ALL payment amounts (project + quotation scoped)
- * - lifetimeRevenue: projectValues + approved quotes WITHOUT a project
+ * Source of truth for (contract term → implementing function):
+ * - totalQuoted: sum of ALL quotation totals (any status) → sumQuotationTotals
+ * - totalContractValue / projectValues: sum of project.totalContractValue → calcLifetimeRevenue
+ * - totalPaid: sum of ALL payment amounts (project + quotation scoped) → sumPayments
+ * - lifetimeRevenue: projectValues + approved quotes WITHOUT a project → calcLifetimeRevenue
  *   (avoids double-counting a converted quote -> project)
- * - outstanding: max(0, lifetimeRevenue - totalPaid)
- * - credit: max(0, totalPaid - lifetimeRevenue) — the overpayment above
- *   lifetime revenue, surfaced separately so Outstanding never renders negative
+ * - outstanding: max(0, lifetimeRevenue - totalPaid) → calcOutstanding
+ * - credit: max(0, totalPaid - lifetimeRevenue) → calcCredit — the overpayment
+ *   above lifetime revenue, surfaced separately so Outstanding never renders negative
+ * - composed portfolio figures (projectValues, standaloneQuotes, lifetimeRevenue,
+ *   totalPaid, outstanding, credit) → calcPortfolioSummary
  *
  * Rules:
  * - Outstanding never goes negative in UI (overpayment is blocked at write
@@ -20,10 +22,26 @@
  * - calcPortfolioSummary is the single composed formula: it runs
  *   calcLifetimeRevenue, sumPayments, calcOutstanding and calcCredit over one
  *   set of inputs and returns every portfolio money figure.
- * - The dashboard and /dashboard/outstanding totals must both come from this
- *   pipeline (calcPortfolioSummary via getPortfolioFinancialSummary in
- *   src/lib/customer-financial.ts).
+ *
+ * One input-assembly: getPortfolioFinancialSummary (src/lib/customer-financial.ts)
+ * is the only reader that assembles the canonical inputs — projects and approved
+ * quotations with deletedAt: null, ALL payment rows including quotation-scoped and
+ * orphan payments (both Payment FKs are optional in prisma/schema.prisma) — and
+ * both /dashboard and /dashboard/outstanding consume its output rather than
+ * re-reading or re-summing.
+ *
+ * Parity invariant: the dashboard Payment Overview Outstanding, its hero
+ * Outstanding chip and the /dashboard/outstanding Total Outstanding each render
+ * formatAED(outstanding, { decimals: false }) from this pipeline and must be
+ * byte-equal — character-identical strings for the same data set.
+ *
+ * Display rules:
+ * - outstanding is clamped ≥ 0 by calcOutstanding; credit is clamped ≥ 0 by
+ *   calcCredit and rendered only when > 0.
  * - All AED formatting goes through formatAED (en-AE).
+ * - No page may inline a money sum: add call sites only through
+ *   calcLifetimeRevenue / calcOutstanding / sumPayments / calcPortfolioSummary /
+ *   sumQuotationTotals / calcCredit (CONCERNS: "never inline a new sum").
  */
 
 export function roundMoney(value: number): number {
