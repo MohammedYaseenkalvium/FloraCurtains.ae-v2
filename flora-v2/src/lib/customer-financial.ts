@@ -161,13 +161,16 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
     include: {
       company: true,
       enquiries: {
+        where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
         include: {
           quotations: {
+            where: { deletedAt: null },
             orderBy: { createdAt: "desc" },
             include: { payments: { orderBy: { paidAt: "asc" } } },
           },
           project: {
+            where: { deletedAt: null },
             include: { 
               payments: { orderBy: { paidAt: "asc" } },
               quotation: { select: { quoteNumber: true } },

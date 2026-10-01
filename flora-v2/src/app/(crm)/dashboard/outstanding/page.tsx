@@ -70,14 +70,14 @@ export default async function OutstandingBalancesPage() {
                   </td>
                   <td className="px-5 py-3 text-flora-muted text-xs">{c.companyName ?? "—"}</td>
                   <td className="px-5 py-3 text-right font-medium">
-                    AED {c.lifetimeValue.toLocaleString()}
+                    {formatAED(c.lifetimeValue, { decimals: false })}
                   </td>
                   <td className="px-5 py-3 text-right text-flora-success">
-                    AED {c.totalPaid.toLocaleString()}
+                    {formatAED(c.totalPaid, { decimals: false })}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <span className={`font-bold ${isOverdue ? "text-flora-danger" : "text-flora-foreground"}`}>
-                      AED {c.outstanding.toLocaleString()}
+                      {formatAED(c.outstanding, { decimals: false })}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-center">

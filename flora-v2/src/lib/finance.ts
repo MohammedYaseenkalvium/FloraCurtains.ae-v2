@@ -23,12 +23,12 @@
  *   calcLifetimeRevenue, sumPayments, calcOutstanding and calcCredit over one
  *   set of inputs and returns every portfolio money figure.
  *
- * One input-assembly: getPortfolioFinancialSummary (src/lib/customer-financial.ts)
- * is the only reader that assembles the canonical inputs — projects and approved
- * quotations with deletedAt: null, ALL payment rows including quotation-scoped and
- * orphan payments (both Payment FKs are optional in prisma/schema.prisma) — and
- * both /dashboard and /dashboard/outstanding consume its output rather than
- * re-reading or re-summing.
+ * One portfolio-level input-assembly: getPortfolioFinancialSummary (src/lib/customer-financial.ts)
+ * is the only portfolio-level input assembly: projects and approved quotations gated with deletedAt: null under a surviving parent enquiry,
+ * payment rows whose project or quotation parent survives plus orphan rows (both Payment FKs are optional in prisma/schema.prisma) — and
+ * both /dashboard and /dashboard/outstanding consume its output rather than re-reading or re-summing. The per-customer assemblies
+ * getAllOutstandingBalances and getCustomerFinancialSummary MUST apply the same soft-delete gates, so a soft-deleted enquiry retires its
+ * financials on every reader and the outstanding headers and table describe the same record set.
  *
  * Parity invariant: the dashboard Payment Overview Outstanding, its hero
  * Outstanding chip and the /dashboard/outstanding Total Outstanding each render
