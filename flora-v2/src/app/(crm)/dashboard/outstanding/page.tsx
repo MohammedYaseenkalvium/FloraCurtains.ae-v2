@@ -1,11 +1,11 @@
-import { getAllOutstandingBalances } from "@/lib/customer-financial";
+import { getAllOutstandingBalances, getPortfolioFinancialSummary } from "@/lib/customer-financial";
+import { formatAED } from "@/lib/finance";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, Clock, Phone } from "lucide-react";
 
 export default async function OutstandingBalancesPage() {
-  const customers = await getAllOutstandingBalances();
+  const [portfolio, customers] = await Promise.all([getPortfolioFinancialSummary(), getAllOutstandingBalances()]);
 
-  const totalOutstanding = customers.reduce((sum, c) => sum + c.outstanding, 0);
   const overdueCustomers = customers.filter(c => (c.daysSincePayment ?? 0) > 30);
 
   return (
@@ -14,7 +14,7 @@ export default async function OutstandingBalancesPage() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Outstanding Balances</h1>
           <p className="text-flora-muted text-sm mt-1">
-            {customers.length} customers owing · AED {totalOutstanding.toLocaleString()} total
+            {customers.length} customers owing · {formatAED(portfolio.outstanding, { decimals: false })} total
           </p>
         </div>
       </div>
@@ -23,7 +23,7 @@ export default async function OutstandingBalancesPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Total Outstanding</div>
-          <div className="text-3xl font-extrabold text-flora-danger">AED {totalOutstanding.toLocaleString()}</div>
+          <div className="text-3xl font-extrabold text-flora-danger">{formatAED(portfolio.outstanding, { decimals: false })}</div>
         </div>
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Overdue (&gt;30 days)</div>
@@ -33,6 +33,12 @@ export default async function OutstandingBalancesPage() {
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Customers</div>
           <div className="text-3xl font-extrabold text-flora-foreground">{customers.length}</div>
         </div>
+        {portfolio.credit > 0 && (
+          <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
+            <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Credit</div>
+            <div className="text-3xl font-extrabold text-flora-foreground">{formatAED(portfolio.credit, { decimals: false })}</div>
+          </div>
+        )}
       </div>
 
       {/* Balances Table */}

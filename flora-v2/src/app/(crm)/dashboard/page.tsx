@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { calcLifetimeRevenue, calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
+import { getPortfolioFinancialSummary } from "@/lib/customer-financial";
+import { formatAED } from "@/lib/finance";
 import { formatFullDate, formatRowDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
 import { Badge } from "@/components/ui/Badge";
@@ -48,11 +49,9 @@ export default async function DashboardPage() {
     activeLeads,
     totalCustomers,
     recentEnquiries,
-    projects,
-    payments,
+    portfolio,
     recentActivity,
     leadGroups,
-    approvedQuotations,
     pendingQuotationCount,
     activeProjects,
     pendingQuotations,
@@ -82,23 +81,9 @@ export default async function DashboardPage() {
       },
     }),
 
-    db.project.findMany({
-      where: {
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        status: true,
-        totalContractValue: true,
-        quotationId: true,
-      },
-    }),
-
-    db.payment.findMany({
-      select: {
-        amount: true,
-      },
-    }),
+    // Portfolio money figures + the project list behind the KPI derives —
+    // the ONE input-assembly this dashboard and /dashboard/outstanding share.
+    getPortfolioFinancialSummary(),
 
     db.activityLog.findMany({
       take: 5,
@@ -116,19 +101,6 @@ export default async function DashboardPage() {
       },
       _count: {
         _all: true,
-      },
-    }),
-
-    // Approved quotations without a project count as outstanding revenue —
-    // canonical lifetime-revenue inputs for src/lib/finance.ts.
-    db.quotation.findMany({
-      where: {
-        deletedAt: null,
-        status: "APPROVED",
-      },
-      select: {
-        id: true,
-        totalAmount: true,
       },
     }),
 
@@ -170,6 +142,8 @@ export default async function DashboardPage() {
     }),
   ]);
 
+  const { projects, projectValues, totalPaid, outstanding: outstandingAmount, credit } = portfolio;
+
   /*
    * Project calculations
    */
@@ -181,37 +155,13 @@ export default async function DashboardPage() {
     (project) => project.status === "INSTALLATION",
   ).length;
 
-  const totalContractValue = projects.reduce(
-    (total, project) => total + project.totalContractValue,
-    0,
-  );
-
   /*
-   * Payment calculations — canonical portfolio definition (src/lib/finance.ts).
-   *
-   * Lifetime revenue = project contract values + approved quotations that
-   * never became a project. Payments = every recorded payment (project- and
-   * quotation-scoped). This matches /dashboard/outstanding and
-   * getCustomerFinancialSummary, so the KPI and the detail page agree.
-   *
-   * Residual difference: the detail page clamps each customer at 0, so any
-   * pre-existing overpayment credit is invisible there but still reduces the
-   * portfolio figure here (see CONCERNS — overpayment credit).
+   * Money figures — canonical contract in src/lib/finance.ts, assembled by
+   * getPortfolioFinancialSummary (src/lib/customer-financial.ts), the ONE
+   * input-assembly this screen and /dashboard/outstanding both consume, so the
+   * two totals cannot diverge. projectValues / totalPaid / outstandingAmount /
+   * credit above come straight from that pipeline; do not re-sum them here.
    */
-  const totalPaymentsReceived = sumPayments(payments);
-
-  const { lifetimeRevenue } = calcLifetimeRevenue({
-    projects: projects.map((project) => ({
-      totalContractValue: project.totalContractValue,
-      quotationId: project.quotationId,
-    })),
-    approvedQuotations: approvedQuotations.map((quotation) => ({
-      id: quotation.id,
-      totalAmount: quotation.totalAmount,
-    })),
-  });
-
-  const outstandingAmount = calcOutstanding(lifetimeRevenue, totalPaymentsReceived);
 
   /*
    * Enquiry pipeline — derived from the grouped counts fetched above.
@@ -545,7 +495,7 @@ export default async function DashboardPage() {
               </p>
 
               <p className="mt-3 text-3xl font-semibold text-flora-foreground">
-                {formatAED(totalContractValue, { decimals: false })}
+                {formatAED(projectValues, { decimals: false })}
               </p>
 
               <p className="mt-1 text-xs text-flora-muted">
@@ -559,7 +509,7 @@ export default async function DashboardPage() {
               </p>
 
               <p className="mt-3 text-3xl font-semibold text-flora-foreground">
-                {formatAED(totalPaymentsReceived, { decimals: false })}
+                {formatAED(totalPaid, { decimals: false })}
               </p>
 
               <p className="mt-1 text-xs text-flora-muted">
@@ -583,6 +533,22 @@ export default async function DashboardPage() {
                 Lifetime revenue less all payments
               </p>
             </div>
+
+            {credit > 0 && (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
+                  Credit
+                </p>
+
+                <p className="mt-3 text-3xl font-semibold text-flora-foreground">
+                  {formatAED(credit, { decimals: false })}
+                </p>
+
+                <p className="mt-1 text-xs text-flora-muted">
+                  Overpayment received above lifetime revenue
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
