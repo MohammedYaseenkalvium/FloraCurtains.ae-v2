@@ -34,6 +34,12 @@ const portfolioSegment = segment(
   "export async function getCustomerFinancialSummary"
 );
 
+const summarySegment = segment(
+  financialSource,
+  "export async function getCustomerFinancialSummary",
+  "export async function getAllOutstandingBalances"
+);
+
 const rowsSegment = segment(financialSource, "export async function getAllOutstandingBalances");
 
 const pendingQuotationCountSegment = segment(
@@ -85,5 +91,13 @@ describe("dashboard record-set parity with the portfolio assembly", () => {
     expect(pendingQuotationCountSegment).toContain("enquiry: { deletedAt: null }");
     expect(activeProjectsSegment).toContain("enquiry: { deletedAt: null }");
     expect(pendingQuotationsSegment).toContain("enquiry: { deletedAt: null }");
+  });
+});
+
+describe("getCustomerFinancialSummary soft-delete gates", () => {
+  it("walks only live enquiries, quotations and projects for a customer summary", () => {
+    expect(summarySegment).toContain("enquiries: { where: { deletedAt: null },");
+    expect(summarySegment).toContain("quotations: { where: { deletedAt: null },");
+    expect(summarySegment).toContain("project: { where: { deletedAt: null },");
   });
 });
