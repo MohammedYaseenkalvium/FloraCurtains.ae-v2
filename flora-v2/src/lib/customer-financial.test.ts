@@ -92,6 +92,17 @@ describe("dashboard record-set parity with the portfolio assembly", () => {
     expect(activeProjectsSegment).toContain("enquiry: { deletedAt: null }");
     expect(pendingQuotationsSegment).toContain("enquiry: { deletedAt: null }");
   });
+
+  it(
+    "DATA-04: dashboard presents no hardcoded or placeholder business figures " +
+      "(whole-file absence battery over the KPI/chip render path, deliberately not segment-scoped)",
+    () => {
+      expect(dashboardSource).not.toContain('value: "');
+      expect(dashboardSource).not.toContain('figure: "');
+      expect(dashboardSource).not.toMatch(/AED [0-9]/);
+      expect(dashboardSource).not.toContain("toLocaleString");
+    }
+  );
 });
 
 describe("getCustomerFinancialSummary soft-delete gates", () => {
