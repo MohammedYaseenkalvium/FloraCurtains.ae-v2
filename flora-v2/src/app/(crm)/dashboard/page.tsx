@@ -107,6 +107,7 @@ export default async function DashboardPage() {
     db.quotation.count({
       where: {
         deletedAt: null,
+        enquiry: { deletedAt: null },
         status: { in: ["DRAFT", "SENT", "REVISED"] },
       },
     }),
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
       take: 5,
       where: {
         deletedAt: null,
+        enquiry: { deletedAt: null },
         status: { in: ["IN_PROGRESS", "INSTALLATION", "SNAGGING"] },
       },
       include: {
@@ -131,6 +133,7 @@ export default async function DashboardPage() {
       take: 5,
       where: {
         deletedAt: null,
+        enquiry: { deletedAt: null },
         status: { in: ["DRAFT", "SENT", "REVISED"] },
       },
       include: {

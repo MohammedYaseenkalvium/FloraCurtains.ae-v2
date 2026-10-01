@@ -4,11 +4,11 @@ import { fileURLToPath } from "node:url";
 
 // Source-contract guards: the module under test is NEVER imported —
 // src/lib/db.ts instantiates PrismaClient at module scope and no database
-// runs in tests, and TESTING.md forbids vi.mock. Reading normalized source
-// text is the sanctioned substitute for mocking. Assertions are scoped to
-// one reader's function segment and use exact clause literals — never a
-// whole-file occurrence count (a count of `deletedAt: null` passed while the
-// wrong entity was gated; see CR-01/WR-01).
+// runs in tests, and TESTING.md forbids module mocks. Reading normalized
+// source text is the sanctioned substitute for mocking. Assertions are
+// scoped to one reader's function segment and use exact clause literals —
+// never a whole-file occurrence count (a count of `deletedAt: null` passed
+// while the wrong entity was gated; see CR-01/WR-01).
 
 const normalize = (source: string): string => source.replace(/\s+/g, " ");
 
@@ -32,12 +32,6 @@ const portfolioSegment = segment(
   financialSource,
   "export async function getPortfolioFinancialSummary",
   "export async function getCustomerFinancialSummary"
-);
-
-const summarySegment = segment(
-  financialSource,
-  "export async function getCustomerFinancialSummary",
-  "export async function getAllOutstandingBalances"
 );
 
 const rowsSegment = segment(financialSource, "export async function getAllOutstandingBalances");

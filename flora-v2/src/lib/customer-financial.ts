@@ -116,23 +116,35 @@ export interface LedgerEntry {
  */
 export async function getPortfolioFinancialSummary() {
   const [projects, approvedQuotations, payments] = await Promise.all([
-    // Soft-deleted projects excluded — same gate the dashboard reads used.
+    // Live projects only: the entity gate plus the parent-enquiry gate —
+    // a soft-deleted enquiry retires its projects (the only deletion path).
     db.project.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, enquiry: { deletedAt: null } },
       select: { id: true, status: true, totalContractValue: true, quotationId: true },
     }),
 
     // Approved quotations without a project count as outstanding revenue —
-    // canonical lifetime-revenue inputs for src/lib/finance.ts.
+    // canonical lifetime-revenue inputs for src/lib/finance.ts, retired
+    // alongside their parent's projects when the enquiry is soft-deleted.
     db.quotation.findMany({
-      where: { deletedAt: null, status: "APPROVED" },
+      where: { deletedAt: null, status: "APPROVED", enquiry: { deletedAt: null } },
       select: { id: true, totalAmount: true },
     }),
 
-    // ALL payment rows (project- and quotation-scoped, incl. orphans): both
-    // Payment FKs are optional in the schema and the contract says totalPaid
-    // sums every payment amount.
-    db.payment.findMany({ select: { amount: true } }),
+    // Payments follow the same rule as their parents: rows whose project or
+    // quotation is retired by a soft-deleted enquiry drop out, while orphan
+    // rows (both Payment FKs optional in prisma/schema.prisma) keep counting
+    // per the contract's totalPaid.
+    db.payment.findMany({
+      where: {
+        OR: [
+          { projectId: null, quotationId: null },
+          { project: { deletedAt: null, enquiry: { deletedAt: null } } },
+          { quotation: { deletedAt: null, enquiry: { deletedAt: null } } },
+        ],
+      },
+      select: { amount: true },
+    }),
   ]);
 
   return { projects, ...calcPortfolioSummary({ projects, approvedQuotations, payments }) };
