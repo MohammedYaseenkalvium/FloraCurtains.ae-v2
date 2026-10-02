@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
  * (rounded-flora-md border border-flora-border bg-white shadow-flora-sm)
  * so blocks pop in without restyle. Built only from the Skeleton primitive
  * plus a single sr-only Loading note per card. Reduced-motion users get
- * static blocks (motion-reduce:animate-none on every Skeleton).
+ * static blocks (a no-pulse override on every Skeleton).
  */
 
 const frame = "rounded-flora-md border border-flora-border bg-white shadow-flora-sm";

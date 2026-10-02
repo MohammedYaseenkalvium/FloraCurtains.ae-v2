@@ -28,6 +28,15 @@ const dashboardSource = normalize(
   readFileSync(fileURLToPath(new URL("../app/(crm)/dashboard/page.tsx", import.meta.url)), "utf8")
 );
 
+// Phase 4 Plan 01 moved the dashboard reads from page.tsx into per-region
+// async server components; the parity segments follow the queries.
+const regionsSource = normalize(
+  readFileSync(
+    fileURLToPath(new URL("../app/(crm)/dashboard/_components/regions.tsx", import.meta.url)),
+    "utf8"
+  )
+);
+
 const portfolioSegment = segment(
   financialSource,
   "export async function getPortfolioFinancialSummary",
@@ -42,19 +51,23 @@ const summarySegment = segment(
 
 const rowsSegment = segment(financialSource, "export async function getAllOutstandingBalances");
 
-const pendingQuotationCountSegment = segment(
-  dashboardSource,
-  "db.quotation.count({",
-  "db.project.findMany({"
+const heroSegment = segment(
+  regionsSource,
+  "export async function HeroChips",
+  "export async function KpiCards"
 );
 
 const activeProjectsSegment = segment(
-  dashboardSource,
-  "db.project.findMany({",
-  "db.quotation.findMany({"
+  regionsSource,
+  "export async function ActiveProjects",
+  "export async function PendingQuotations"
 );
 
-const pendingQuotationsSegment = segment(dashboardSource, "db.quotation.findMany({");
+const pendingQuotationsSegment = segment(
+  regionsSource,
+  "export async function PendingQuotations",
+  "export async function PaymentOverview"
+);
 
 describe("getPortfolioFinancialSummary soft-delete gates", () => {
   it("excludes projects and approved quotations whose parent enquiry was soft-deleted", () => {
@@ -88,7 +101,7 @@ describe("getAllOutstandingBalances soft-delete gates", () => {
 
 describe("dashboard record-set parity with the portfolio assembly", () => {
   it("gates the pending-quotation count and the two list reads on live enquiries", () => {
-    expect(pendingQuotationCountSegment).toContain("enquiry: { deletedAt: null }");
+    expect(heroSegment).toContain("enquiry: { deletedAt: null }");
     expect(activeProjectsSegment).toContain("enquiry: { deletedAt: null }");
     expect(pendingQuotationsSegment).toContain("enquiry: { deletedAt: null }");
   });
@@ -97,10 +110,12 @@ describe("dashboard record-set parity with the portfolio assembly", () => {
     "DATA-04: dashboard presents no hardcoded or placeholder business figures " +
       "(whole-file absence battery over the KPI/chip render path, deliberately not segment-scoped)",
     () => {
-      expect(dashboardSource).not.toContain('value: "');
-      expect(dashboardSource).not.toContain('figure: "');
-      expect(dashboardSource).not.toMatch(/AED [0-9]/);
-      expect(dashboardSource).not.toContain("toLocaleString");
+      for (const source of [dashboardSource, regionsSource]) {
+        expect(source).not.toContain('value: "');
+        expect(source).not.toContain('figure: "');
+        expect(source).not.toMatch(/AED [0-9]/);
+        expect(source).not.toContain("toLocaleString");
+      }
     }
   );
 });
