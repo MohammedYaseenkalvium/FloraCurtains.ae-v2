@@ -46,9 +46,10 @@ const routeFile = (relative: string): string =>
   fileURLToPath(new URL(`../app/${relative}`, import.meta.url));
 
 describe("dashboard structure (DSH-01/DSH-02) region order", () => {
-  it("DSH-02: page streams hero before KPI before quick-actions before row A (enquiries|projects) before row B (quotations|payment overview) before activity", () => {
+  it("DSH-02: page streams hero before attention before KPI before quick-actions before row A (enquiries|projects) before row B (quotations|payment overview) before activity", () => {
     const markers = [
       'region="hero"',
+      'region="attention"',
       'region="key-metrics"',
       'aria-label="Quick actions"',
       'region="recent-enquiries"',
@@ -69,7 +70,7 @@ describe("dashboard structure (DSH-01/DSH-02) region order", () => {
     }
   });
 
-  it("DSH-02: region content keeps shipped order (hero, KPI, row A, row B, activity)", () => {
+  it("DSH-02: region content keeps shipped order (hero, KPI, row A, row B, activity, attention)", () => {
     const markers = [
       'aria-label="Overview"',
       'aria-label="Key metrics"',
@@ -78,6 +79,7 @@ describe("dashboard structure (DSH-01/DSH-02) region order", () => {
       "Latest quotations awaiting response",
       "Contract value, payments received and outstanding",
       "Latest CRM activity",
+      "Needs attention today",
     ];
     const positions = markers.map((marker) => regionsSource.indexOf(marker));
     positions.forEach((position, index) => {
