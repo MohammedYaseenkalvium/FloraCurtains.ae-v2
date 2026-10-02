@@ -221,3 +221,193 @@ describe("dashboard navigation (NAV-01) route proofs", () => {
     expect(countOccurrences(dashboardSource, /\/customers\/\$\{/g)).toBe(0);
   });
 });
+
+// Source-contract battery for Phase 6 Plan 01 responsive navigation
+// (NAV-02): hamburger-overlay below lg:, full Sidebar at lg:, condensed
+// TopHeader, byte-identical BottomNav, bottom-bar clearance. Same sanctioned
+// pattern as above (readFileSync at module scope, whitespace normalized,
+// exact-literal counts re-derived from current source 2026-10-02 — never
+// relaxed >= where the contract demands inventory). Segment scoping mirrors
+// src/lib/dashboard-states.test.ts so aside-class pins cannot pass on
+// hamburger-class matches and vice versa. Zero mocks, zero fixture data.
+
+const sidebarSource = normalize(
+  readFileSync(
+    fileURLToPath(new URL("../components/layout/Sidebar.tsx", import.meta.url)),
+    "utf8"
+  )
+);
+
+const topHeaderSource = normalize(
+  readFileSync(
+    fileURLToPath(new URL("../components/layout/TopHeader.tsx", import.meta.url)),
+    "utf8"
+  )
+);
+
+const appShellSource = normalize(
+  readFileSync(
+    fileURLToPath(new URL("../components/crm/layout/AppShell.tsx", import.meta.url)),
+    "utf8"
+  )
+);
+
+const bottomNavSource = normalize(
+  readFileSync(
+    fileURLToPath(new URL("../components/crm/layout/BottomNav.tsx", import.meta.url)),
+    "utf8"
+  )
+);
+
+const chromeSegment = (source: string, from: string, to: string): string => {
+  const start = source.indexOf(from);
+  if (start < 0) return "";
+  const end = source.indexOf(to, start + from.length);
+  return source.slice(start, end < 0 ? source.length : end);
+};
+
+describe("responsive navigation (NAV-02)", () => {
+  it("hamburger governs below lg: with a 44px hit area and labelled aria wiring", () => {
+    const hamburger = chromeSegment(
+      sidebarSource,
+      'aria-label="Open navigation"',
+      "</button>"
+    );
+    expect(hamburger).toContain("lg:hidden");
+    expect(countOccurrences(hamburger, /lg:hidden/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /lg:hidden/g)).toBe(3);
+    expect(countOccurrences(sidebarSource, /min-h-\[44px\]/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /min-w-\[44px\]/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /aria-expanded/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /aria-controls/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /crm-sidebar/g)).toBe(2);
+  });
+
+  it("overlay is a real dismiss button with Escape-to-close and body scroll-lock", () => {
+    const overlay = chromeSegment(
+      sidebarSource,
+      'aria-label="Close navigation"',
+      "/>"
+    );
+    expect(overlay).toContain("lg:hidden");
+    expect(countOccurrences(overlay, /lg:hidden/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /Escape/g)).toBe(1);
+    expect(sidebarSource).toContain('document.body.style.overflow = "hidden"');
+    expect(sidebarSource).toContain(
+      "document.body.style.overflow = previousOverflow"
+    );
+    expect(countOccurrences(sidebarSource, /addEventListener/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /removeEventListener/g)).toBe(1);
+  });
+
+  it("aside returns at lg: with shipped geometry, motion and stacking intact", () => {
+    const asideClasses = chromeSegment(
+      sidebarSource,
+      "className={[",
+      'open ? "translate-x-0"'
+    );
+    expect(countOccurrences(asideClasses, /lg:static/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:z-auto/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:translate-x-0/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /-translate-x-full/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /motion-reduce:transition-none/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /translate-x-0/g)).toBe(2);
+    expect(countOccurrences(sidebarSource, /transition-transform duration-200/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /z-40/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /z-30/g)).toBe(2);
+    expect(countOccurrences(sidebarSource, /w-64/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /h-screen/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /bg-flora-footer/g)).toBe(1);
+  });
+
+  it("zero md: remnants in Sidebar; X close button takes the lg: shift", () => {
+    expect(countOccurrences(sidebarSource, /md:hidden/g)).toBe(0);
+    expect(countOccurrences(sidebarSource, /md:static/g)).toBe(0);
+    expect(countOccurrences(sidebarSource, /md:z-auto/g)).toBe(0);
+    expect(countOccurrences(sidebarSource, /md:translate-x-0/g)).toBe(0);
+    const closeButton = chromeSegment(
+      sidebarSource,
+      "rounded-lg p-1.5",
+      "</button>"
+    );
+    expect(closeButton).toContain("lg:hidden");
+    expect(countOccurrences(sidebarSource, /Open navigation/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /Close navigation/g)).toBe(2);
+  });
+
+  it("header condenses on small screens while the sticky shell stands", () => {
+    expect(countOccurrences(topHeaderSource, /hidden lg:block/g)).toBe(1);
+    expect(countOccurrences(topHeaderSource, /lg:hidden/g)).toBe(1);
+    expect(countOccurrences(topHeaderSource, /hidden sm:block/g)).toBe(1);
+    expect(
+      countOccurrences(topHeaderSource, /truncate max-w-\[140px\] sm:max-w-none/g)
+    ).toBe(1);
+    expect(countOccurrences(topHeaderSource, /md:hidden/g)).toBe(0);
+    expect(countOccurrences(topHeaderSource, /hidden md:block/g)).toBe(0);
+    expect(countOccurrences(topHeaderSource, /sticky top-0 z-20/g)).toBe(1);
+    expect(countOccurrences(topHeaderSource, /bg-flora-cream/g)).toBe(1);
+  });
+
+  it("AppShell renders Sidebar with no display:none wrapper and keeps the clearance contract", () => {
+    expect(countOccurrences(appShellSource, /hidden md:block/g)).toBe(0);
+    expect(countOccurrences(appShellSource, /<Sidebar/g)).toBe(1);
+    expect(countOccurrences(appShellSource, /<BottomNav/g)).toBe(1);
+    expect(countOccurrences(appShellSource, /md:hidden/g)).toBe(1);
+    expect(countOccurrences(appShellSource, /pb-28/g)).toBe(1);
+    expect(countOccurrences(appShellSource, /md:pb-10/g)).toBe(1);
+  });
+
+  it("BottomNav keeps its 6 items, destinations, bar geometry and safe-area padding", () => {
+    for (const href of [
+      "/dashboard",
+      "/enquiries",
+      "/quotations",
+      "/projects",
+      "/payments",
+      "/tasks",
+    ]) {
+      expect(countOccurrences(bottomNavSource, new RegExp(`"${href}"`, "g"))).toBe(1);
+    }
+    for (const label of ["Home", "Leads", "Quotes", "Projects", "Payments", "Tasks"]) {
+      expect(countOccurrences(bottomNavSource, new RegExp(`"${label}"`, "g"))).toBe(1);
+    }
+    expect(countOccurrences(bottomNavSource, /grid-cols-6/g)).toBe(1);
+    expect(
+      countOccurrences(bottomNavSource, /fixed inset-x-0 bottom-0 z-50/g)
+    ).toBe(1);
+    expect(
+      countOccurrences(bottomNavSource, /pb-\[env\(safe-area-inset-bottom\)\]/g)
+    ).toBe(1);
+    expect(bottomNavSource).toContain('aria-label="CRM"');
+    expect(countOccurrences(bottomNavSource, /aria-current/g)).toBe(1);
+    expect(countOccurrences(bottomNavSource, /md:hidden/g)).toBe(0);
+    expect(countOccurrences(bottomNavSource, /lg:hidden/g)).toBe(0);
+  });
+
+  it("Sidebar href inventory stays byte-identical so no route entry rides the transform", () => {
+    expect(countOccurrences(sidebarSource, new RegExp('"/dashboard"', "g"))).toBe(2);
+    for (const href of [
+      "/enquiries",
+      "/customers",
+      "/quotations",
+      "/projects",
+      "/site-visits",
+      "/measurements",
+      "/tasks",
+      "/payments",
+      "/inventory",
+      "/staff",
+      "/settings",
+    ]) {
+      expect(countOccurrences(sidebarSource, new RegExp(`"${href}"`, "g"))).toBe(1);
+    }
+    expect(countOccurrences(sidebarSource, /aria-current/g)).toBe(1);
+    expect(
+      countOccurrences(
+        sidebarSource,
+        /shadow-\[inset_3px_0_0_0_var\(--flora-gold\)\]/g
+      )
+    ).toBe(1);
+    expect(countOccurrences(sidebarSource, /bg-flora-primary/g)).toBe(1);
+  });
+});
