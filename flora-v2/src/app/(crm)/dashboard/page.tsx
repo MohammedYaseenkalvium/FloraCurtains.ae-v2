@@ -10,6 +10,7 @@ import {
   ActiveProjects,
   HeroChips,
   KpiCards,
+  NeedsAttention,
   PaymentOverview,
   PendingQuotations,
   RecentActivity,
@@ -38,6 +39,27 @@ export default function DashboardPage() {
       <RegionBoundary region="hero" title="Couldn't load overview">
         <Suspense fallback={<HeroChipsSkeleton />}>
           <HeroChips />
+        </Suspense>
+      </RegionBoundary>
+
+      {/* Below-hero canvas — static flora blooms sit behind the post-hero
+          content only (never inside the hero); content stays at z-10 so
+          blooms never intercept clicks or reduce readability. */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 top-10 h-64 w-64 rounded-full bg-flora-primary/[0.05] blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 top-72 h-72 w-72 rounded-full bg-flora-gold/[0.08] blur-3xl"
+        />
+        <div className="relative z-10 space-y-8">
+
+      {/* Attention — today's priorities, first viewport below the hero */}
+      <RegionBoundary region="attention" title="Couldn't load attention">
+        <Suspense fallback={<ListSkeleton />}>
+          <NeedsAttention />
         </Suspense>
       </RegionBoundary>
 
@@ -118,6 +140,8 @@ export default function DashboardPage() {
           <RecentActivity />
         </Suspense>
       </RegionBoundary>
+        </div>
+      </div>
     </div>
   );
 }
