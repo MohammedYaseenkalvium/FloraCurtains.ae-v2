@@ -347,8 +347,25 @@ function na(status: string, rationale: string): { status: string; rationale: str
   return { status, rationale };
 }
 
+const strContains = { contains: `${MARKER}`, mode: Prisma.QueryMode.insensitive };
+
+// Marker on the enquiry itself — children created without their own marker
+// text (e.g. revised quotations) are still matched via this relation filter.
+function enquiryMarker(): {
+  OR: Array<{ serviceWanted: typeof strContains } | { remarks: typeof strContains } | { projectName: typeof strContains } | { siteAddress: typeof strContains }>;
+} {
+  return {
+    OR: [
+      { serviceWanted: strContains },
+      { remarks: strContains },
+      { projectName: strContains },
+      { siteAddress: strContains },
+    ],
+  };
+}
+
 async function countMarkers(): Promise<{ total: number; byModel: Record<string, number> }> {
-  const contains = { contains: `${MARKER}`, mode: Prisma.QueryMode.insensitive };
+  const contains = strContains;
   const byModel: Record<string, number> = {};
   byModel.user = await prisma.user.count({
     where: { OR: [{ name: contains }, { email: contains }] },
@@ -356,34 +373,47 @@ async function countMarkers(): Promise<{ total: number; byModel: Record<string, 
   byModel.contact = await prisma.contact.count({
     where: { OR: [{ name: contains }, { email: contains }, { phone: contains }] },
   });
-  byModel.enquiry = await prisma.enquiry.count({
-    where: {
-      OR: [{ serviceWanted: contains }, { remarks: contains }, { projectName: contains }, { siteAddress: contains }],
-    },
-  });
+  byModel.enquiry = await prisma.enquiry.count({ where: enquiryMarker() });
   byModel.quotation = await prisma.quotation.count({
-    where: { OR: [{ notes: contains }, { internalNotes: contains }] },
+    where: { OR: [{ notes: contains }, { internalNotes: contains }, { enquiry: enquiryMarker() }] },
   });
   byModel.project = await prisma.project.count({
-    where: { OR: [{ notes: contains }, { poNumber: contains }, { siteAddress: contains }] },
+    where: {
+      OR: [{ notes: contains }, { poNumber: contains }, { siteAddress: contains }, { enquiry: enquiryMarker() }],
+    },
   });
   byModel.payment = await prisma.payment.count({
-    where: { OR: [{ notes: contains }, { reference: contains }] },
+    where: {
+      OR: [
+        { notes: contains },
+        { reference: contains },
+        { project: { enquiry: enquiryMarker() } },
+        { quotation: { enquiry: enquiryMarker() } },
+      ],
+    },
   });
   byModel.paymentSchedule = await prisma.paymentSchedule.count({
-    where: { OR: [{ description: contains }, { notes: contains }] },
+    where: {
+      OR: [{ description: contains }, { notes: contains }, { project: { enquiry: enquiryMarker() } }],
+    },
   });
   byModel.siteVisit = await prisma.siteVisit.count({
-    where: { OR: [{ notes: contains }, { siteAddress: contains }] },
+    where: { OR: [{ notes: contains }, { siteAddress: contains }, { enquiry: enquiryMarker() }] },
   });
   byModel.measurementSheet = await prisma.measurementSheet.count({
-    where: { OR: [{ roomName: contains }, { remarks: contains }] },
+    where: {
+      OR: [{ roomName: contains }, { remarks: contains }, { siteVisit: { enquiry: enquiryMarker() } }],
+    },
   });
   byModel.siteVisitAttachment = await prisma.siteVisitAttachment.count({
-    where: { OR: [{ fileName: contains }, { caption: contains }] },
+    where: {
+      OR: [{ fileName: contains }, { caption: contains }, { siteVisit: { enquiry: enquiryMarker() } }],
+    },
   });
   byModel.task = await prisma.task.count({
-    where: { OR: [{ title: contains }, { description: contains }] },
+    where: {
+      OR: [{ title: contains }, { description: contains }, { enquiry: enquiryMarker() }, { project: { enquiry: enquiryMarker() } }],
+    },
   });
   byModel.activityLog = await prisma.activityLog.count({
     where: { summary: contains },
@@ -393,37 +423,51 @@ async function countMarkers(): Promise<{ total: number; byModel: Record<string, 
 }
 
 async function deleteMarkers(): Promise<void> {
-  const contains = { contains: `${MARKER}`, mode: Prisma.QueryMode.insensitive };
-  // Reverse-dependency order: leaf writes first, parents last.
+  const contains = strContains;
+  // Reverse-dependency order: leaf writes first, parents last. Relation
+  // filters catch children whose own columns carry no marker text.
   await prisma.payment.deleteMany({
-    where: { OR: [{ notes: contains }, { reference: contains }] },
-  });
-  await prisma.paymentSchedule.deleteMany({
-    where: { OR: [{ description: contains }, { notes: contains }] },
-  });
-  await prisma.siteVisitAttachment.deleteMany({
-    where: { OR: [{ fileName: contains }, { caption: contains }] },
-  });
-  await prisma.measurementSheet.deleteMany({
-    where: { OR: [{ roomName: contains }, { remarks: contains }] },
-  });
-  await prisma.siteVisit.deleteMany({
-    where: { OR: [{ notes: contains }, { siteAddress: contains }] },
-  });
-  await prisma.task.deleteMany({
-    where: { OR: [{ title: contains }, { description: contains }] },
-  });
-  await prisma.project.deleteMany({
-    where: { OR: [{ notes: contains }, { poNumber: contains }, { siteAddress: contains }] },
-  });
-  await prisma.quotation.deleteMany({
-    where: { OR: [{ notes: contains }, { internalNotes: contains }] },
-  });
-  await prisma.enquiry.deleteMany({
     where: {
-      OR: [{ serviceWanted: contains }, { remarks: contains }, { projectName: contains }, { siteAddress: contains }],
+      OR: [
+        { notes: contains },
+        { reference: contains },
+        { project: { enquiry: enquiryMarker() } },
+        { quotation: { enquiry: enquiryMarker() } },
+      ],
     },
   });
+  await prisma.paymentSchedule.deleteMany({
+    where: {
+      OR: [{ description: contains }, { notes: contains }, { project: { enquiry: enquiryMarker() } }],
+    },
+  });
+  await prisma.siteVisitAttachment.deleteMany({
+    where: {
+      OR: [{ fileName: contains }, { caption: contains }, { siteVisit: { enquiry: enquiryMarker() } }],
+    },
+  });
+  await prisma.measurementSheet.deleteMany({
+    where: {
+      OR: [{ roomName: contains }, { remarks: contains }, { siteVisit: { enquiry: enquiryMarker() } }],
+    },
+  });
+  await prisma.siteVisit.deleteMany({
+    where: { OR: [{ notes: contains }, { siteAddress: contains }, { enquiry: enquiryMarker() }] },
+  });
+  await prisma.task.deleteMany({
+    where: {
+      OR: [{ title: contains }, { description: contains }, { enquiry: enquiryMarker() }, { project: { enquiry: enquiryMarker() } }],
+    },
+  });
+  await prisma.project.deleteMany({
+    where: {
+      OR: [{ notes: contains }, { poNumber: contains }, { siteAddress: contains }, { enquiry: enquiryMarker() }],
+    },
+  });
+  await prisma.quotation.deleteMany({
+    where: { OR: [{ notes: contains }, { internalNotes: contains }, { enquiry: enquiryMarker() }] },
+  });
+  await prisma.enquiry.deleteMany({ where: enquiryMarker() });
   await prisma.contact.deleteMany({
     where: { OR: [{ name: contains }, { email: contains }, { phone: contains }] },
   });

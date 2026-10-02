@@ -1,0 +1,1049 @@
+{
+  "generatedAt": "2026-10-02T19:40:40.310Z",
+  "baseUrl": "http://localhost:3000",
+  "run": "murdab4l",
+  "adminEmail": "admin@flora.ae",
+  "totals": {
+    "routes": 27,
+    "passed": 27,
+    "failed": 0,
+    "legs": 88,
+    "legsPassed": 88,
+    "legsFailed": 0
+  },
+  "routes": [
+    {
+      "route": "auth/[...nextauth]",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/auth/callback/credentials",
+        "expected": "session-cookie",
+        "actual": "session-cookie",
+        "pass": true,
+        "envelope": "n/a",
+        "note": "credential login mints session (setup)"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/auth/callback/credentials",
+        "expected": "rejected",
+        "actual": "rejected",
+        "pass": true,
+        "envelope": "n/a",
+        "note": "bad password -> http://localhost:3000/login?error=CredentialsSignin&code=credentials"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "credential callback has no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/auth/callback/credentials",
+        "expected": "rejected",
+        "actual": "rejected",
+        "pass": true,
+        "envelope": "n/a",
+        "note": "empty password rejected, NextAuth owns this route shape"
+      },
+      "pass": true
+    },
+    {
+      "route": "enquiries",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/enquiries?page=1&pageSize=5",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/enquiries?page=1&pageSize=5",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/enquiries",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "empty body -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "tasks",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/tasks",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/tasks",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "POST is requireAuth-only; role gate lives on tasks/[id] DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/tasks",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing title -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "tasks/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/tasks/cmurdajuh0026ulqsz1n7d4up",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/tasks/cmurdajuh0026ulqsz1n7d4up",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "DELETE",
+        "path": "/api/tasks/cmurdajuh0026ulqsz1n7d4up",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/tasks/cmurdajuh0026ulqsz1n7d4up",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "quotations",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/quotations",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a",
+        "note": "Q1 created in setup"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/quotations",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/quotations",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "empty items -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "quotations/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing enquiryId/items -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "quotations/[id]/status",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b/status",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b/status",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b/status",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "quotations/[id]/revise",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/quotations/cmurdanq3002culqsmhxv9ljm/revise",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a",
+        "note": "SENT Q2 revised"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/quotations/cmurdanq3002culqsmhxv9ljm/revise",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/quotations/cmurdaq60002hulqsuc6xm9tg/revise",
+        "expected": "409",
+        "actual": 409,
+        "pass": true,
+        "envelope": "pass",
+        "note": "REVISED cannot be revised -> Conflict"
+      },
+      "pass": true
+    },
+    {
+      "route": "enquiries/[id]/convert",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/convert",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a",
+        "note": "approved Q1 converted to project"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/convert",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/convert",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing quotationId -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "projects/[id]/status",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/status",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/status",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/status",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "projects/[id]/schedules",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/schedules",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/schedules",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/schedules",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "empty plan -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "schedules/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/schedules/cmurdau1d002nulqsaenicijx",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/schedules/cmurdau1d002nulqsaenicijx",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "DELETE",
+        "path": "/api/schedules/cmurdau1d002nulqsaenicijx",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/schedules/cmurdau1d002nulqsaenicijx",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "projects/[id]/payments",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/payments",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/payments",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/projects/cmurdas28002kulqsz39etvva/payments",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "negative amount -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "site-visits",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/site-visits",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/site-visits",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/site-visits",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing enquiryId -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "site-visits/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "DELETE",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "site-visits/[id]/attachments",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1/attachments",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "POST",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1/attachments",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/site-visits/cmurdaxr1002uulqsrdfu5jm1/attachments",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing file fields -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "attachments/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "DELETE",
+        "path": "/api/attachments/cmurdb3cz0033ulqserrmspzx",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "DELETE",
+        "path": "/api/attachments/cmurdb2f50030ulqshdgpgp87",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "DELETE",
+        "path": "/api/attachments/cmurdb2f50030ulqshdgpgp87",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "DELETE",
+        "path": "/api/attachments/does-not-exist",
+        "expected": "404",
+        "actual": 404,
+        "pass": true,
+        "envelope": "pass",
+        "note": "unknown id -> Not found"
+      },
+      "pass": true
+    },
+    {
+      "route": "measurements",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/measurements?siteVisitId=cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/measurements?siteVisitId=cmurdaxr1002uulqsrdfu5jm1",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/measurements",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "missing fields -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "measurements/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/measurements/cmurdb59a0037ulqs10op9z4e",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/measurements/cmurdb59a0037ulqs10op9z4e",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/measurements/cmurdb59a0037ulqs10op9z4e",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "negative width -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "enquiries/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "DELETE",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only DELETE"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "interestLevel 99 -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "enquiries/[id]/edit",
+      "happy": {
+        "leg": "happy",
+        "method": "PATCH",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/edit",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "PATCH",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/edit",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/enquiries/cmurdagx60020ulqs5f7s5gtt/edit",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "customers/[id]/financial",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/customers/cmurdagud001yulqsof23xa3i/financial",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/customers/cmurdagud001yulqsof23xa3i/financial",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "GET",
+        "path": "/api/customers/does-not-exist/financial",
+        "expected": "404",
+        "actual": 404,
+        "pass": true,
+        "envelope": "pass",
+        "note": "unknown customer -> Not found"
+      },
+      "pass": true
+    },
+    {
+      "route": "settings",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/settings",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/settings",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "PATCH",
+        "path": "/api/settings",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only PATCH"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/settings",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "bad currency/vat -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "staff",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/staff",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/staff",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "GET",
+        "path": "/api/staff",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only GET"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/staff",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass",
+        "note": "short name + missing fields -> Validation failed"
+      },
+      "pass": true
+    },
+    {
+      "route": "staff/[id]",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/staff/cmurdafw8001wulqso55whsww",
+        "expected": "200",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/staff/cmurdafw8001wulqso55whsww",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "leg": "403",
+        "method": "GET",
+        "path": "/api/staff/cmurdafw8001wulqso55whsww",
+        "expected": "403",
+        "actual": 403,
+        "pass": true,
+        "envelope": "pass",
+        "note": "STAFF on ADMIN-only GET"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "PATCH",
+        "path": "/api/staff/cmurdafw8001wulqso55whsww",
+        "expected": "422",
+        "actual": 422,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "pass": true
+    },
+    {
+      "route": "public/enquiries",
+      "happy": {
+        "leg": "happy",
+        "method": "POST",
+        "path": "/api/public/enquiries",
+        "expected": "201",
+        "actual": 201,
+        "pass": true,
+        "envelope": "n/a"
+      },
+      "unauthorized": {
+        "status": "401-skipped",
+        "rationale": "public route by design: no session required, 401 does not apply"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "no requireRole gate on the public endpoint"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "POST",
+        "path": "/api/public/enquiries",
+        "expected": "400",
+        "actual": 400,
+        "pass": true,
+        "envelope": "pass",
+        "note": "invalid email -> Invalid enquiry data"
+      },
+      "pass": true
+    },
+    {
+      "route": "quotations/[id]/pdf",
+      "happy": {
+        "leg": "happy",
+        "method": "GET",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b/pdf",
+        "expected": "200+pdf",
+        "actual": 200,
+        "pass": true,
+        "envelope": "n/a",
+        "note": "content-type=application/pdf bytes=457916"
+      },
+      "unauthorized": {
+        "leg": "401",
+        "method": "GET",
+        "path": "/api/quotations/cmurdahsh0023ulqszn2k8s3b/pdf",
+        "expected": "401",
+        "actual": 401,
+        "pass": true,
+        "envelope": "pass"
+      },
+      "forbidden": {
+        "status": "403-N/A",
+        "rationale": "requireAuth-only, no requireRole gate"
+      },
+      "badInput": {
+        "leg": "bad-input",
+        "method": "GET",
+        "path": "/api/quotations/does-not-exist/pdf",
+        "expected": "404",
+        "actual": 404,
+        "pass": true,
+        "envelope": "pass",
+        "note": "unknown id -> Not found"
+      },
+      "pass": true
+    }
+  ],
+  "cleanup": {
+    "leftoverRows": 0,
+    "byModel": {
+      "user": 0,
+      "contact": 0,
+      "enquiry": 0,
+      "quotation": 0,
+      "project": 0,
+      "payment": 0,
+      "paymentSchedule": 0,
+      "siteVisit": 0,
+      "measurementSheet": 0,
+      "siteVisitAttachment": 0,
+      "task": 0,
+      "activityLog": 0
+    },
+    "staffFixtureRemoved": true,
+    "note": "All PH6-SMOKE- writes hard-deleted reverse-dependency; smoke staff user removed."
+  }
+}
