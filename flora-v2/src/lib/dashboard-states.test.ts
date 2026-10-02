@@ -172,3 +172,128 @@ describe("home state guards (scope fence + token/money discipline)", () => {
     expect(skeletonsSource).not.toContain("use client");
   });
 });
+
+const outstandingPageSource = normalize(
+  readFileSync(file("(crm)/dashboard/outstanding/page.tsx"), "utf8")
+);
+
+const outstandingRegionsSource = normalize(
+  readFileSync(file("(crm)/dashboard/outstanding/_components/regions.tsx"), "utf8")
+);
+
+const outstandingSkeletonsSource = normalize(
+  readFileSync(
+    file("(crm)/dashboard/outstanding/_components/region-skeletons.tsx"),
+    "utf8"
+  )
+);
+
+const dashboardErrorSource = normalize(
+  readFileSync(file("(crm)/dashboard/error.tsx"), "utf8")
+);
+
+const outstandingTableSegment = segment(
+  outstandingRegionsSource,
+  "export async function OutstandingTable"
+);
+
+const outstandingEmptySegment = segment(
+  outstandingTableSegment,
+  "length === 0",
+  "<table"
+);
+
+describe("outstanding loading states (STAT-01)", () => {
+  it("outstanding headers and table stream behind their own Suspense fallback, with no page-level Promise.all", () => {
+    expect(countOccurrences(outstandingPageSource, /<Suspense/g)).toBe(2);
+    expect(outstandingPageSource).toContain("fallback={<OutstandingHeadersSkeleton />}");
+    expect(outstandingPageSource).toContain("fallback={<OutstandingTableSkeleton />}");
+    expect(outstandingPageSource).not.toContain("Promise.all");
+  });
+
+  it("outstanding skeletons reuse the shipped frames with title lines and full-width table rows", () => {
+    expect(outstandingSkeletonsSource).toContain('import { Skeleton } from "@/components/ui/Skeleton"');
+    expect(outstandingSkeletonsSource).toContain("h-5 w-40");
+    expect(outstandingSkeletonsSource).toContain("[0, 1, 2].map");
+    expect(outstandingSkeletonsSource).toContain("px-5 py-3");
+    expect(outstandingSkeletonsSource).toContain("[0, 1, 2, 3, 4, 5, 6, 7].map");
+    expect(countOccurrences(outstandingSkeletonsSource, /motion-reduce:animate-none/g)).toBe(
+      countOccurrences(outstandingSkeletonsSource, /<Skeleton/g)
+    );
+  });
+
+  it("each outstanding skeleton card exposes a single sr-only Loading note", () => {
+    expect(countOccurrences(outstandingSkeletonsSource, /sr-only">Loading/g)).toBe(2);
+  });
+
+  it("queries move verbatim into their regions with the overdue and stale derivations intact", () => {
+    expect(outstandingRegionsSource).toContain(
+      "await Promise.all([getPortfolioFinancialSummary(), getAllOutstandingBalances()])"
+    );
+    expect(outstandingTableSegment).toContain("const customers = await getAllOutstandingBalances();");
+    expect(countOccurrences(outstandingRegionsSource, /daysSincePayment \?\? 0\) > 30/g)).toBe(2);
+    expect(countOccurrences(outstandingRegionsSource, /daysSincePayment \?\? 0\) > 14/g)).toBe(1);
+  });
+
+  it("outstanding table keeps its shipped thead labels and formatAED-only money rendering", () => {
+    for (const label of [
+      "Customer",
+      "Company",
+      "Lifetime Value",
+      "Total Paid",
+      "Outstanding",
+      "Last Payment",
+      "Actions",
+    ]) {
+      expect(outstandingTableSegment).toContain(label);
+    }
+    expect(outstandingTableSegment).toContain("formatAED");
+    expect(outstandingTableSegment).not.toContain("toLocaleString");
+  });
+});
+
+describe("outstanding empty and error states (STAT-02/STAT-03)", () => {
+  it("zero balances render a purposeful empty table state with no CTA", () => {
+    expect(outstandingRegionsSource).toContain("No outstanding balances.");
+    expect(outstandingTableSegment).toContain('<EmptyState title="No outstanding balances." />');
+    expect(outstandingEmptySegment).not.toContain("href=");
+  });
+
+  it("failed outstanding reads render scoped generic errors reusing the shared retry boundary", () => {
+    expect(outstandingPageSource).toContain("Couldn't load outstanding summary");
+    expect(outstandingPageSource).toContain("Couldn't load outstanding balances");
+    expect(countOccurrences(outstandingPageSource, /<RegionBoundary/g)).toBe(2);
+    expect(outstandingPageSource).toContain('from "../_components/RegionErrorCard"');
+  });
+
+  it("summary figures use semibold with zero extrabold figures; money stays formatAED-only", () => {
+    expect(countOccurrences(outstandingRegionsSource, /text-3xl font-semibold/g)).toBe(4);
+    expect(outstandingRegionsSource).not.toMatch(/font-extrabold text-flora-/);
+    expect(outstandingRegionsSource).toContain("formatAED");
+    expect(outstandingRegionsSource).not.toContain("toLocaleString");
+  });
+});
+
+describe("dashboard total-failure fallback (D-07)", () => {
+  it("dashboard error boundary renders generic copy with a working Try again path", () => {
+    expect(dashboardErrorSource).toContain('"use client"');
+    expect(dashboardErrorSource).toContain("Something went wrong loading the dashboard.");
+    expect(dashboardErrorSource).toContain("Try again");
+    expect(dashboardErrorSource).toContain("reset");
+  });
+
+  it("fallback leaks no raw errors and keeps the danger marker on flora tokens", () => {
+    expect(dashboardErrorSource).not.toContain("error.message");
+    expect(dashboardErrorSource).not.toContain("stack");
+    expect(dashboardErrorSource).toContain("text-flora-danger");
+    expect(dashboardErrorSource).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+  });
+
+  it("outstanding composition adds no client boundaries and no client fetch for page data", () => {
+    expect(outstandingPageSource).not.toContain("use client");
+    expect(outstandingRegionsSource).not.toContain("use client");
+    expect(outstandingSkeletonsSource).not.toContain("use client");
+    expect(outstandingPageSource).not.toMatch(/fetch\s*\(/);
+    expect(outstandingRegionsSource).not.toMatch(/fetch\s*\(/);
+  });
+});
