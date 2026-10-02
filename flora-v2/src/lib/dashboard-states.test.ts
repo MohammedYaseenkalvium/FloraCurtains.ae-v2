@@ -297,3 +297,26 @@ describe("dashboard total-failure fallback (D-07)", () => {
     expect(outstandingRegionsSource).not.toMatch(/fetch\s*\(/);
   });
 });
+
+describe("retry genuine re-request wiring (STAT-03 gap closure)", () => {
+  it("RegionBoundary Retry is wired to a server re-request via next/navigation router.refresh", () => {
+    expect(errorCardSource).toContain('from "next/navigation"');
+    expect(errorCardSource).toContain("useRouter");
+    expect(errorCardSource).toContain("router.refresh");
+    expect(errorCardSource).toContain("key={");
+  });
+
+  it("mechanism comment names refresh plus remount, not a bare-remount re-stream", () => {
+    expect(errorCardSource).toContain("genuine server re-request via router.refresh()");
+    expect(errorCardSource).toContain("keyed");
+  });
+
+  it("hero overview retry title is pinned (IN-01)", () => {
+    expect(pageSource).toContain("Couldn't load overview");
+  });
+
+  it("retry fix preserves the no-leak contract in RegionErrorCard", () => {
+    expect(errorCardSource).not.toContain("error.message");
+    expect(errorCardSource).not.toContain("stack");
+  });
+});
