@@ -30,20 +30,20 @@ export async function OutstandingHeaders() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Total Outstanding</div>
-          <div className="text-3xl font-extrabold text-flora-danger">{formatAED(portfolio.outstanding, { decimals: false })}</div>
+          <div className="text-3xl font-semibold text-flora-danger">{formatAED(portfolio.outstanding, { decimals: false })}</div>
         </div>
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Overdue (&gt;30 days)</div>
-          <div className="text-3xl font-extrabold text-flora-warning">{overdueCustomers.length}</div>
+          <div className="text-3xl font-semibold text-flora-warning">{overdueCustomers.length}</div>
         </div>
         <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
           <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Customers</div>
-          <div className="text-3xl font-extrabold text-flora-foreground">{customers.length}</div>
+          <div className="text-3xl font-semibold text-flora-foreground">{customers.length}</div>
         </div>
         {portfolio.credit > 0 && (
           <div className="bg-white/70 backdrop-blur border border-black/5 rounded-xl p-5">
             <div className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Credit</div>
-            <div className="text-3xl font-extrabold text-flora-foreground">{formatAED(portfolio.credit, { decimals: false })}</div>
+            <div className="text-3xl font-semibold text-flora-foreground">{formatAED(portfolio.credit, { decimals: false })}</div>
           </div>
         )}
       </div>
