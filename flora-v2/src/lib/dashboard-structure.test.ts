@@ -109,15 +109,16 @@ describe("dashboard structure (DSH-01/DSH-02) token discipline", () => {
 });
 
 describe("dashboard structure (DSH-01/DSH-02) list cards", () => {
-  it("DSH-02: all four list reads take exactly 5 rows", () => {
-    expect(countOccurrences(regionsSource, /take: 5/g)).toBe(4);
+  it("DSH-02: all six list reads take exactly 5 rows", () => {
+    expect(countOccurrences(regionsSource, /take: 5/g)).toBe(6);
   });
 
-  it("DSH-02: enquiry, project and quotation rows each carry a StatusBadge chip", () => {
-    expect(countOccurrences(regionsSource, /StatusBadge domain=/g)).toBe(3);
+  it("DSH-02: enquiry, project, quotation and attention rows each carry a StatusBadge chip", () => {
+    expect(countOccurrences(regionsSource, /StatusBadge domain=/g)).toBe(6);
     expect(regionsSource).toContain('StatusBadge domain="enquiry"');
     expect(regionsSource).toContain('StatusBadge domain="project"');
     expect(regionsSource).toContain('StatusBadge domain="quotation"');
+    expect(regionsSource).toContain('StatusBadge domain="payment"');
   });
 
   it("DSH-02: activity rows are plain divs, never links (D-09 amendment)", () => {
@@ -172,11 +173,12 @@ describe("dashboard navigation (NAV-01) href inventory", () => {
     expect(quoted.length).toBe(15);
   });
 
-  it("NAV-01: exactly the three list-row template families deep-link to [id] pages", () => {
+  it("NAV-01: exactly the six list-row template families deep-link to [id] pages", () => {
     expect(regionsSource).toContain("href={`/enquiries/${enquiry.id}`}");
     expect(regionsSource).toContain("href={`/projects/${project.id}`}");
     expect(regionsSource).toContain("href={`/quotations/${quotation.id}`}");
-    expect(countOccurrences(regionsSource, /href=\{`\//g)).toBe(3);
+    expect(regionsSource).toContain("href={`/customers/${balance.customerId}`}");
+    expect(countOccurrences(regionsSource, /href=\{`\//g)).toBe(6);
   });
 });
 
@@ -203,15 +205,16 @@ describe("dashboard navigation (NAV-01) route proofs", () => {
       "(crm)/enquiries/[id]/page.tsx",
       "(crm)/projects/[id]/page.tsx",
       "(crm)/quotations/[id]/page.tsx",
+      "(crm)/customers/[id]/page.tsx",
     ];
     idRoutes.forEach((route) => {
       expect(existsSync(routeFile(route)), `missing route file: ${route}`).toBe(true);
     });
   });
 
-  it("NAV-01: no /site-visits/{id}-style links exist anywhere on the dashboard", () => {
+  it("NAV-01: no /site-visits/{id}-style links exist anywhere on the dashboard; exactly one legitimate /customers/{id} attention link", () => {
     expect(countOccurrences(regionsSource, /href=\{`\/site-visits\//g)).toBe(0);
-    expect(countOccurrences(regionsSource, /\/customers\/\$\{/g)).toBe(0);
+    expect(countOccurrences(regionsSource, /\/customers\/\$\{/g)).toBe(1);
     expect(countOccurrences(dashboardSource, /href=\{`\/site-visits\//g)).toBe(0);
     expect(countOccurrences(dashboardSource, /\/customers\/\$\{/g)).toBe(0);
   });
