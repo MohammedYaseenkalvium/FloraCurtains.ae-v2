@@ -14,6 +14,8 @@ import { formatFullDate, formatRowDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -269,9 +271,14 @@ export async function RecentEnquiries() {
       </div>
 
       {recentEnquiries.length === 0 ? (
-        <div className="px-5 py-12 text-center text-base text-flora-muted">
-          No enquiries yet.
-        </div>
+        <EmptyState
+          title="No enquiries yet."
+          action={
+            <Button variant="secondary" size="md" href="/enquiries/new">
+              New enquiry
+            </Button>
+          }
+        />
       ) : (
         <div className="divide-y divide-flora-border/50">
           {recentEnquiries.map((enquiry) => (
@@ -343,9 +350,14 @@ export async function ActiveProjects() {
       </div>
 
       {activeProjects.length === 0 ? (
-        <div className="px-5 py-12 text-center text-base text-flora-muted">
-          No active projects yet.
-        </div>
+        <EmptyState
+          title="No active projects yet."
+          action={
+            <Button variant="secondary" size="md" href="/projects">
+              View projects
+            </Button>
+          }
+        />
       ) : (
         <div className="divide-y divide-flora-border/50">
           {activeProjects.map((project) => (
@@ -420,9 +432,14 @@ export async function PendingQuotations() {
       </div>
 
       {pendingQuotations.length === 0 ? (
-        <div className="px-5 py-12 text-center text-base text-flora-muted">
-          No pending quotations yet.
-        </div>
+        <EmptyState
+          title="No pending quotations yet."
+          action={
+            <Button variant="secondary" size="md" href="/quotations/new">
+              New quotation
+            </Button>
+          }
+        />
       ) : (
         <div className="divide-y divide-flora-border/50">
           {pendingQuotations.map((quotation) => (
@@ -581,9 +598,7 @@ export async function RecentActivity() {
         </div>
 
         {recentActivity.length === 0 ? (
-          <div className="px-5 py-12 text-center text-base text-flora-muted">
-            No activity recorded yet.
-          </div>
+          <EmptyState title="No activity recorded yet." />
         ) : (
           <div className="divide-y divide-flora-border/50">
             {recentActivity.map((activity) => (
