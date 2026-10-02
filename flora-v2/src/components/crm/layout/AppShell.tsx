@@ -20,9 +20,7 @@ export function AppShell({ user, children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-flora-background">
       <div className="mx-auto flex min-h-screen max-w-[1400px]">
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
+        <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <TopHeader user={user} />
           <main className="flex-1 overflow-y-auto p-4 pb-28 sm:p-6 md:pb-10">

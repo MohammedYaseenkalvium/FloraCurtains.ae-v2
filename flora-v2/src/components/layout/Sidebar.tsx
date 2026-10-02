@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -108,17 +108,37 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const hamburger = hamburgerRef.current;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      hamburger?.focus();
+    };
+  }, [open]);
 
   return (
     <>
       {/* Mobile hamburger */}
       <button
+        ref={hamburgerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open navigation"
         aria-expanded={open}
         aria-controls="crm-sidebar"
-        className="fixed left-4 top-4 z-30 rounded-lg border border-flora-border bg-white p-2 text-flora-primary shadow-sm md:hidden"
+        className="fixed left-4 top-4 z-30 min-h-[44px] min-w-[44px] rounded-lg border border-flora-border bg-white p-2 text-flora-primary shadow-sm lg:hidden"
       >
         <Menu size={20} />
       </button>
@@ -129,15 +149,15 @@ export function Sidebar() {
           type="button"
           aria-label="Close navigation"
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
         />
       )}
 
       <aside
         id="crm-sidebar"
         className={[
-          "on-dark fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200",
-          "md:static md:z-auto md:translate-x-0",
+          "on-dark fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200 motion-reduce:transition-none",
+          "lg:static lg:z-auto lg:translate-x-0",
           open ? "translate-x-0" : "",
         ].join(" ")}
       >
@@ -169,7 +189,7 @@ export function Sidebar() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close navigation"
-            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 md:hidden"
+            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 lg:hidden"
           >
             <X size={20} />
           </button>

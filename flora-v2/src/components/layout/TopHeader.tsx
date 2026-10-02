@@ -20,14 +20,14 @@ export function TopHeader({ user }: TopHeaderProps) {
     <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-flora-border/60 bg-white/85 px-4 backdrop-blur-md sm:px-6 lg:px-8">
       <a
         href="/dashboard"
-        className="hidden md:block"
+        className="hidden lg:block"
         aria-label="Flora Curtains — dashboard"
       >
         <FloraLogo width={112} height={28} className="h-7 w-auto object-contain" />
       </a>
 
       {/* Mobile: the fixed hamburger sits in this corner */}
-      <div className="md:hidden" aria-hidden="true" />
+      <div className="lg:hidden" aria-hidden="true" />
 
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-flora-cream">
@@ -40,10 +40,10 @@ export function TopHeader({ user }: TopHeaderProps) {
         </div>
 
         <div>
-          <p className="text-sm font-medium text-flora-foreground">
+          <p className="truncate max-w-[140px] sm:max-w-none text-sm font-medium text-flora-foreground">
             {displayName}
           </p>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-flora-muted">
+          <p className="hidden sm:block text-[10px] uppercase tracking-[0.16em] text-flora-muted">
             {user.role || "Staff"}
           </p>
         </div>
