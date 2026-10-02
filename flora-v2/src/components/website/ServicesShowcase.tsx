@@ -44,7 +44,7 @@ export function ServicesShowcase() {
 
         <Reveal className="mt-5">
           <Link
-            href={`/services#${fifth.slug}`}
+            href={`/services/${fifth.slug}`}
             className="group relative block overflow-hidden rounded-flora-lg"
           >
             <div className="relative aspect-[16/8] w-full md:aspect-[21/8]">
@@ -95,7 +95,7 @@ function ServiceTile({
 }) {
   return (
     <Link
-      href={`/services#${slug}`}
+      href={`/services/${slug}`}
       className="group relative block overflow-hidden rounded-flora-lg"
     >
       <div className="relative aspect-[4/3] w-full">

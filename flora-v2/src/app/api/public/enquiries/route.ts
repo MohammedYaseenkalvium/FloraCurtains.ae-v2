@@ -104,158 +104,127 @@ export async function POST(request: Request) {
     const data = parsed.data;
 
     /*
-     * Find an existing contact by email.
+     * Contact + enquiry + activity log are written atomically so a
+     * public submission can never leave a half-created record.
      */
-    let contact = await db.contact.findFirst({
-      where: {
-        email: data.email,
-      },
-    });
-
-    /*
-     * If no email match exists, try the phone number.
-     */
-    if (!contact) {
-      contact = await db.contact.findFirst({
-        where: {
-          phone: data.phone,
-        },
-      });
-    }
-
-    /*
-     * Create a new contact if this is a new customer.
-     */
-    if (!contact) {
-      contact = await db.contact.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-        },
-      });
-    } else {
+    const enquiry = await db.$transaction(async (tx) => {
       /*
-       * Update contact details when the public enquiry
-       * contains newer information.
+       * Find an existing contact by email.
        */
-      const contactUpdates: {
-        name?: string;
-        email?: string;
-        phone?: string;
-      } = {};
+      let contact = await tx.contact.findFirst({
+        where: {
+          email: data.email,
+        },
+      });
 
-      if (
-        data.name &&
-        data.name !== contact.name
-      ) {
-        contactUpdates.name = data.name;
-      }
-
-      if (
-        data.email &&
-        data.email !== contact.email
-      ) {
-        contactUpdates.email = data.email;
-      }
-
-      if (
-        data.phone &&
-        data.phone !== contact.phone
-      ) {
-        contactUpdates.phone = data.phone;
-      }
-
-      if (
-        Object.keys(contactUpdates).length > 0
-      ) {
-        contact = await db.contact.update({
+      /*
+       * If no email match exists, try the phone number.
+       */
+      if (!contact) {
+        contact = await tx.contact.findFirst({
           where: {
-            id: contact.id,
+            phone: data.phone,
           },
-          data: contactUpdates,
         });
       }
-    }
 
-    /*
-     * Enquiry does not have a dedicated budget field
-     * in the current Prisma schema.
-     *
-     * Therefore budget is preserved inside remarks.
-     */
-    const enquiryRemarks = [
-      data.budget
-        ? `Budget: ${data.budget}`
-        : null,
+      /*
+       * Create a new contact if this is a new customer.
+       */
+      if (!contact) {
+        contact = await tx.contact.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+          },
+        });
+      } else {
+        /*
+         * Fill blank fields only — never overwrite stored contact data.
+         *
+         * This endpoint is anonymous, so a submitter who knows (or guesses)
+         * a phone number or email could otherwise rewrite a customer's name,
+         * email and phone. Corrections are made by staff in the CRM.
+         */
+        const contactUpdates: {
+          name?: string;
+          email?: string;
+          phone?: string;
+        } = {};
 
-      data.notes || null,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+        if (!contact.name && data.name) {
+          contactUpdates.name = data.name;
+        }
 
-    /*
-     * Create the CRM enquiry.
-     */
-    const enquiry = await db.enquiry.create({
-      data: {
-        contactId: contact.id,
+        if (!contact.email && data.email) {
+          contactUpdates.email = data.email;
+        }
 
-        customerType:
-          data.customerType,
+        if (!contact.phone && data.phone) {
+          contactUpdates.phone = data.phone;
+        }
 
-        serviceWanted:
-          data.serviceWanted,
+        if (Object.keys(contactUpdates).length > 0) {
+          contact = await tx.contact.update({
+            where: {
+              id: contact.id,
+            },
+            data: contactUpdates,
+          });
+        }
+      }
 
-        projectName:
-          data.projectName || null,
+      /*
+       * Enquiry does not have a dedicated budget field
+       * in the current Prisma schema.
+       *
+       * Therefore budget is preserved inside remarks.
+       */
+      const enquiryRemarks = [
+        data.budget ? `Budget: ${data.budget}` : null,
+        data.notes || null,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
 
-        siteAddress:
-          data.siteAddress || null,
-
-        remarks:
-          enquiryRemarks || null,
-
-        status: "NEW",
-      },
-    });
-
-    /*
-     * Record the public enquiry in the CRM activity log.
-     */
-    await db.activityLog.create({
-      data: {
-        userName: "Public Website",
-
-        action:
-          "PUBLIC_ENQUIRY_CREATED",
-
-        entityType: "ENQUIRY",
-
-        entityId: enquiry.id,
-
-        summary:
-          `New public enquiry received from ${contact.name}.`,
-
-        meta: {
-          source: "public_website",
-
-          customerType:
-            data.customerType,
-
-          serviceWanted:
-            data.serviceWanted,
-
-          email:
-            contact.email,
-
-          phone:
-            contact.phone,
-
-          budget:
-            data.budget || null,
+      /*
+       * Create the CRM enquiry.
+       */
+      const created = await tx.enquiry.create({
+        data: {
+          contactId: contact.id,
+          customerType: data.customerType,
+          serviceWanted: data.serviceWanted,
+          projectName: data.projectName || null,
+          siteAddress: data.siteAddress || null,
+          remarks: enquiryRemarks || null,
+          status: "NEW",
         },
-      },
+      });
+
+      /*
+       * Record the public enquiry in the CRM activity log.
+       */
+      await tx.activityLog.create({
+        data: {
+          userName: "Public Website",
+          action: "PUBLIC_ENQUIRY_CREATED",
+          entityType: "ENQUIRY",
+          entityId: created.id,
+          summary: `New public enquiry received from ${contact.name}.`,
+          meta: {
+            source: "public_website",
+            customerType: data.customerType,
+            serviceWanted: data.serviceWanted,
+            email: contact.email,
+            phone: contact.phone,
+            budget: data.budget || null,
+          },
+        },
+      });
+
+      return created;
     });
 
     return NextResponse.json(

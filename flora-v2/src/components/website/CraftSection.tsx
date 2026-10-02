@@ -12,7 +12,7 @@ const shots = [
 /** Material close-ups: fabric, stitching, finished installation. */
 export function CraftSection() {
   return (
-    <section className="bg-flora-surface">
+    <section className="bg-flora-cream">
       <Container className="py-20 lg:py-28">
         <Reveal>
           <SectionHeading

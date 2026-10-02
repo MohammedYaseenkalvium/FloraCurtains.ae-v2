@@ -6,6 +6,7 @@ import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import {
+  ArrowRight,
   Calculator,
   PlusCircle,
   Save,
@@ -218,7 +219,7 @@ export function QuotationBuilder({
                   <button
                     type="button"
                     onClick={() => remove(index)}
-                    className="inline-flex items-center gap-1 text-xs text-[#991B1B] hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-flora-danger hover:underline"
                   >
                     <Trash2 size={13} />
                     Remove
@@ -526,9 +527,10 @@ export function QuotationBuilder({
                 setError("");
                 setStep((s) => s + 1);
               }}
-              className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              className="inline-flex items-center gap-1 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
             >
-              Next →
+              Next
+              <ArrowRight size={12} aria-hidden="true" />
             </button>
           )}
         </div>

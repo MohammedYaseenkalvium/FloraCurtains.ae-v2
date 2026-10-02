@@ -60,25 +60,43 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
           ).id;
     }
 
+    /*
+     * Match by phone, but only ever FILL blank fields on the stored contact.
+     * Enquiry creation must never replace a stored name, email or company:
+     * two people can share a number (or a typo can match one), and a silent
+     * overwrite destroys a customer record. Corrections belong on the
+     * contact/customer edit screens.
+     */
     const existingContact = await tx.contact.findFirst({
       where: { phone: v.contactPhone },
     });
 
-    const contact = existingContact
-      ? await tx.contact.update({
-          where: { id: existingContact.id },
-          data: { name: v.contactName, email: v.contactEmail || undefined, companyId },
-        })
-      : await tx.contact.create({
-          data: {
-            name: v.contactName,
-            phone: v.contactPhone,
-            email: v.contactEmail || undefined,
-            source: v.contactSource,
-            role: v.contactRole ?? "OTHER",
-            companyId,
-          },
-        });
+    let contact;
+    if (existingContact) {
+      const updates: { name?: string; email?: string; companyId?: string } = {};
+      if (!existingContact.name) updates.name = v.contactName;
+      if (!existingContact.email && v.contactEmail) updates.email = v.contactEmail;
+      if (!existingContact.companyId && companyId) updates.companyId = companyId;
+
+      contact =
+        Object.keys(updates).length > 0
+          ? await tx.contact.update({
+              where: { id: existingContact.id },
+              data: updates,
+            })
+          : existingContact;
+    } else {
+      contact = await tx.contact.create({
+        data: {
+          name: v.contactName,
+          phone: v.contactPhone,
+          email: v.contactEmail || undefined,
+          source: v.contactSource,
+          role: v.contactRole ?? "OTHER",
+          companyId,
+        },
+      });
+    }
 
     const created = await tx.enquiry.create({
       data: {

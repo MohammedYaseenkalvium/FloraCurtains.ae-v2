@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { QuoteForm } from "@/components/public/QuoteForm";
+import { PageHero } from "@/components/website/PageHero";
 
 export const metadata: Metadata = {
   title: "Contact Flora Curtains | Abu Dhabi Showroom",
@@ -11,25 +12,17 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            Contact Flora
-          </span>
-
-          <h1 className="mt-4 max-w-3xl font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
+      <PageHero
+        eyebrow="Contact Flora"
+        title={
+          <>
             Tell us about
             <br />
             your space.
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
-            Share a few details about your project and
-            requirements. Our team can then understand what
-            you need and follow up with you.
-          </p>
-        </div>
-      </section>
+          </>
+        }
+        description="Share a few details about your project and requirements. Our team can then understand what you need and follow up with you."
+      />
 
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-[0.7fr_1.3fr] lg:px-8">
         <aside>

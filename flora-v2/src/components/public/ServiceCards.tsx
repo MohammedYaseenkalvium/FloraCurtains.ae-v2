@@ -29,7 +29,7 @@ export function ServiceCards() {
         return (
           <Link
             key={service.slug}
-            href={`/services#${service.slug}`}
+            href={`/services/${service.slug}`}
             className="group overflow-hidden rounded-xl border border-flora-border bg-white transition-all hover:-translate-y-1 hover:border-flora-gold hover:shadow-flora-md"
           >
             <div className="relative aspect-[16/10] overflow-hidden bg-flora-surface">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageHero } from "@/components/website/PageHero";
 import { PortfolioGallery } from "@/components/public/PortfolioGallery";
 
 export const metadata: Metadata = {
@@ -43,23 +44,11 @@ const projects = [
 export default function PortfolioPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            Portfolio
-          </span>
-
-          <h1 className="mt-4 font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
-            Selected work.
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
-            A selection of spaces and window treatments
-            created with attention to proportion, material
-            and function.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Portfolio"
+        title={<>Selected work.</>}
+        description="A selection of spaces and window treatments created with attention to proportion, material and function."
+      />
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <PortfolioGallery projects={projects} />

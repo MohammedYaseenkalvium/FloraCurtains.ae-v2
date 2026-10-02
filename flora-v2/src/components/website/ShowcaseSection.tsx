@@ -22,7 +22,7 @@ export function ShowcaseSection() {
           <SectionHeading
             eyebrow="Recent projects"
             title={<>Spaces we&apos;ve transformed.</>}
-            description="Large photography, honest labels, lots of whitespace."
+            description="A selection of interiors — villas, living spaces and workspaces across the UAE."
           />
         </Reveal>
 

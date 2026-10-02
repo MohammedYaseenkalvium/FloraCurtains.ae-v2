@@ -356,14 +356,14 @@ export function QuoteForm() {
       </div>
 
       {error && (
-        <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4">
+        <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-flora-danger/30 bg-flora-danger-surface p-4">
           <AlertCircle
             size={17}
             aria-hidden="true"
-            className="mt-0.5 shrink-0 text-red-700"
+            className="mt-0.5 shrink-0 text-flora-danger"
           />
 
-          <p className="text-sm text-red-800">
+          <p className="text-sm text-flora-danger">
             {error}
           </p>
         </div>

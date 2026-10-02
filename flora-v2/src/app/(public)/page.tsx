@@ -22,6 +22,10 @@ export default function HomePage() {
 
       <CurtainsFeature />
 
+      <ShowcaseSection />
+
+      <CraftSection />
+
       {/* Why Flora */}
       <section className="bg-white">
         <Container className="py-20 lg:py-28">
@@ -42,10 +46,6 @@ export default function HomePage() {
           </Reveal>
         </Container>
       </section>
-
-      <ShowcaseSection />
-
-      <CraftSection />
 
       <UAESection />
 

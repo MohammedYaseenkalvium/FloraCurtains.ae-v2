@@ -17,7 +17,7 @@ export default function RootError({
     <html>
       <body className="min-h-screen bg-flora-surface flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-sm border border-flora-border p-10 w-full max-w-sm text-center">
-          <div className="text-3xl font-bold text-[#991B1B] tracking-widest mb-2">ERROR</div>
+          <div className="text-3xl font-bold text-flora-danger tracking-widest mb-2">ERROR</div>
           <p className="text-sm text-flora-muted mb-6">
             {error.message || "Something went wrong."}
           </p>

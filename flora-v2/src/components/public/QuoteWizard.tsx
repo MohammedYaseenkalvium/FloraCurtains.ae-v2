@@ -190,7 +190,7 @@ export function QuoteWizard() {
       </p>
 
       {stepError && (
-        <p role="alert" className="mb-5 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="mb-5 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {stepError}
         </p>
       )}
@@ -269,7 +269,7 @@ export function QuoteWizard() {
       )}
 
       {submitError && (
-        <p role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
           {submitError}
         </p>

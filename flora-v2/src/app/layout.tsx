@@ -4,8 +4,12 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "FloraFlow | Interior Operations",
-  description: "Flora Curtains CRM and Interior Operations Portal",
+  title: {
+    default: "Flora Curtains LLC | Curtains & Interior Solutions in Abu Dhabi",
+    template: "%s | Flora Curtains LLC",
+  },
+  description:
+    "Flora Curtains LLC — custom curtains, blinds, wallpaper, sofas, flooring and interior decoration across the UAE. Transforming Spaces with Style, Comfort & Elegance.",
 };
 
 export default function RootLayout({

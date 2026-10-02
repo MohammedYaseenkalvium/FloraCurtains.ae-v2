@@ -8,6 +8,7 @@ import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Menu,
+  Ruler,
   Users,
   FileText,
   FolderKanban,
@@ -64,6 +65,11 @@ const navigation = [
         label: "Site Visits",
         href: "/site-visits",
         icon: CalendarCheck,
+      },
+      {
+        label: "Measurements",
+        href: "/measurements",
+        icon: Ruler,
       },
       {
         label: "Tasks",
@@ -130,7 +136,7 @@ export function Sidebar() {
       <aside
         id="crm-sidebar"
         className={[
-          "fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200",
+          "on-dark fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200",
           "md:static md:z-auto md:translate-x-0",
           open ? "translate-x-0" : "",
         ].join(" ")}
@@ -150,7 +156,7 @@ export function Sidebar() {
 
           <div className="min-w-0">
             <div className="font-display text-xl font-semibold leading-none text-white">
-              FloraFlow
+              Flora Curtains
             </div>
 
             <div className="mt-1 whitespace-nowrap text-[9px] font-medium uppercase tracking-[0.16em] text-white/50">
@@ -174,7 +180,7 @@ export function Sidebar() {
         {navigation.map((section) => (
           <div key={section.label} className="mb-4 last:mb-0">
             {/* Section label */}
-            <div className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+            <div className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
               {section.label}
             </div>
 
@@ -197,8 +203,8 @@ export function Sidebar() {
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                       "transition-colors duration-150",
                       active
-                        ? "bg-flora-primary text-white"
-                        : "text-white/65 hover:bg-white/10 hover:text-white",
+                        ? "bg-flora-primary text-white shadow-[inset_3px_0_0_0_var(--flora-gold)]"
+                        : "text-white/70 hover:bg-white/10 hover:text-white",
                     ].join(" ")}
                   >
                     <Icon

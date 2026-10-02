@@ -11,15 +11,24 @@ const explore = [
   ["Get Quote", "/get-quote"],
 ];
 
+/**
+ * Editorial dark footer — gold hairline, serif tagline, real contact data.
+ * `on-dark` scopes gold keyboard-focus rings (see globals.css).
+ */
 export function PublicFooter() {
   return (
-    <footer className="bg-flora-footer text-white">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
+    <footer className="on-dark bg-flora-footer text-white">
+      <div aria-hidden="true" className="h-px bg-flora-gold/60" />
+
+      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+        <div className="grid gap-14 md:grid-cols-[1.4fr_1fr_1fr_1.3fr]">
           <div>
-            <FloraLogo width={200} height={50} className="mb-5 h-12 w-auto object-contain" />
-            <p className="mt-6 max-w-xs font-display text-2xl leading-snug text-white">
-              Bringing Style, Comfort &amp; Luxury to Every Space.
+            <FloraLogo width={200} height={50} className="h-12 w-auto object-contain" />
+            <p className="mt-7 max-w-xs font-display text-[1.7rem] leading-snug text-white">
+              Transforming Spaces with Style, Comfort &amp; Elegance.
+            </p>
+            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-flora-gold">
+              Experience Built Since 1997
             </p>
           </div>
 
@@ -27,10 +36,13 @@ export function PublicFooter() {
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-flora-gold">
               Explore
             </h3>
-            <ul className="mt-5 space-y-3 text-sm text-white/80">
+            <ul className="mt-6 space-y-3.5 text-sm text-white/75">
               {explore.map(([label, href]) => (
                 <li key={href + label}>
-                  <Link href={href} className="transition-colors hover:text-white">
+                  <Link
+                    href={href}
+                    className="transition-colors duration-200 hover:text-white"
+                  >
                     {label}
                   </Link>
                 </li>
@@ -42,12 +54,12 @@ export function PublicFooter() {
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-flora-gold">
               Services
             </h3>
-            <ul className="mt-5 space-y-3 text-sm text-white/80">
+            <ul className="mt-6 space-y-3.5 text-sm text-white/75">
               {services.map((service) => (
                 <li key={service.slug}>
                   <Link
-                    href={`/services#${service.slug}`}
-                    className="transition-colors hover:text-white"
+                    href={`/services/${service.slug}`}
+                    className="transition-colors duration-200 hover:text-white"
                   >
                     {service.title}
                   </Link>
@@ -60,7 +72,7 @@ export function PublicFooter() {
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-flora-gold">
               Contact
             </h3>
-            <address className="mt-5 space-y-3 text-sm not-italic leading-6 text-white/80">
+            <address className="mt-6 space-y-4 text-sm not-italic leading-6 text-white/75">
               <p>
                 Flora Curtains LLC
                 <br />
@@ -69,7 +81,10 @@ export function PublicFooter() {
                 Abu Dhabi, United Arab Emirates
               </p>
               <p>
-                <a href="tel:+97125864545" className="transition-colors hover:text-white">
+                <a
+                  href="tel:+97125864545"
+                  className="transition-colors duration-200 hover:text-white"
+                >
                   +971 2 586 4545
                 </a>
                 <br />
@@ -77,14 +92,14 @@ export function PublicFooter() {
                   href="https://wa.me/971557464100"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-white"
+                  className="transition-colors duration-200 hover:text-white"
                 >
                   WhatsApp: +971 55 746 4100
                 </a>
                 <br />
                 <a
                   href="mailto:sayedflora1@gmail.com"
-                  className="transition-colors hover:text-white"
+                  className="transition-colors duration-200 hover:text-white"
                 >
                   sayedflora1@gmail.com
                 </a>
@@ -93,7 +108,7 @@ export function PublicFooter() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-7 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Flora Curtains LLC. All rights reserved.</p>
           <p className="uppercase tracking-[0.18em]">
             Abu Dhabi | Dubai | Sharjah | All Emirates
