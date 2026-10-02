@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, Fragment, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -47,13 +48,18 @@ interface RegionBoundaryState {
 }
 
 /**
- * Minimal client error boundary for one dashboard region. Retry bumps a
- * nonce that remounts the children (keyed remount), so the async server
- * region re-streams through the existing server read path — no client fetch,
- * no query params, session auth() check intact. Healthy sibling regions are
- * untouched (silent degrade, no page-wide alarm).
+ * Minimal client error boundary for one dashboard region. Retry issues a
+ * genuine server re-request via router.refresh() from next/navigation and
+ * clears the failed flag with a nonce bump for the keyed Fragment remount,
+ * so the failed async server region re-reads through the existing server
+ * read path — no client fetch, no query params, session auth() check intact.
+ * Healthy sibling regions are untouched (silent degrade, no page-wide
+ * alarm).
  */
-export class RegionBoundary extends Component<RegionBoundaryProps, RegionBoundaryState> {
+class RegionBoundaryInner extends Component<
+  RegionBoundaryProps & { onRefresh: () => void },
+  RegionBoundaryState
+> {
   state: RegionBoundaryState = { failed: false, nonce: 0 };
 
   static getDerivedStateFromError(): Partial<RegionBoundaryState> {
@@ -65,6 +71,7 @@ export class RegionBoundary extends Component<RegionBoundaryProps, RegionBoundar
   }
 
   private handleRetry = () => {
+    this.props.onRefresh();
     this.setState((state) => ({ failed: false, nonce: state.nonce + 1 }));
   };
 
@@ -74,4 +81,15 @@ export class RegionBoundary extends Component<RegionBoundaryProps, RegionBoundar
     }
     return <Fragment key={this.state.nonce}>{this.props.children}</Fragment>;
   }
+}
+
+/**
+ * RegionBoundary — function wrapper that wires the retry gesture to a
+ * genuine server re-request. useRouter().refresh() re-fetches the current
+ * route's RSC Flight payload so the failed region re-executes its server
+ * read; the inner boundary's keyed remount then renders the fresh result.
+ */
+export function RegionBoundary(props: RegionBoundaryProps) {
+  const router = useRouter();
+  return <RegionBoundaryInner {...props} onRefresh={() => router.refresh()} />;
 }
