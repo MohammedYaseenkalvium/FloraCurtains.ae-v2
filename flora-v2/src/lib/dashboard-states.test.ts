@@ -179,6 +179,16 @@ describe("home state guards (scope fence + token/money discipline)", () => {
   });
 });
 
+describe("home zero-table battery (DSH-04, no dense tables)", () => {
+  it("dashboard homepage renders zero dense tables across combined home sources", () => {
+    // Home-only scope by construction: page plus regions plus skeletons.
+    // The module detail page table lives outside these sources and is
+    // untouched by this assert.
+    const homeSources = pageSource + regionsSource + skeletonsSource;
+    expect(countOccurrences(homeSources, /<table/g)).toBe(0);
+  });
+});
+
 const outstandingPageSource = normalize(
   readFileSync(file("(crm)/dashboard/outstanding/page.tsx"), "utf8")
 );
