@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { getPortfolioFinancialSummary } from "@/lib/customer-financial";
+import { getAllOutstandingBalances, getPortfolioFinancialSummary } from "@/lib/customer-financial";
 import { formatAED } from "@/lib/finance";
 import { formatFullDate, formatRowDate } from "@/lib/format";
 import { statusStyles } from "@/lib/status-styles";
@@ -35,6 +35,15 @@ function formatActivityAction(action: string) {
     .toLowerCase()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
+
+/*
+ * Stale-enquiry inactivity window (D-02 planner discretion): an open enquiry
+ * whose updatedAt is older than this cutoff counts as needing attention.
+ * Module scope keeps render pure (react-hooks/purity); the seven-day window
+ * makes per-request drift irrelevant.
+ */
+const STALE_ENQUIRY_INACTIVITY_MS = 7 * 24 * 60 * 60 * 1000;
+const staleCutoff = new Date(Date.now() - STALE_ENQUIRY_INACTIVITY_MS);
 
 /**
  * Hero greeting + business-overview chips.
@@ -625,6 +634,138 @@ export async function RecentActivity() {
         )}
       </div>
     </section>
+    </Reveal>
+  );
+}
+
+/**
+ * Urgency-first slice directly under the hero.
+ * Signals (per D-02, all computable from existing reads, no overdue
+ * derivation): pending quotations awaiting client decision (DRAFT/SENT/
+ * REVISED) + unpaid outstanding balances via the shared customer-financial
+ * pipeline + stale enquiries with no recent activity (updatedAt older than
+ * seven days, open statuses only). At most 5 deep-linked rows; zero signals
+ * render a quiet all-clear EmptyState in the same frame (the card never
+ * hides). All money goes through formatAED (one-money-pipeline rule).
+ */
+export async function NeedsAttention() {
+  const pendingQuotations = await db.quotation.findMany({
+    take: 5,
+    where: {
+      deletedAt: null,
+      enquiry: { deletedAt: null },
+      status: { in: ["DRAFT", "SENT", "REVISED"] },
+    },
+    include: {
+      enquiry: {
+        include: { contact: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const outstandingBalances = await getAllOutstandingBalances();
+
+  const staleEnquiries = await db.enquiry.findMany({
+    take: 5,
+    where: {
+      deletedAt: null,
+      status: { notIn: ["WON", "LOST"] },
+      updatedAt: { lt: staleCutoff },
+    },
+    include: { contact: true },
+    orderBy: { updatedAt: "asc" },
+  });
+
+  const quoteRows = pendingQuotations.slice(0, 5);
+  const balanceRows = outstandingBalances.slice(0, 5 - quoteRows.length);
+  const staleRows = staleEnquiries.slice(
+    0,
+    5 - quoteRows.length - balanceRows.length,
+  );
+  const hasSignals =
+    quoteRows.length + balanceRows.length + staleRows.length > 0;
+
+  return (
+    <Reveal>
+    <div className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm border-t-2 border-t-flora-primary">
+      <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+        <div>
+          <h2 className="font-semibold text-flora-foreground">
+            Needs attention today
+          </h2>
+
+          <p className="mt-1 text-xs text-flora-muted">
+            Today&apos;s priorities across quotes, money and stale enquiries
+          </p>
+        </div>
+      </div>
+
+      {!hasSignals ? (
+        <EmptyState title="All clear — nothing needs attention today" />
+      ) : (
+        <div className="divide-y divide-flora-border/50">
+          {quoteRows.map((quotation) => (
+            <Link
+              key={quotation.id}
+              href={`/quotations/${quotation.id}`}
+              className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+            >
+              <StatusBadge domain="quotation" status={quotation.status} />
+
+              <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                {quotation.quoteNumber}
+                <span className="text-flora-muted"> · {quotation.enquiry.contact.name}</span>
+              </span>
+
+              <span className="shrink-0 text-base font-semibold tabular-nums text-flora-foreground">
+                {formatAED(quotation.totalAmount, { decimals: false })}
+              </span>
+
+              <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                {formatRowDate(new Date(quotation.createdAt))}
+              </span>
+            </Link>
+          ))}
+          {balanceRows.map((balance) => (
+            <Link
+              key={balance.customerId}
+              href={`/customers/${balance.customerId}`}
+              className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+            >
+              <StatusBadge domain="payment" status="BALANCE" />
+
+              <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                {balance.customerName}
+                <span className="text-flora-muted"> · Outstanding balance</span>
+              </span>
+
+              <span className="shrink-0 text-base font-semibold tabular-nums text-flora-foreground">
+                {formatAED(balance.outstanding, { decimals: false })}
+              </span>
+            </Link>
+          ))}
+          {staleRows.map((enquiry) => (
+            <Link
+              key={enquiry.id}
+              href={`/enquiries/${enquiry.id}`}
+              className="flex items-center gap-3 px-5 py-3 transition hover:bg-flora-background"
+            >
+              <StatusBadge domain="enquiry" status={enquiry.status} />
+
+              <span className="min-w-0 flex-1 truncate text-base font-normal text-flora-foreground">
+                {enquiry.contact.name}
+                <span className="text-flora-muted"> · {enquiry.serviceWanted}</span>
+              </span>
+
+              <span className="shrink-0 text-xs tabular-nums text-flora-muted">
+                {formatRowDate(new Date(enquiry.updatedAt))}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
     </Reveal>
   );
 }
