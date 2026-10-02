@@ -45,18 +45,22 @@ const errorCardSource = normalize(
   readFileSync(file("(crm)/dashboard/_components/RegionErrorCard.tsx"), "utf8")
 );
 
-const activitySegment = segment(regionsSource, "export async function RecentActivity");
+const activitySegment = segment(
+  regionsSource,
+  "export async function RecentActivity",
+  "export async function NeedsAttention"
+);
 
 describe("home loading states (STAT-01)", () => {
-  it("page streams all seven regions behind their own Suspense fallback, with no page-level Promise.all", () => {
-    expect(countOccurrences(pageSource, /<Suspense/g)).toBe(7);
+  it("page streams all eight regions behind their own Suspense fallback, with no page-level Promise.all", () => {
+    expect(countOccurrences(pageSource, /<Suspense/g)).toBe(8);
     expect(pageSource).not.toContain("Promise.all");
   });
 
-  it("every region gets its shape-matched skeleton (hero, KPI, 4x list, payment)", () => {
+  it("every region gets its shape-matched skeleton (hero, KPI, 5x list, payment)", () => {
     expect(pageSource).toContain("fallback={<HeroChipsSkeleton />}");
     expect(pageSource).toContain("fallback={<KpiSkeleton />}");
-    expect(countOccurrences(pageSource, /fallback=\{<ListSkeleton \/>\}/g)).toBe(4);
+    expect(countOccurrences(pageSource, /fallback=\{<ListSkeleton \/>\}/g)).toBe(5);
     expect(pageSource).toContain("fallback={<PaymentSkeleton />}");
   });
 
@@ -74,12 +78,13 @@ describe("home loading states (STAT-01)", () => {
 });
 
 describe("home empty states (STAT-02)", () => {
-  it("the four lists render quiet neutral EmptyState titles (shipped strings kept)", () => {
+  it("the five lists render quiet neutral EmptyState titles (shipped strings kept, attention all-clear pinned)", () => {
     expect(regionsSource).toContain("No enquiries yet.");
     expect(regionsSource).toContain("No active projects yet.");
     expect(regionsSource).toContain("No pending quotations yet.");
     expect(regionsSource).toContain("No activity recorded yet.");
-    expect(countOccurrences(regionsSource, /<EmptyState/g)).toBe(4);
+    expect(regionsSource).toContain("All clear — nothing needs attention today");
+    expect(countOccurrences(regionsSource, /<EmptyState/g)).toBe(5);
   });
 
   it("empty branches stay length === 0 with hint omitted (CTA does the guiding, D-12)", () => {
@@ -110,7 +115,8 @@ describe("home error states (STAT-03)", () => {
     expect(pageSource).toContain("Couldn't load recent activity");
     expect(pageSource).toContain("Couldn't load key metrics");
     expect(pageSource).toContain("Couldn't load payment overview");
-    expect(countOccurrences(pageSource, /<RegionBoundary/g)).toBe(7);
+    expect(pageSource).toContain("Couldn't load attention");
+    expect(countOccurrences(pageSource, /<RegionBoundary/g)).toBe(8);
   });
 
   it("error card uses role=alert with the danger triple and a real Retry button", () => {
