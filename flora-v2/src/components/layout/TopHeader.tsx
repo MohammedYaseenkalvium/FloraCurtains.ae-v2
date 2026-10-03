@@ -23,7 +23,7 @@ export function TopHeader({ user }: TopHeaderProps) {
         className="hidden lg:block"
         aria-label="Flora Curtains — dashboard"
       >
-        <FloraLogo width={112} height={28} className="h-7 w-auto object-contain" />
+        <FloraLogo width={84} height={28} className="h-7 w-auto object-contain" />
       </a>
 
       {/* Mobile: the fixed hamburger sits in this corner */}
