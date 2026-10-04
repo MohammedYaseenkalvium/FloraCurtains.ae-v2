@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FloraLogo } from "@/components/public/FloraLogo";
+import { services } from "@/lib/public/services";
 
 const links = [
   ["Home", "/"],
@@ -22,6 +23,7 @@ const links = [
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -39,6 +41,7 @@ export function PublicHeader() {
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
     setOpen(false);
+    setServicesOpen(false);
   }
 
   useEffect(() => {
@@ -57,6 +60,7 @@ export function PublicHeader() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
+        setServicesOpen(false);
         return;
       }
       if (event.key !== "Tab" || !drawer) return;
@@ -151,7 +155,10 @@ export function PublicHeader() {
           <button
             type="button"
             ref={hamburgerRef}
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              setOpen(!open);
+              setServicesOpen(false);
+            }}
             className={`rounded-lg p-2 transition-colors md:hidden ${
               transparent ? "text-white" : "text-flora-primary"
             }`}
@@ -177,7 +184,66 @@ export function PublicHeader() {
               aria-label="Mobile"
               className="mx-auto flex max-w-7xl flex-col px-5 py-8"
             >
-              {links.map(([label, href], index) => (
+              {links.map(([label, href], index) => {
+                if (label === "Services") {
+                  return (
+                    <div key={href} className="border-b border-flora-border/60">
+                      <button
+                        type="button"
+                        onClick={() => setServicesOpen((v) => !v)}
+                        aria-expanded={servicesOpen}
+                        aria-controls="mobile-services-submenu"
+                        className={[
+                          "flex w-full items-center justify-between py-5 font-display text-3xl leading-tight transition-colors",
+                          isActive(href)
+                            ? "text-flora-primary"
+                            : "text-flora-foreground hover:text-flora-primary",
+                        ].join(" ")}
+                      >
+                        {label}
+                        <ChevronDown
+                          size={24}
+                          aria-hidden="true"
+                          className={`shrink-0 transition-transform duration-200 ${servicesOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+
+                      {servicesOpen && (
+                        <div
+                          id="mobile-services-submenu"
+                          className="flex flex-col pb-4"
+                        >
+                          <Link
+                            href="/services"
+                            onClick={() => {
+                              setServicesOpen(false);
+                              setOpen(false);
+                            }}
+                            className="py-2.5 pl-1 text-base font-semibold text-flora-primary"
+                          >
+                            All services
+                          </Link>
+
+                          {services.map((service) => (
+                            <Link
+                              key={service.slug}
+                              href={`/services/${service.slug}`}
+                              onClick={() => {
+                                setServicesOpen(false);
+                                setOpen(false);
+                              }}
+                              className="py-2.5 pl-1 text-base text-flora-muted transition-colors hover:text-flora-primary"
+                            >
+                              {service.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
                 <Link
                   key={href}
                   href={href}
@@ -193,11 +259,15 @@ export function PublicHeader() {
                 >
                   {label}
                 </Link>
-              ))}
+                );
+              })}
 
               <Link
                 href="/get-quote"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setServicesOpen(false);
+                  setOpen(false);
+                }}
                 className="mt-8 rounded-lg bg-flora-primary px-6 py-4 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-flora-primary-hover"
               >
                 Get a Quote
