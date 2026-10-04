@@ -2,7 +2,7 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { statusStyles } from "@/lib/status-styles";
 import { ConvertToProject } from "@/components/crm/ConvertToProject";
 import { EnquiryEditForm } from "@/components/crm/EnquiryEditForm";
@@ -273,9 +273,10 @@ export default async function EnquiryDetailPage({
                     href={`/api/quotations/${q.id}/pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs border border-flora-border rounded-lg px-3 py-1 text-flora-muted hover:bg-flora-cream"
+                    className="inline-flex items-center gap-1 border border-flora-border rounded-lg px-3 py-1 text-xs text-flora-muted hover:bg-flora-cream"
                   >
-                    📄 PDF
+                    <FileText size={13} aria-hidden="true" />
+                    PDF
                   </a>
                 </div>
               </div>
