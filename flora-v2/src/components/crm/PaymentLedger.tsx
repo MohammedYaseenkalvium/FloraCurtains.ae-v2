@@ -36,10 +36,10 @@ export function PaymentLedger({ projectId, totalContractValue, payments: initial
   }
 
   const typeColors: Record<string, string> = {
-    ADVANCE: "bg-blue-50 text-blue-700",
-    INSTALLMENT: "bg-yellow-50 text-yellow-700",
-    BALANCE: "bg-green-50 text-green-700",
-    RETENTION: "bg-purple-50 text-purple-700",
+    ADVANCE: "bg-flora-info-surface text-flora-info",
+    INSTALLMENT: "bg-flora-warning-surface text-flora-warning",
+    BALANCE: "bg-flora-success-surface text-flora-success",
+    RETENTION: "bg-flora-cream text-flora-muted",
   };
 
   return (
@@ -63,7 +63,7 @@ export function PaymentLedger({ projectId, totalContractValue, payments: initial
         <div className="flex justify-between text-xs text-flora-muted mb-1">
           <span>Payment Progress</span><span>{paidPct.toFixed(1)}%</span>
         </div>
-        <div className="h-2 bg-[#EFE7DF] rounded-full overflow-hidden">
+        <div className="h-2 bg-flora-cream rounded-full overflow-hidden">
           <div className="h-full bg-flora-primary rounded-full transition-all" style={{ width: `${Math.min(paidPct, 100)}%` }} />
         </div>
       </div>
@@ -72,7 +72,7 @@ export function PaymentLedger({ projectId, totalContractValue, payments: initial
       <div className="border border-flora-border rounded-xl overflow-hidden mb-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
+            <tr className="bg-flora-cream text-flora-muted text-[10px] uppercase tracking-widest">
               {["Date","Type","Method","Amount","Reference","Notes"].map(h => (
                 <th key={h} className="text-left p-3 font-medium">{h}</th>
               ))}
@@ -131,7 +131,7 @@ export function PaymentLedger({ projectId, totalContractValue, payments: initial
           </div>
           <div className="flex gap-3">
             <button onClick={addPayment} className="bg-flora-primary text-white rounded-lg px-6 py-2 text-sm font-medium hover:bg-flora-primary-hover">Save</button>
-            <button onClick={() => setOpen(false)} className="bg-[#EFE7DF] text-flora-muted rounded-lg px-6 py-2 text-sm">Cancel</button>
+            <button onClick={() => setOpen(false)} className="bg-flora-cream text-flora-muted rounded-lg px-6 py-2 text-sm">Cancel</button>
           </div>
         </div>
       )}

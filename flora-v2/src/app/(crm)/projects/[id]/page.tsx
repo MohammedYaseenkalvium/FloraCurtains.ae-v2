@@ -165,7 +165,7 @@ export default async function ProjectDetailPage({
 
               {company && (
                 <>
-                  <span className="text-[#D8C9BC]">
+                  <span className="text-flora-border">
                     •
                   </span>
 
@@ -173,7 +173,7 @@ export default async function ProjectDetailPage({
                 </>
               )}
 
-              <span className="text-[#D8C9BC]">
+              <span className="text-flora-border">
                 •
               </span>
 

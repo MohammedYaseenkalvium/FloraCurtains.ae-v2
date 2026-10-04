@@ -52,7 +52,7 @@ export function CurtainsFeature() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-[#1C0A0C]/60" />
+        <div className="absolute inset-0 bg-flora-hero-scrim-deep/60" />
       </div>
 
       <Container className="relative py-24 text-center lg:py-32">
@@ -67,11 +67,11 @@ export function CurtainsFeature() {
             {types.join(" · ")}
           </p>
           <Link
-            href="/services#curtains-blinds"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-flora-primary transition-all hover:-translate-y-0.5 hover:bg-flora-surface"
+            href="/services/curtains-blinds"
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-flora-primary transition-colors duration-200 hover:bg-flora-surface"
           >
             Explore
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Reveal>
       </Container>

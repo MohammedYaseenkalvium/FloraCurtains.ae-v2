@@ -38,7 +38,7 @@ export function EnquiryForm() {
 
   const field = "border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface w-full";
   const label = "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
-  const err   = "text-red-600 text-xs mt-0.5";
+  const err   = "text-flora-danger text-xs mt-0.5";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-2xl">
@@ -168,7 +168,7 @@ export function EnquiryForm() {
       </button>
 
       {submitError && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {submitError}
         </p>
       )}

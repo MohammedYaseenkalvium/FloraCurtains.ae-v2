@@ -1,9 +1,11 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import type { EnquiryStatus } from "@prisma/client";
+import { ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const statuses: EnquiryStatus[] = [
@@ -142,7 +144,7 @@ export default async function EnquiriesPage({
       : {}),
   };
 
-  const [data, total, statusCounts] = await Promise.all([
+  const [data, total, statusGroups] = await Promise.all([
     db.enquiry.findMany({
       where,
       include: {
@@ -160,18 +162,27 @@ export default async function EnquiriesPage({
       where,
     }),
 
-    Promise.all(
-      statuses.map(async (status) => ({
-        status,
-        count: await db.enquiry.count({
-          where: {
-            deletedAt: null,
-            status,
-          },
-        }),
-      })),
-    ),
+    // Single GROUP BY instead of one COUNT per status (was 7 round trips).
+    // Tab counts ignore search text, matching prior behavior.
+    db.enquiry.groupBy({
+      by: ["status"],
+      where: {
+        deletedAt: null,
+      },
+      _count: {
+        _all: true,
+      },
+    }),
   ]);
+
+  const countByStatus = new Map<string, number>(
+    statusGroups.map((group) => [group.status, group._count._all])
+  );
+
+  const statusCounts = statuses.map((status) => ({
+    status,
+    count: countByStatus.get(status) ?? 0,
+  }));
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -184,29 +195,20 @@ export default async function EnquiriesPage({
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-flora-gold">
-            Sales
-          </p>
-
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-flora-foreground">
-            Leads & Enquiries
-          </h1>
-
-          <p className="mt-2 text-sm text-flora-muted">
-            Manage incoming opportunities and move them through the sales
-            pipeline.
-          </p>
-        </div>
-
-        <Link
-          href="/enquiries/new"
-          className="inline-flex w-fit items-center rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-flora-primary-hover"
-        >
-          + Log Call / Lead
-        </Link>
-      </header>
+      <PageHeader
+        eyebrow="Sales"
+        title="Leads & Enquiries"
+        description="Manage incoming opportunities and move them through the sales pipeline."
+        actions={
+          <Link
+            href="/enquiries/new"
+            className="inline-flex w-fit items-center gap-2 rounded-lg bg-flora-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-flora-primary-hover"
+          >
+            <Plus size={16} aria-hidden="true" />
+            Log Call / Lead
+          </Link>
+        }
+      />
 
       {/* Search */}
       <form
@@ -301,9 +303,10 @@ export default async function EnquiriesPage({
           enquiryStatus ? (
             <Link
               href={buildPageUrl(1, undefined, search)}
-              className="text-xs font-medium text-flora-primary hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
             >
-              View all leads →
+              View all leads
+              <ArrowRight size={12} aria-hidden="true" />
             </Link>
           ) : undefined
         }
@@ -323,7 +326,10 @@ export default async function EnquiriesPage({
             }
             action={
               !search && !enquiryStatus ? (
-                <Button href="/enquiries/new">+ Log Call / Lead</Button>
+                <Button href="/enquiries/new">
+                  <Plus size={16} aria-hidden="true" />
+                  Log Call / Lead
+                </Button>
               ) : undefined
             }
           />
@@ -331,7 +337,7 @@ export default async function EnquiriesPage({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-sm">
               <thead>
-                <tr className="bg-flora-surface text-left text-[10px] uppercase tracking-[0.14em] text-flora-muted">
+                <tr className="bg-flora-cream text-left text-[10px] uppercase tracking-[0.14em] text-flora-muted">
                   <th className="px-5 py-3 font-medium">Client</th>
                   <th className="px-5 py-3 font-medium">Company</th>
                   <th className="px-5 py-3 font-medium">Service</th>
@@ -347,7 +353,7 @@ export default async function EnquiriesPage({
                 {data.map((enquiry) => (
                   <tr
                     key={enquiry.id}
-                    className="border-t border-flora-surface transition hover:bg-flora-background"
+                    className="border-t border-flora-border/50 transition hover:bg-flora-background"
                   >
                     {/* Client */}
                     <td className="px-5 py-4">
@@ -423,9 +429,10 @@ export default async function EnquiriesPage({
                       <div className="flex items-center gap-3 whitespace-nowrap">
                         <Link
                           href={`/enquiries/${enquiry.id}`}
-                          className="text-xs font-medium text-flora-primary hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-flora-primary hover:underline"
                         >
-                          View →
+                          View
+                          <ArrowRight size={12} aria-hidden="true" />
                         </Link>
 
                         <Link
@@ -491,13 +498,15 @@ export default async function EnquiriesPage({
                   enquiryStatus,
                   search,
                 )}
-                className="rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium transition hover:bg-flora-surface"
+                className="inline-flex items-center gap-1 rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium transition hover:bg-flora-surface"
               >
-                Next →
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
-                Next →
+              <span className="inline-flex items-center gap-1 cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </span>
             )}
           </div>

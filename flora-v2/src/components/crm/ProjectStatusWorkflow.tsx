@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectStatus } from "@prisma/client";
 import {
+  ArrowRight,
   Check,
   CirclePause,
   Play,
   Wrench,
   X,
 } from "lucide-react";
+import { statusStyles } from "@/lib/status-styles";
 
 type WorkflowAction = {
   status: ProjectStatus;
@@ -119,57 +121,6 @@ const statusLabels: Record<
   CANCELLED: "Cancelled",
 };
 
-const statusStyles: Record<
-  ProjectStatus,
-  {
-    background: string;
-    text: string;
-    border: string;
-  }
-> = {
-  NOT_STARTED: {
-    background: "#F8F5F2",
-    text: "#6B625A",
-    border: "#D8C9BC",
-  },
-
-  IN_PROGRESS: {
-    background: "#EEF4FA",
-    text: "#185FA5",
-    border: "#B8D0E5",
-  },
-
-  INSTALLATION: {
-    background: "#FEF9E7",
-    text: "#854D0E",
-    border: "#E6D19B",
-  },
-
-  SNAGGING: {
-    background: "#F1F0FC",
-    text: "#7F77DD",
-    border: "#C9C5F0",
-  },
-
-  COMPLETED: {
-    background: "#EDF7F3",
-    text: "#166534",
-    border: "#B7D8CC",
-  },
-
-  ON_HOLD: {
-    background: "#FEF2F2",
-    text: "#991B1B",
-    border: "#E8BDBD",
-  },
-
-  CANCELLED: {
-    background: "#F5F5F4",
-    text: "#57534E",
-    border: "#D6D3D1",
-  },
-};
-
 export function ProjectStatusWorkflow({
   projectId,
   currentStatus,
@@ -193,7 +144,7 @@ export function ProjectStatusWorkflow({
   const actions = transitions[status];
 
   const currentStyle =
-    statusStyles[status];
+    statusStyles.project[status];
 
   async function updateStatus(
     newStatus: ProjectStatus
@@ -268,8 +219,8 @@ export function ProjectStatusWorkflow({
 
         {actions.length > 0 && (
           <>
-            <span className="text-[#D8C9BC]">
-              →
+            <span className="text-flora-border">
+              <ArrowRight size={12} aria-hidden="true" />
             </span>
 
             {actions.map((action) => {
@@ -297,9 +248,9 @@ export function ProjectStatusWorkflow({
                     "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
 
                     isHold
-                      ? "border border-[#E8BDBD] bg-[#FEF2F2] text-[#991B1B] hover:bg-[#FDE8E8]"
+                      ? "border border-flora-danger/30 bg-flora-danger-surface text-flora-danger hover:bg-flora-danger-surface"
                       : isComplete
-                        ? "border border-[#B7D8CC] bg-[#EDF7F3] text-[#166534] hover:bg-[#E0F1EB]"
+                        ? "border border-flora-success-border bg-flora-success-surface text-flora-success-text hover:bg-flora-success-surface-hover"
                         : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >
@@ -317,7 +268,7 @@ export function ProjectStatusWorkflow({
 
       {error && (
         <p
-          className="text-xs text-[#991B1B]"
+          className="text-xs text-flora-danger"
           role="alert"
         >
           {error}

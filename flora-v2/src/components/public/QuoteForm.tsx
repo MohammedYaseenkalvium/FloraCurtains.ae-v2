@@ -1,12 +1,31 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
   Loader2,
   Send,
 } from "lucide-react";
+import { PHONE_PATTERN_SOURCE } from "@/lib/validation";
+
+function FieldError({
+  name,
+  errors,
+}: {
+  name: string;
+  errors: Record<string, string>;
+}) {
+  if (!errors[name]) return null;
+  return (
+    <p
+      id={`${name}-error`}
+      className="mt-1.5 text-xs text-flora-danger"
+    >
+      {errors[name]}
+    </p>
+  );
+}
 
 export function QuoteForm() {
   const [loading, setLoading] =
@@ -18,6 +37,26 @@ export function QuoteForm() {
   const [error, setError] =
     useState("");
 
+  const [fieldErrors, setFieldErrors] =
+    useState<Record<string, string>>({});
+
+  const [reference, setReference] =
+    useState("");
+
+  const [offline, setOffline] =
+    useState(false);
+
+  const formRef =
+    useRef<HTMLFormElement>(null);
+
+  const alertRef =
+    useRef<HTMLDivElement>(null);
+
+  // Move keyboard + screen-reader focus to the error summary on failure.
+  useEffect(() => {
+    if (error) alertRef.current?.focus();
+  }, [error]);
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -25,7 +64,10 @@ export function QuoteForm() {
 
     setLoading(true);
     setError("");
+    setFieldErrors({});
     setSuccess(false);
+    setReference("");
+    setOffline(false);
 
     const form =
       event.currentTarget;
@@ -103,6 +145,16 @@ export function QuoteForm() {
           .catch(() => null);
 
       if (!response.ok) {
+        if (
+          data &&
+          typeof data === "object" &&
+          data.fieldErrors &&
+          typeof data.fieldErrors === "object"
+        ) {
+          setFieldErrors(
+            data.fieldErrors as Record<string, string>
+          );
+        }
         throw new Error(
           data?.error ??
             "Unable to submit your enquiry."
@@ -110,12 +162,25 @@ export function QuoteForm() {
       }
 
       form.reset();
+      setReference(
+        typeof data?.enquiryId === "string"
+          ? data.enquiryId.slice(-6).toUpperCase()
+          : ""
+      );
       setSuccess(true);
     } catch (err) {
+      const isOffline =
+        err instanceof TypeError &&
+        /fetch failed|networkerror|load failed/i.test(
+          err.message
+        );
+      setOffline(isOffline);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again."
+        isOffline
+          ? "No connection. Check your internet connection and try again."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -126,7 +191,7 @@ export function QuoteForm() {
     return (
       <div className="rounded-xl border border-flora-border bg-white p-8 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-flora-primary">
-          <CheckCircle2 size={24} />
+          <CheckCircle2 size={24} aria-hidden="true" />
         </div>
 
         <h2 className="mt-5 font-display text-3xl text-flora-foreground">
@@ -137,6 +202,7 @@ export function QuoteForm() {
           Thank you for contacting Flora Curtains.
           Your enquiry has been received and our team
           will get back to you.
+          {reference ? ` Your reference: ${reference}.` : ""}
         </p>
 
         <button
@@ -154,9 +220,52 @@ export function QuoteForm() {
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleSubmit}
       className="rounded-xl border border-flora-border bg-white p-6 sm:p-8"
+      aria-busy={loading}
     >
+      <fieldset disabled={loading} className="contents">
+      {error && (
+        <div ref={alertRef} tabIndex={-1} role="alert" aria-labelledby="quote-form-error-title" className="mb-5 flex items-start gap-3 rounded-lg border border-flora-danger/30 bg-flora-danger-surface p-4 outline-none focus-visible:ring-2 focus-visible:ring-flora-danger">
+          <AlertCircle
+            size={17}
+            aria-hidden="true"
+            className="mt-0.5 shrink-0 text-flora-danger"
+          />
+
+          <div>
+            <p id="quote-form-error-title" className="text-sm font-semibold text-flora-danger">
+              {error}
+            </p>
+
+            {Object.keys(fieldErrors).length > 0 && (
+              <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-flora-danger">
+                {Object.entries(fieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    <a href={`#${field}`} className="underline hover:no-underline">
+                      {field}: {message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={() =>
+                  formRef.current?.requestSubmit()
+                }
+                className="mt-3 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-5 md:grid-cols-2">
         {/* Name */}
         <div>
@@ -172,9 +281,13 @@ export function QuoteForm() {
             name="name"
             required
             autoComplete="name"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={100}
+            aria-invalid={fieldErrors.name ? true : undefined}
+            aria-describedby={fieldErrors.name ? "name-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Your name"
           />
+          <FieldError name="name" errors={fieldErrors} />
         </div>
 
         {/* Email */}
@@ -192,9 +305,12 @@ export function QuoteForm() {
             type="email"
             required
             autoComplete="email"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? "email-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="you@example.com"
           />
+          <FieldError name="email" errors={fieldErrors} />
         </div>
 
         {/* Phone */}
@@ -212,9 +328,15 @@ export function QuoteForm() {
             type="tel"
             required
             autoComplete="tel"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            pattern={PHONE_PATTERN_SOURCE}
+            title="Enter a valid phone number with at least 7 digits."
+            maxLength={30}
+            aria-invalid={fieldErrors.phone ? true : undefined}
+            aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Phone number"
           />
+          <FieldError name="phone" errors={fieldErrors} />
         </div>
 
         {/* Customer Type */}
@@ -230,7 +352,9 @@ export function QuoteForm() {
             id="customerType"
             name="customerType"
             defaultValue="B2C"
-            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.customerType ? true : undefined}
+            aria-describedby={fieldErrors.customerType ? "customerType-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
           >
             <option value="B2C">
               Residential
@@ -240,6 +364,7 @@ export function QuoteForm() {
               Business
             </option>
           </select>
+          <FieldError name="customerType" errors={fieldErrors} />
         </div>
 
         {/* Service */}
@@ -256,7 +381,9 @@ export function QuoteForm() {
             name="serviceWanted"
             required
             defaultValue=""
-            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.serviceWanted ? true : undefined}
+            aria-describedby={fieldErrors.serviceWanted ? "serviceWanted-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
           >
             <option value="" disabled>
               Select a service
@@ -282,6 +409,7 @@ export function QuoteForm() {
               Carpet &amp; Wooden Flooring
             </option>
           </select>
+          <FieldError name="serviceWanted" errors={fieldErrors} />
         </div>
 
         {/* Project */}
@@ -296,9 +424,13 @@ export function QuoteForm() {
           <input
             id="projectName"
             name="projectName"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={150}
+            aria-invalid={fieldErrors.projectName ? true : undefined}
+            aria-describedby={fieldErrors.projectName ? "projectName-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Optional"
           />
+          <FieldError name="projectName" errors={fieldErrors} />
         </div>
 
         {/* Address */}
@@ -314,9 +446,13 @@ export function QuoteForm() {
             id="siteAddress"
             name="siteAddress"
             rows={3}
-            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={1000}
+            aria-invalid={fieldErrors.siteAddress ? true : undefined}
+            aria-describedby={fieldErrors.siteAddress ? "siteAddress-error" : undefined}
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Where is the project located?"
           />
+          <FieldError name="siteAddress" errors={fieldErrors} />
         </div>
 
         {/* Budget */}
@@ -325,15 +461,19 @@ export function QuoteForm() {
             htmlFor="budget"
             className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
-            Budget
+            Budget (AED)
           </label>
 
           <input
             id="budget"
             name="budget"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={100}
+            aria-invalid={fieldErrors.budget ? true : undefined}
+            aria-describedby={fieldErrors.budget ? "budget-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Optional"
           />
+          <FieldError name="budget" errors={fieldErrors} />
         </div>
 
         {/* Notes */}
@@ -349,25 +489,15 @@ export function QuoteForm() {
             id="notes"
             name="notes"
             rows={5}
-            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={3000}
+            aria-invalid={fieldErrors.notes ? true : undefined}
+            aria-describedby={fieldErrors.notes ? "notes-error" : undefined}
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Tell us about your requirements, preferred style, number of windows, timeline, etc."
           />
+          <FieldError name="notes" errors={fieldErrors} />
         </div>
       </div>
-
-      {error && (
-        <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4">
-          <AlertCircle
-            size={17}
-            aria-hidden="true"
-            className="mt-0.5 shrink-0 text-red-700"
-          />
-
-          <p className="text-sm text-red-800">
-            {error}
-          </p>
-        </div>
-      )}
 
       <button
         type="submit"
@@ -378,17 +508,19 @@ export function QuoteForm() {
           <>
             <Loader2
               size={16}
+              aria-hidden="true"
               className="animate-spin"
             />
             Sending...
           </>
         ) : (
           <>
-            <Send size={16} />
+            <Send size={16} aria-hidden="true" />
             Send Enquiry
           </>
         )}
       </button>
+      </fieldset>
     </form>
   );
 }

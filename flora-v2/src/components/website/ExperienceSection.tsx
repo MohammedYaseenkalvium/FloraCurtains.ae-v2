@@ -54,7 +54,7 @@ export function ExperienceSection() {
             className="mt-8 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-flora-primary hover:underline"
           >
             Discover our story
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Reveal>
       </Container>

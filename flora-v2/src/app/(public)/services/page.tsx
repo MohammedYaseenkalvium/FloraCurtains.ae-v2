@@ -1,37 +1,38 @@
 import type { Metadata } from "next";
 import { CheckCircle2 } from "lucide-react";
-import { ContactCTA } from "@/components/public/ContactCTA";
 import { ServiceCards } from "@/components/public/ServiceCards";
+import { CTASection } from "@/components/website/CTASection";
+import { PageHero } from "@/components/website/PageHero";
 import { services } from "@/lib/public/services";
 
 export const metadata: Metadata = {
   title: "Services | Curtains, Wallpaper, Sofas, Interiors, Flooring",
   description:
     "Curtains & blinds, wallpaper, customized sofas & upholstery, interior decoration, carpet & wooden flooring — complete interior solutions across the UAE.",
+  alternates: {
+    canonical: "/services",
+  },
+  openGraph: {
+    title: "Services | Curtains, Wallpaper, Sofas, Interiors, Flooring",
+    description:
+      "Curtains, blinds, wallpaper, sofas, flooring and interior decoration across the UAE.",
+  },
 };
 
 export default function ServicesPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            Our services
-          </span>
-
-          <h1 className="mt-4 max-w-3xl font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
+      <PageHero
+        eyebrow="Our services"
+        title={
+          <>
             Interiors designed
             <br />
             around your space.
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
-            From curtains and blinds to wallpaper, sofas
-            and flooring — one team for complete interior
-            solutions across the UAE.
-          </p>
-        </div>
-      </section>
+          </>
+        }
+        description="From curtains and blinds to wallpaper, sofas and flooring — one team for complete interior solutions across the UAE."
+      />
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <ServiceCards />
@@ -43,12 +44,12 @@ export default function ServicesPage() {
           key={service.slug}
           id={service.slug}
           className={`scroll-mt-24 border-t border-flora-border ${
-            index % 2 === 1 ? "bg-flora-surface" : "bg-white"
+            index % 2 === 1 ? "bg-flora-cream" : "bg-white"
           }`}
         >
           <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-2 lg:px-8">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
+              <span className="eyebrow text-flora-gold">
                 {String(index + 1).padStart(2, "0")}
               </span>
 
@@ -83,7 +84,14 @@ export default function ServicesPage() {
         </section>
       ))}
 
-      <ContactCTA />
+      <CTASection
+        title="Ready to transform your windows?"
+        description="Tell us about your space and requirements. We'll take it from there."
+        primaryHref="/get-quote"
+        primaryLabel="Request a Quote"
+        secondaryHref="/contact"
+        secondaryLabel="Contact Us"
+      />
     </>
   );
 }

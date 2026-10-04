@@ -308,7 +308,7 @@ export default async function QuotationDetailPage({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="bg-flora-surface text-[10px] uppercase tracking-widest text-flora-muted">
+                <tr className="bg-flora-cream text-[10px] uppercase tracking-widest text-flora-muted">
                   <th className="p-3 text-left font-medium">
                     Description
                   </th>
@@ -423,7 +423,7 @@ export default async function QuotationDetailPage({
                     Paid
                   </span>
 
-                  <span className="font-medium text-[#0F6E56]">
+                  <span className="font-medium text-flora-success">
                     {formatAED(paidAmount)}
                   </span>
                 </div>
@@ -433,7 +433,7 @@ export default async function QuotationDetailPage({
                     Outstanding
                   </span>
 
-                  <span className="font-medium text-[#991B1B]">
+                  <span className="font-medium text-flora-danger">
                     {formatAED(outstandingAmount)}
                   </span>
                 </div>
@@ -459,7 +459,7 @@ export default async function QuotationDetailPage({
 
             {quotation.internalNotes && (
               <div className="rounded-xl border border-flora-border bg-white p-5">
-                <h2 className="mb-3 text-sm font-semibold text-[#991B1B]">
+                <h2 className="mb-3 text-sm font-semibold text-flora-danger">
                   Internal Notes
                 </h2>
 
@@ -473,9 +473,9 @@ export default async function QuotationDetailPage({
 
         {/* Convert to Project */}
         {quotation.status === "APPROVED" && (
-          <section className="rounded-xl border border-[#B7D8CC] bg-[#EDF7F3] p-5">
+          <section className="rounded-xl border border-flora-success-border bg-flora-success-surface p-5">
             <div className="mb-4">
-              <h2 className="text-sm font-semibold text-[#0F6E56]">
+              <h2 className="text-sm font-semibold text-flora-success">
                 Quotation Approved
               </h2>
 

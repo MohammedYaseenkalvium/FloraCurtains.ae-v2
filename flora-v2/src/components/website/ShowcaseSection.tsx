@@ -22,14 +22,14 @@ export function ShowcaseSection() {
           <SectionHeading
             eyebrow="Recent projects"
             title={<>Spaces we&apos;ve transformed.</>}
-            description="Large photography, honest labels, lots of whitespace."
+            description="A selection of interiors — villas, living spaces and workspaces across the UAE."
           />
         </Reveal>
 
         <Reveal>
           <figure className="overflow-hidden rounded-flora-lg">
             <div className="relative aspect-[16/9] w-full">
-              <Image src={feature.image} alt={feature.title} fill loading="lazy" sizes="100vw" className="object-cover" />
+              <Image src={feature.image} alt={`${feature.title} in ${feature.location}`} fill loading="lazy" sizes="100vw" className="object-cover" />
             </div>
             <figcaption className="flex items-baseline justify-between px-1 py-4">
               <span className="font-display text-2xl text-flora-foreground">{feature.title}</span>
@@ -45,7 +45,7 @@ export function ShowcaseSection() {
             <Reveal key={work.image} delay={i * 0.06}>
               <figure className="overflow-hidden rounded-flora-lg">
                 <div className="relative aspect-[4/3] w-full">
-                  <Image src={work.image} alt={work.title} fill loading="lazy" sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                  <Image src={work.image} alt={`${work.title} in ${work.location}`} fill loading="lazy" sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 </div>
                 <figcaption className="flex items-baseline justify-between px-1 py-4">
                   <span className="font-display text-xl text-flora-foreground">{work.title}</span>

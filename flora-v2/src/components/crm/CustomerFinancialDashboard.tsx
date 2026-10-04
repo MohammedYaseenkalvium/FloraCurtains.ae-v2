@@ -6,27 +6,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { CustomerFinancialSummary } from "@/lib/customer-financial";
+import { statusStyles } from "@/lib/status-styles";
+import type { EnquiryStatus, ProjectStatus, QuotationStatus } from "@/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Tabs } from "@/components/ui/Tabs";
 import {
   TrendingUp, Wallet, FolderOpen,
   CreditCard, Receipt, Phone, Mail, Building, AlertCircle,
-  CheckCircle2, Plus, ChevronDown, ChevronUp,
+  CheckCircle2, Plus, ChevronDown, ChevronUp, ArrowRight,
   LucideIcon
 } from "lucide-react";
 
 interface Props {
   summary: CustomerFinancialSummary;
 }
-
-const statusColors: Record<string, string> = {
-  NEW: "#8B8178", CONTACTED: "#185FA5", VISIT_SCHEDULED: "#854D0E",
-  QUOTED: "#0F6E56", NEGOTIATING: "#7F77DD", WON: "#166534", LOST: "#991B1B",
-  DRAFT: "#8B8178", SENT: "#185FA5", APPROVED: "#0F6E56",
-  REJECTED: "#991B1B", REVISED: "#854D0E",
-  NOT_STARTED: "#8B8178", IN_PROGRESS: "#185FA5", INSTALLATION: "#854D0E",
-  SNAGGING: "#7F77DD", COMPLETED: "#166534", ON_HOLD: "#991B1B", CANCELLED: "#57534E",
-};
 
 const methodIcons: Record<string, LucideIcon> = {
   CASH: Wallet,
@@ -98,7 +91,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {companyName && (
               <span className="flex items-center gap-1">
                 <Building size={14} /> {companyName}
-                {companyType && <span className="text-xs text-[#8B8178]">({companyType.replace(/_/g, " ")})</span>}
+                {companyType && <span className="text-xs text-flora-meta-text">({companyType.replace(/_/g, " ")})</span>}
               </span>
             )}
           </div>
@@ -107,7 +100,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-2 bg-[#EFE7DF] border border-flora-border rounded-lg px-4 py-2 text-sm text-[#1A1A1A] hover:bg-flora-border transition-colors"
+            className="flex items-center gap-2 bg-flora-cream border border-flora-border rounded-lg px-4 py-2 text-sm text-flora-foreground hover:bg-flora-border transition-colors"
           >
             <Receipt size={14} /> Statement PDF
           </button>
@@ -143,13 +136,13 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {/* Progress bar for paid vs outstanding */}
             {label === "Lifetime Revenue" && (
               <div className="mt-3">
-                <div className="h-1.5 bg-[#EFE7DF] rounded-full overflow-hidden flex">
-                  <div className="h-full bg-[#0F6E56] rounded-full" style={{ width: `${paidPercentage}%` }} />
-                  <div className="h-full bg-[#991B1B] rounded-full" style={{ width: `${outstandingPercentage}%` }} />
+                <div className="h-1.5 bg-flora-cream rounded-full overflow-hidden flex">
+                  <div className="h-full bg-flora-success rounded-full" style={{ width: `${paidPercentage}%` }} />
+                  <div className="h-full bg-flora-danger rounded-full" style={{ width: `${outstandingPercentage}%` }} />
                 </div>
                 <div className="flex justify-between text-[10px] text-flora-muted mt-1">
-                  <span className="text-[#0F6E56]">{paidPercentage.toFixed(0)}% paid</span>
-                  <span className="text-[#991B1B]">{outstandingPercentage.toFixed(0)}% due</span>
+                  <span className="text-flora-success">{paidPercentage.toFixed(0)}% paid</span>
+                  <span className="text-flora-danger">{outstandingPercentage.toFixed(0)}% due</span>
                 </div>
               </div>
             )}
@@ -165,7 +158,7 @@ export function CustomerFinancialDashboard({ summary }: Props) {
             {paidPercentage.toFixed(1)}% collected
           </span>
         </div>
-        <div className="h-3 bg-[#EFE7DF] rounded-full overflow-hidden">
+        <div className="h-3 bg-flora-cream rounded-full overflow-hidden">
           <div 
             className="h-full bg-flora-primary rounded-full transition-all"
             style={{ width: `${Math.min(paidPercentage, 100)}%` }}
@@ -347,8 +340,8 @@ function OverviewTab({
                     <span 
                       className="px-2 py-0.5 rounded-full text-xs font-medium"
                       style={{ 
-                        background: `${statusColors[p.status]}18`, 
-                        color: statusColors[p.status] 
+                        background: statusStyles.project[p.status as ProjectStatus].background, 
+                        color: statusStyles.project[p.status as ProjectStatus].text 
                       }}
                     >
                       {p.status.replace(/_/g, " ")}
@@ -379,8 +372,8 @@ function OverviewTab({
               <span 
                 className="px-2 py-0.5 rounded-full text-xs font-medium"
                 style={{ 
-                  background: `${statusColors[e.status]}18`, 
-                  color: statusColors[e.status] 
+                  background: statusStyles.enquiry[e.status as EnquiryStatus].background, 
+                  color: statusStyles.enquiry[e.status as EnquiryStatus].text 
                 }}
               >
                 {e.status.replace(/_/g, " ")}
@@ -404,11 +397,11 @@ function OverviewTab({
           </div>
           <div className="flex justify-between">
             <span className="text-flora-muted">Total Collected</span>
-            <span className="font-medium text-[#0F6E56]">AED {totalPaid.toLocaleString()}</span>
+            <span className="font-medium text-flora-success">AED {totalPaid.toLocaleString()}</span>
           </div>
           <div className="border-t border-flora-border pt-2 flex justify-between font-semibold">
             <span>Outstanding</span>
-            <span className={`font-semibold ${outstanding > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
+            <span className={`font-semibold ${outstanding > 0 ? "text-flora-danger" : "text-flora-success"}`}>
               AED {outstanding.toLocaleString()}
             </span>
           </div>
@@ -435,7 +428,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 filter === f 
                   ? "bg-flora-primary text-white" 
-                  : "bg-flora-surface text-flora-muted hover:bg-[#EFE7DF]"
+                  : "bg-flora-surface text-flora-muted hover:bg-flora-cream"
               }`}
             >
               {f === "all" ? "All" : f === "PROJECT" ? "Projects" : "Quotations"}
@@ -446,7 +439,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
       
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
+          <tr className="bg-flora-cream text-flora-muted text-[10px] uppercase tracking-widest">
             <th className="text-left px-5 py-3 font-medium">Date</th>
             <th className="text-left px-5 py-3 font-medium">Source</th>
             <th className="text-left px-5 py-3 font-medium">Type</th>
@@ -466,7 +459,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
             filtered.map(p => {
               const Icon = methodIcons[p.method] ?? CreditCard;
               return (
-                <tr key={p.id} className="border-t border-flora-surface hover:bg-flora-surface/60">
+                <tr key={p.id} className="border-t border-flora-border/50 hover:bg-flora-surface/60">
                   <td className="px-5 py-3 text-flora-muted">
                     {format(new Date(p.paidAt), "dd MMM yyyy")}
                   </td>
@@ -477,7 +470,7 @@ function PaymentsTab({ payments }: { payments: CustomerFinancialSummary["payment
                     <span className="text-xs text-flora-muted ml-2">{p.sourceNumber}</span>
                   </td>
                   <td className="px-5 py-3">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-flora-info-surface text-flora-info">
                       {p.type}
                     </span>
                   </td>
@@ -527,8 +520,8 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                     <span 
                       className="px-2 py-0.5 rounded-full text-xs font-medium"
                       style={{ 
-                        background: `${statusColors[project.status]}18`, 
-                        color: statusColors[project.status] 
+                        background: statusStyles.project[project.status as ProjectStatus].background, 
+                        color: statusStyles.project[project.status as ProjectStatus].text 
                       }}
                     >
                       {project.status.replace(/_/g, " ")}
@@ -540,14 +533,14 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold">AED {project.totalContractValue.toLocaleString()}</p>
-                  <p className="text-xs text-[#0F6E56]">{progress.toFixed(0)}% paid</p>
+                  <p className="text-xs text-flora-success">{progress.toFixed(0)}% paid</p>
                 </div>
                 {isExpanded ? <ChevronUp size={16} className="text-flora-muted ml-3" /> : <ChevronDown size={16} className="text-flora-muted ml-3" />}
               </div>
               
               {/* Mini progress bar */}
-              <div className="mt-3 h-1.5 bg-[#EFE7DF] rounded-full overflow-hidden">
-                <div className="h-full bg-[#0F6E56] rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
+              <div className="mt-3 h-1.5 bg-flora-cream rounded-full overflow-hidden">
+                <div className="h-full bg-flora-success rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
               </div>
             </div>
 
@@ -560,11 +553,11 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Total Paid</p>
-                    <p className="font-semibold text-[#0F6E56]">AED {project.totalPaid.toLocaleString()}</p>
+                    <p className="font-semibold text-flora-success">AED {project.totalPaid.toLocaleString()}</p>
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Balance</p>
-                    <p className={`font-semibold ${project.balance > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
+                    <p className={`font-semibold ${project.balance > 0 ? "text-flora-danger" : "text-flora-success"}`}>
                       AED {project.balance.toLocaleString()}
                     </p>
                   </div>
@@ -575,7 +568,7 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                     <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Payment History</p>
                     <div className="space-y-2">
                       {project.payments.map(p => (
-                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-surface last:border-0">
+                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-border/50 last:border-0">
                           <span className="text-flora-muted">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
                           <span className="font-medium">AED {p.amount.toLocaleString()}</span>
                         </div>
@@ -587,9 +580,10 @@ function ProjectsTab({ projects, expandedId, onToggle }: {
                 <div className="mt-4 flex gap-2">
                   <Link 
                     href={`/projects/${project.id}`}
-                    className="text-xs text-flora-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-flora-primary hover:underline"
                   >
-                    View Project →
+                    View Project
+                    <ArrowRight size={12} aria-hidden="true" />
                   </Link>
                 </div>
               </div>
@@ -630,8 +624,8 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                     <span 
                       className="px-2 py-0.5 rounded-full text-xs font-medium"
                       style={{ 
-                        background: `${statusColors[quote.status]}18`, 
-                        color: statusColors[quote.status] 
+                        background: statusStyles.quotation[quote.status as QuotationStatus].background, 
+                        color: statusStyles.quotation[quote.status as QuotationStatus].text 
                       }}
                     >
                       {quote.status}
@@ -664,7 +658,7 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-1">Balance</p>
-                    <p className={`font-semibold ${quote.balance > 0 ? "text-[#991B1B]" : "text-[#0F6E56]"}`}>
+                    <p className={`font-semibold ${quote.balance > 0 ? "text-flora-danger" : "text-flora-success"}`}>
                       AED {quote.balance.toLocaleString()}
                     </p>
                   </div>
@@ -675,7 +669,7 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                     <p className="text-[10px] uppercase tracking-widest text-flora-muted mb-2">Payments</p>
                     <div className="space-y-2">
                       {quote.payments.map(p => (
-                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-surface last:border-0">
+                        <div key={p.id} className="flex justify-between text-sm py-1 border-b border-flora-border/50 last:border-0">
                           <span className="text-flora-muted">{format(new Date(p.paidAt), "dd MMM yyyy")} · {p.type}</span>
                           <span className="font-medium">AED {p.amount.toLocaleString()}</span>
                         </div>
@@ -687,9 +681,10 @@ function QuotationsTab({ quotations, expandedId, onToggle }: {
                 <div className="mt-4 flex gap-3">
                   <Link 
                     href={`/quotations/${quote.id}`}
-                    className="text-xs text-flora-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-flora-primary hover:underline"
                   >
-                    View Quote →
+                    View Quote
+                    <ArrowRight size={12} aria-hidden="true" />
                   </Link>
                   <a 
                     href={`/api/quotations/${quote.id}/pdf`}
@@ -725,7 +720,7 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
       
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-flora-surface text-flora-muted text-[10px] uppercase tracking-widest">
+          <tr className="bg-flora-cream text-flora-muted text-[10px] uppercase tracking-widest">
             <th className="text-left px-5 py-3 font-medium">Date</th>
             <th className="text-left px-5 py-3 font-medium">Type</th>
             <th className="text-left px-5 py-3 font-medium">Description</th>
@@ -746,8 +741,8 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
             ledger.map(entry => (
               <tr 
                 key={entry.id} 
-                className={`border-t border-flora-surface ${
-                  entry.type === "PAYMENT" ? "bg-green-50/30" : ""
+                className={`border-t border-flora-border/50 ${
+                  entry.type === "PAYMENT" ? "bg-flora-success-surface/30" : ""
                 }`}
               >
                 <td className="px-5 py-3 text-flora-muted">
@@ -755,19 +750,19 @@ function LedgerTab({ ledger }: { ledger: CustomerFinancialSummary["ledger"] }) {
                 </td>
                 <td className="px-5 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    entry.type === "QUOTE" ? "bg-blue-50 text-blue-700" :
-                    entry.type === "PROJECT" ? "bg-purple-50 text-purple-700" :
-                    "bg-green-50 text-green-700"
+                    entry.type === "QUOTE" ? "bg-flora-info-surface text-flora-info" :
+                    entry.type === "PROJECT" ? "bg-flora-cream text-flora-muted" :
+                    "bg-flora-success-surface text-flora-success"
                   }`}>
                     {entry.type}
                   </span>
                 </td>
                 <td className="px-5 py-3">{entry.description}</td>
                 <td className="px-5 py-3 text-flora-muted text-xs">{entry.reference}</td>
-                <td className="px-5 py-3 text-right font-medium text-[#991B1B]">
+                <td className="px-5 py-3 text-right font-medium text-flora-danger">
                   {entry.debit > 0 ? `AED ${entry.debit.toLocaleString()}` : "—"}
                 </td>
-                <td className="px-5 py-3 text-right font-medium text-[#0F6E56]">
+                <td className="px-5 py-3 text-right font-medium text-flora-success">
                   {entry.credit > 0 ? `AED ${entry.credit.toLocaleString()}` : "—"}
                 </td>
                 <td className="px-5 py-3 text-right font-bold">

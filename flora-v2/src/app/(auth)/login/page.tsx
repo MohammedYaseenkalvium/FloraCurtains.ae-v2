@@ -2,50 +2,101 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FloraLogo } from "@/components/public/FloraLogo";
 
 export default function LoginPage() {
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await signIn("credentials", {
-      email, password, redirect: false,
-    });
-    if (res?.error) setError("Invalid credentials");
-    else router.push("/dashboard");
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (res?.error) setError("Invalid credentials");
+      else router.push("/dashboard");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
-    <div className="min-h-screen bg-flora-surface flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-sm border border-flora-border p-10 w-full max-w-sm">
-        <div className="mb-8">
-          <div className="text-3xl font-bold text-flora-primary tracking-widest">FLORA</div>
-          <div className="text-xs text-flora-muted tracking-[0.15em] uppercase mt-1">Interior Operations</div>
+    <div className="min-h-screen bg-flora-background flex items-center justify-center px-5">
+      <div className="bg-white rounded-2xl shadow-flora-md border border-flora-border p-10 w-full max-w-sm">
+        <div className="mb-8 flex flex-col items-start">
+          <FloraLogo
+            width={176}
+            height={44}
+            priority
+            className="h-11 w-auto object-contain"
+          />
+          <div className="mt-3 text-[10px] text-flora-muted tracking-eyebrow uppercase">
+            Interior Operations
+          </div>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs uppercase tracking-widest text-flora-muted block mb-1">Email</label>
+            <label
+              htmlFor="login-email"
+              className="text-xs uppercase tracking-widest text-flora-muted block mb-1"
+            >
+              Email
+            </label>
             <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface"
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              aria-invalid={error ? true : undefined}
+              className="w-full border border-flora-border rounded-lg px-3 py-2 text-base outline-none focus:border-flora-primary bg-flora-surface sm:text-sm"
             />
           </div>
+
           <div>
-            <label className="text-xs uppercase tracking-widest text-flora-muted block mb-1">Password</label>
+            <label
+              htmlFor="login-password"
+              className="text-xs uppercase tracking-widest text-flora-muted block mb-1"
+            >
+              Password
+            </label>
             <input
-              type="password" value={password} onChange={e => setPassword(e.target.value)} required
-              className="w-full border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface"
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "login-error" : undefined}
+              className="w-full border border-flora-border rounded-lg px-3 py-2 text-base outline-none focus:border-flora-primary bg-flora-surface sm:text-sm"
             />
           </div>
-          {error && <p className="text-red-600 text-xs">{error}</p>}
+
+          {error && (
+            <p id="login-error" role="alert" className="text-flora-danger text-xs">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-flora-primary text-white rounded-lg py-2.5 text-sm font-medium hover:bg-flora-primary-hover transition-colors"
+            disabled={submitting}
+            className="w-full bg-flora-primary text-white rounded-lg py-2.5 text-sm font-medium hover:bg-flora-primary-hover transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Sign In
+            {submitting ? "Signing in…" : "Sign In"}
           </button>
         </form>
       </div>

@@ -8,6 +8,7 @@ import {
 import type { ProjectStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { statusStyles } from "@/lib/status-styles";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const PAGE_SIZE = 20;
@@ -30,51 +31,6 @@ const statusLabels: Record<ProjectStatus, string> = {
   COMPLETED: "Completed",
   ON_HOLD: "On Hold",
   CANCELLED: "Cancelled",
-};
-
-const statusStyles: Record<
-  ProjectStatus,
-  {
-    background: string;
-    text: string;
-    border: string;
-  }
-> = {
-  NOT_STARTED: {
-    background: "#F8F5F2",
-    text: "#6B625A",
-    border: "#D8C9BC",
-  },
-  IN_PROGRESS: {
-    background: "#EEF4FA",
-    text: "#185FA5",
-    border: "#B8D0E5",
-  },
-  INSTALLATION: {
-    background: "#FEF9E7",
-    text: "#854D0E",
-    border: "#E6D19B",
-  },
-  SNAGGING: {
-    background: "#F1F0FC",
-    text: "#7F77DD",
-    border: "#C9C5F0",
-  },
-  COMPLETED: {
-    background: "#EDF7F3",
-    text: "#166534",
-    border: "#B7D8CC",
-  },
-  ON_HOLD: {
-    background: "#FEF2F2",
-    text: "#991B1B",
-    border: "#E8BDBD",
-  },
-  CANCELLED: {
-    background: "#F5F5F4",
-    text: "#57534E",
-    border: "#D6D3D1",
-  },
 };
 
 function isProjectStatus(value: string): value is ProjectStatus {
@@ -223,18 +179,7 @@ export default async function ProjectsPage({
       : {}),
   };
 
-  const [
-    projects,
-    totalCount,
-    allCount,
-    notStartedCount,
-    inProgressCount,
-    installationCount,
-    snaggingCount,
-    completedCount,
-    onHoldCount,
-    cancelledCount,
-  ] = await Promise.all([
+  const [projects, totalCount, statusGroups] = await Promise.all([
     db.project.findMany({
       where,
       orderBy: {
@@ -258,59 +203,37 @@ export default async function ProjectsPage({
       where,
     }),
 
-    db.project.count({
+    // Single GROUP BY instead of one COUNT per status (was 8 round trips).
+    // Tabs are scoped to baseWhere (no search text), matching prior behavior.
+    db.project.groupBy({
+      by: ["status"],
       where: baseWhere,
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "NOT_STARTED",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "IN_PROGRESS",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "INSTALLATION",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "SNAGGING",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "COMPLETED",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "ON_HOLD",
-      },
-    }),
-
-    db.project.count({
-      where: {
-        ...baseWhere,
-        status: "CANCELLED",
+      _count: {
+        _all: true,
       },
     }),
   ]);
+
+  const countByStatus = new Map<string, number>(
+    statusGroups.map((group) => [group.status, group._count._all])
+  );
+
+  const notStartedCount = countByStatus.get("NOT_STARTED") ?? 0;
+  const inProgressCount = countByStatus.get("IN_PROGRESS") ?? 0;
+  const installationCount = countByStatus.get("INSTALLATION") ?? 0;
+  const snaggingCount = countByStatus.get("SNAGGING") ?? 0;
+  const completedCount = countByStatus.get("COMPLETED") ?? 0;
+  const onHoldCount = countByStatus.get("ON_HOLD") ?? 0;
+  const cancelledCount = countByStatus.get("CANCELLED") ?? 0;
+
+  const allCount =
+    notStartedCount +
+    inProgressCount +
+    installationCount +
+    snaggingCount +
+    completedCount +
+    onHoldCount +
+    cancelledCount;
 
   const totalPages = Math.max(
     1,
@@ -417,7 +340,7 @@ export default async function ProjectsPage({
           <div className="flex items-center gap-2">
             <CircleDollarSign
               size={15}
-              className="text-[#0F6E56]"
+              className="text-flora-success"
             />
 
             <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
@@ -425,7 +348,7 @@ export default async function ProjectsPage({
             </p>
           </div>
 
-          <p className="mt-2 text-xl font-bold text-[#0F6E56]">
+          <p className="mt-2 text-xl font-bold text-flora-success">
             {formatAED(paidAmount)}
           </p>
         </div>
@@ -435,7 +358,7 @@ export default async function ProjectsPage({
             Outstanding
           </p>
 
-          <p className="mt-2 text-xl font-bold text-[#991B1B]">
+          <p className="mt-2 text-xl font-bold text-flora-danger">
             {formatAED(outstandingAmount)}
           </p>
         </div>
@@ -507,7 +430,7 @@ export default async function ProjectsPage({
         </Link>
 
         {statuses.map((status) => {
-          const style = statusStyles[status];
+          const style = statusStyles.project[status];
 
           return (
             <Link
@@ -546,7 +469,7 @@ export default async function ProjectsPage({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-sm">
             <thead>
-              <tr className="bg-flora-surface text-[10px] uppercase tracking-widest text-flora-muted">
+              <tr className="bg-flora-cream text-[10px] uppercase tracking-widest text-flora-muted">
                 <th className="px-4 py-3 text-left font-medium">
                   Project / Client
                 </th>
@@ -677,7 +600,7 @@ export default async function ProjectsPage({
                   >
                     <FolderKanban
                       size={28}
-                      className="mx-auto mb-3 text-[#D8C9BC]"
+                      className="mx-auto mb-3 text-flora-border"
                     />
 
                     <p className="text-sm font-semibold text-flora-foreground">
@@ -717,7 +640,7 @@ export default async function ProjectsPage({
                   Previous
                 </Link>
               ) : (
-                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-flora-disabled-text-light">
                   Previous
                 </span>
               )}
@@ -738,7 +661,7 @@ export default async function ProjectsPage({
                   Next
                 </Link>
               ) : (
-                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-[#C5B8AE]">
+                <span className="rounded-lg border border-flora-border/60 px-3 py-2 text-xs text-flora-disabled-text-light">
                   Next
                 </span>
               )}

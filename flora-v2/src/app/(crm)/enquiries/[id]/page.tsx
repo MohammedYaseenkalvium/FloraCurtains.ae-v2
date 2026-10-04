@@ -2,6 +2,8 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { FileText, Plus } from "lucide-react";
+import { statusStyles } from "@/lib/status-styles";
 import { ConvertToProject } from "@/components/crm/ConvertToProject";
 import { EnquiryEditForm } from "@/components/crm/EnquiryEditForm";
 import { TaskManager } from "@/components/crm/TaskManager";
@@ -43,16 +45,6 @@ export default async function EnquiryDetailPage({
 
   if (!enquiry) notFound();
 
-  const statusColors: Record<string, string> = {
-    NEW: "#8B8178",
-    CONTACTED: "#185FA5",
-    VISIT_SCHEDULED: "#854D0E",
-    QUOTED: "#0F6E56",
-    NEGOTIATING: "#7F77DD",
-    WON: "#166534",
-    LOST: "#991B1B",
-  };
-
   const hasWonOrLost =
     enquiry.status === "WON" || enquiry.status === "LOST";
 
@@ -93,8 +85,8 @@ export default async function EnquiryDetailPage({
           <span
             className="px-3 py-1.5 rounded-full text-sm font-medium"
             style={{
-              background: `${statusColors[enquiry.status]}18`,
-              color: statusColors[enquiry.status],
+              background: statusStyles.enquiry[enquiry.status].background,
+              color: statusStyles.enquiry[enquiry.status].text,
             }}
           >
             {enquiry.status.replace(/_/g, " ")}
@@ -105,7 +97,8 @@ export default async function EnquiryDetailPage({
               href={`/quotations/new?enquiryId=${enquiry.id}`}
               className="bg-flora-primary text-white rounded-lg px-4 py-2 text-sm hover:bg-flora-primary-hover"
             >
-              + Create Quote
+              <Plus size={16} aria-hidden="true" />
+              Create Quote
             </Link>
           )}
         </div>
@@ -241,7 +234,8 @@ export default async function EnquiryDetailPage({
               href={`/quotations/new?enquiryId=${enquiry.id}`}
               className="text-xs text-flora-primary hover:underline"
             >
-              + New Quote
+              <Plus size={16} aria-hidden="true" />
+              New Quote
             </Link>
           )}
         </div>
@@ -279,9 +273,10 @@ export default async function EnquiryDetailPage({
                     href={`/api/quotations/${q.id}/pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs border border-flora-border rounded-lg px-3 py-1 text-flora-muted hover:bg-[#EFE7DF]"
+                    className="inline-flex items-center gap-1 border border-flora-border rounded-lg px-3 py-1 text-xs text-flora-muted hover:bg-flora-cream"
                   >
-                    📄 PDF
+                    <FileText size={13} aria-hidden="true" />
+                    PDF
                   </a>
                 </div>
               </div>

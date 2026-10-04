@@ -1,622 +1,147 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import {
-  FileText,
-  FolderKanban,
-  Users,
-  Wrench,
+  Banknote,
+  MapPin,
+  Plus,
 } from "lucide-react";
-import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { calcOutstanding, formatAED, sumPayments } from "@/lib/finance";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import {
+  ActiveProjects,
+  HeroChips,
+  KpiCards,
+  NeedsAttention,
+  PaymentOverview,
+  PendingQuotations,
+  RecentActivity,
+  RecentEnquiries,
+} from "./_components/regions";
+import {
+  HeroChipsSkeleton,
+  KpiSkeleton,
+  ListSkeleton,
+  PaymentSkeleton,
+} from "./_components/region-skeletons";
+import { RegionBoundary } from "./_components/RegionErrorCard";
 
-const leadStatuses = [
-  "NEW",
-  "CONTACTED",
-  "VISIT_SCHEDULED",
-  "QUOTED",
-  "NEGOTIATING",
-  "WON",
-  "LOST",
-] as const;
-
-const projectStatuses = [
-  "NOT_STARTED",
-  "IN_PROGRESS",
-  "INSTALLATION",
-  "SNAGGING",
-  "COMPLETED",
-  "ON_HOLD",
-  "CANCELLED",
-] as const;
-
-const statusLabels: Record<string, string> = {
-  NEW: "New",
-  CONTACTED: "Contacted",
-  VISIT_SCHEDULED: "Visit Scheduled",
-  QUOTED: "Quoted",
-  NEGOTIATING: "Negotiating",
-  WON: "Won",
-  LOST: "Lost",
-  NOT_STARTED: "Not Started",
-  IN_PROGRESS: "In Progress",
-  INSTALLATION: "Installation",
-  SNAGGING: "Snagging",
-  COMPLETED: "Completed",
-  ON_HOLD: "On Hold",
-  CANCELLED: "Cancelled",
-};
-
-function formatCurrency(value: number) {
-  return formatAED(value, { decimals: false });
-}
-
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en-AE", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(value);
-}
-
-function formatTime(value: Date) {
-  return new Intl.DateTimeFormat("en-AE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(value);
-}
-
-function formatActivityAction(action: string) {
-  return action
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-export default async function DashboardPage() {
-  const now = new Date();
-  const session = await auth();
-  const firstName = session?.user?.name?.split(" ")[0] || "there";
-  const hour = now.getHours();
-  const daypart = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
-  const [
-    activeLeads,
-    totalCustomers,
-    recentEnquiries,
-    upcomingVisits,
-    projects,
-    payments,
-    recentActivity,
-  ] = await Promise.all([
-    db.enquiry.count({
-      where: {
-        deletedAt: null,
-        status: {
-          notIn: ["WON", "LOST"],
-        },
-      },
-    }),
-
-    db.contact.count(),
-
-    db.enquiry.findMany({
-      take: 8,
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        contact: true,
-        company: true,
-      },
-    }),
-
-    db.siteVisit.findMany({
-      take: 5,
-      where: {
-        status: "SCHEDULED",
-        scheduledAt: {
-          gte: now,
-        },
-      },
-      orderBy: {
-        scheduledAt: "asc",
-      },
-      include: {
-        enquiry: {
-          include: {
-            contact: true,
-          },
-        },
-      },
-    }),
-
-    db.project.findMany({
-      where: {
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        status: true,
-        totalContractValue: true,
-      },
-    }),
-
-    db.payment.findMany({
-      where: { projectId: { not: null } },
-      select: {
-        amount: true,
-      },
-    }),
-
-    db.activityLog.findMany({
-      take: 6,
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
-  ]);
-
-  /*
-   * Project calculations
-   */
-  const ongoingProjects = projects.filter((project) =>
-    ["IN_PROGRESS", "INSTALLATION", "SNAGGING"].includes(project.status),
-  ).length;
-
-  const pendingInstallations = projects.filter(
-    (project) => project.status === "INSTALLATION",
-  ).length;
-
-  const totalContractValue = projects.reduce(
-    (total, project) => total + project.totalContractValue,
-    0,
-  );
-
-  /*
-   * Payment calculations — project-scoped (Phase 15).
-   * Quotation-linked payments (write-orphans, no create endpoint) must NOT
-   * deflate project outstanding. Canonical helpers in src/lib/finance.ts.
-   */
-  const totalPaymentsReceived = sumPayments(payments);
-
-  const outstandingAmount = calcOutstanding(totalContractValue, totalPaymentsReceived);
-
-  /*
-   * Lead pipeline
-   */
-  const leadPipeline = await Promise.all(
-    leadStatuses.map(async (status) => ({
-      status,
-      count: await db.enquiry.count({
-        where: {
-          deletedAt: null,
-          status,
-        },
-      }),
-    })),
-  );
-
-  /*
-   * Project pipeline
-   */
-  const projectPipeline = projectStatuses.map((status) => ({
-    status,
-    count: projects.filter((project) => project.status === status).length,
-  }));
-
-  const kpis = [
-    {
-      label: "Active Leads",
-      value: activeLeads.toString(),
-      description: "Open opportunities",
-      href: "/enquiries",
-      icon: FileText,
-    },
-    {
-      label: "Ongoing Projects",
-      value: ongoingProjects.toString(),
-      description: "Currently in progress",
-      href: "/projects",
-      icon: FolderKanban,
-    },
-    {
-      label: "Pending Installations",
-      value: pendingInstallations.toString(),
-      description: "Installation stage",
-      href: "/projects",
-      icon: Wrench,
-    },
-    {
-      label: "Customers",
-      value: totalCustomers.toString(),
-      description: "Contacts in CRM",
-      href: "/customers",
-      icon: Users,
-    },
-  ];
-
+/**
+ * Dashboard home — pure streaming composition. Each of the seven data
+ * regions reads server-side inside its own async server component and pops
+ * in independently behind a shape-matched skeleton; a per-region error
+ * boundary offers Retry that re-streams just that region. The route-level
+ * (crm)/loading.tsx stays untouched (first-paint cover only) and the
+ * quick-action strip below is static links with no data behind it.
+ */
+export default function DashboardPage() {
   return (
     <div className="space-y-8">
-      <PageHeader
-        eyebrow={`${daypart}, ${firstName}`}
-        title="Operations Dashboard"
-        description="A live overview of your leads, projects, installations and financial operations."
-        actions={
-          <>
-            <Button variant="secondary" href="/enquiries/new">
-              + New Lead
-            </Button>
-            <Button href="/quotations/new">+ Create Quote</Button>
-          </>
-        }
-      />
+      {/* Hero — greeting + business overview (PRD §4 regions 1-2) */}
+      <RegionBoundary region="hero" title="Couldn't load overview">
+        <Suspense fallback={<HeroChipsSkeleton />}>
+          <HeroChips />
+        </Suspense>
+      </RegionBoundary>
+
+      {/* Below-hero canvas — static flora blooms sit behind the post-hero
+          content only (never inside the hero); content stays at z-10 so
+          blooms never intercept clicks or reduce readability. */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 top-10 h-64 w-64 rounded-full bg-flora-primary/[0.05] blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 top-72 h-72 w-72 rounded-full bg-flora-gold/[0.08] blur-3xl"
+        />
+        <div className="relative z-10 space-y-8">
+
+      {/* Attention — today's priorities, first viewport below the hero */}
+      <RegionBoundary region="attention" title="Couldn't load attention">
+        <Suspense fallback={<ListSkeleton />}>
+          <NeedsAttention />
+        </Suspense>
+      </RegionBoundary>
 
       {/* KPI Cards */}
-      <Reveal>
-      <section aria-label="Key metrics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((kpi) => (
-          <MetricCard
-            key={kpi.label}
-            label={kpi.label}
-            value={kpi.value}
-            description={kpi.description}
-            href={kpi.href}
-            icon={kpi.icon}
-          />
-        ))}
-      </section>
-      </Reveal>
+      <RegionBoundary region="key-metrics" title="Couldn't load key metrics">
+        <Suspense fallback={<KpiSkeleton />}>
+          <KpiCards />
+        </Suspense>
+      </RegionBoundary>
 
-      {/* Financial Snapshot */}
-      <Reveal delay={0.08}>
-      <section aria-label="Financial snapshot" className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Contract Value
-          </p>
-
-          <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatCurrency(totalContractValue)}
-          </p>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            Total project value (all statuses)
-          </p>
+      {/* Quick actions */}
+      <Reveal delay={0.06}>
+      <section
+        aria-label="Quick actions"
+        className="rounded-flora-md border border-flora-border bg-white shadow-flora-sm"
+      >
+        <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
+          <h2 className="font-semibold text-flora-foreground">Quick actions</h2>
         </div>
 
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Payments Received
-          </p>
+        <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
+          <Button variant="secondary" size="md" href="/enquiries/new">
+            <Plus size={16} aria-hidden="true" />
+            New Enquiry
+          </Button>
 
-          <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-            {formatCurrency(totalPaymentsReceived)}
-          </p>
+          <Button variant="secondary" size="md" href="/quotations/new">
+            <Plus size={16} aria-hidden="true" />
+            New Quotation
+          </Button>
 
-          <p className="mt-1 text-xs text-flora-muted">
-            Recorded payments
-          </p>
-        </div>
+          <Button variant="secondary" size="md" href="/payments">
+            <Banknote size={16} aria-hidden="true" />
+            Record Payment
+          </Button>
 
-        <div className="rounded-xl border border-flora-border bg-white p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-flora-muted">
-            Outstanding
-          </p>
-
-          <p className="mt-3 text-2xl font-semibold text-flora-primary">
-            {formatCurrency(outstandingAmount)}
-          </p>
-
-          <p className="mt-1 text-xs text-flora-muted">
-            Contract value less recorded payments
-          </p>
+          <Button variant="secondary" size="md" href="/site-visits">
+            <MapPin size={16} aria-hidden="true" />
+            New Site Visit
+          </Button>
         </div>
       </section>
       </Reveal>
 
-      {/* Lead Pipeline */}
-      <section className="rounded-xl border border-flora-border bg-white">
-        <div className="border-b border-flora-border px-5 py-4">
-          <h2 className="font-semibold text-flora-foreground">
-            Lead Pipeline
-          </h2>
+      {/* Row A — Recent Enquiries + Active Projects */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <RegionBoundary region="recent-enquiries" title="Couldn't load recent enquiries">
+          <Suspense fallback={<ListSkeleton />}>
+            <RecentEnquiries />
+          </Suspense>
+        </RegionBoundary>
 
-          <p className="mt-1 text-xs text-flora-muted">
-            Current enquiry distribution across the sales process
-          </p>
+        <RegionBoundary region="active-projects" title="Couldn't load active projects">
+          <Suspense fallback={<ListSkeleton />}>
+            <ActiveProjects />
+          </Suspense>
+        </RegionBoundary>
+      </div>
+
+      {/* Row B — Pending Quotations + Payment Overview */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <RegionBoundary region="pending-quotations" title="Couldn't load pending quotations">
+          <Suspense fallback={<ListSkeleton />}>
+            <PendingQuotations />
+          </Suspense>
+        </RegionBoundary>
+
+        <RegionBoundary region="payment-overview" title="Couldn't load payment overview">
+          <Suspense fallback={<PaymentSkeleton />}>
+            <PaymentOverview />
+          </Suspense>
+        </RegionBoundary>
+      </div>
+
+      {/* Recent Activity */}
+      <RegionBoundary region="recent-activity" title="Couldn't load recent activity">
+        <Suspense fallback={<ListSkeleton />}>
+          <RecentActivity />
+        </Suspense>
+      </RegionBoundary>
         </div>
-
-        <div className="grid grid-cols-2 divide-x divide-flora-border md:grid-cols-4 xl:grid-cols-7">
-          {leadPipeline.map((item) => (
-            <Link
-              key={item.status}
-              href="/enquiries"
-              className="group px-4 py-5 transition hover:bg-flora-background"
-            >
-              <p className="text-[10px] font-medium uppercase leading-4 tracking-wider text-flora-muted">
-                {statusLabels[item.status]}
-              </p>
-
-              <p className="mt-3 text-2xl font-semibold text-flora-foreground">
-                {item.count}
-              </p>
-
-              <div className="mt-3 h-1 overflow-hidden rounded-full bg-flora-surface">
-                <div
-                  className="h-full rounded-full bg-flora-primary transition-all group-hover:bg-flora-primary-hover"
-                  style={{
-                    width: `${Math.min(
-                      item.count === 0
-                        ? 0
-                        : (item.count /
-                            Math.max(
-                              ...leadPipeline.map((pipeline) => pipeline.count),
-                              1,
-                            )) *
-                          100,
-                      100,
-                    )}%`,
-                  }}
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Operational Overview */}
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_1fr]">
-        {/* Recent Enquiries */}
-        <div className="overflow-hidden rounded-xl border border-flora-border bg-white">
-          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-flora-foreground">
-                Recent Enquiries
-              </h2>
-
-              <p className="mt-1 text-xs text-flora-muted">
-                Latest customer opportunities
-              </p>
-            </div>
-
-            <Link
-              href="/enquiries"
-              className="text-xs font-medium text-flora-primary hover:underline"
-            >
-              View all →
-            </Link>
-          </div>
-
-          {recentEnquiries.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
-              No enquiries yet.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[650px] text-sm">
-                <thead>
-                  <tr className="bg-flora-surface text-left text-[10px] uppercase tracking-wider text-flora-muted">
-                    <th className="px-5 py-3 font-medium">Client</th>
-                    <th className="px-5 py-3 font-medium">Service</th>
-                    <th className="px-5 py-3 font-medium">Status</th>
-                    <th className="px-5 py-3 font-medium">Date</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {recentEnquiries.map((enquiry) => (
-                    <tr
-                      key={enquiry.id}
-                      className="border-t border-flora-surface transition hover:bg-flora-background"
-                    >
-                      <td className="px-5 py-4">
-                        <Link
-                          href={`/enquiries/${enquiry.id}`}
-                          className="font-medium text-flora-primary hover:underline"
-                        >
-                          {enquiry.contact.name}
-                        </Link>
-
-                        {enquiry.company && (
-                          <p className="mt-0.5 text-xs text-flora-muted">
-                            {enquiry.company.tradeName}
-                          </p>
-                        )}
-                      </td>
-
-                      <td className="px-5 py-4 text-flora-muted">
-                        {enquiry.serviceWanted}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <StatusBadge domain="enquiry" status={enquiry.status} />
-                      </td>
-
-                      <td className="px-5 py-4 text-xs text-flora-muted">
-                        {formatDate(new Date(enquiry.createdAt))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Upcoming Site Visits */}
-        <div className="rounded-xl border border-flora-border bg-white">
-          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-flora-foreground">
-                Upcoming Site Visits
-              </h2>
-
-              <p className="mt-1 text-xs text-flora-muted">
-                Scheduled field operations
-              </p>
-            </div>
-
-            <Link
-              href="/site-visits"
-              className="text-xs font-medium text-flora-primary hover:underline"
-            >
-              View all →
-            </Link>
-          </div>
-
-          {upcomingVisits.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
-              No upcoming site visits.
-            </div>
-          ) : (
-            <div className="divide-y divide-flora-surface">
-              {upcomingVisits.map((visit) => (
-                <Link
-                  key={visit.id}
-                  href={`/site-visits/${visit.id}`}
-                  className="block px-5 py-4 transition hover:bg-flora-background"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-flora-foreground">
-                        {visit.enquiry.contact.name}
-                      </p>
-
-                      <p className="mt-1 text-xs text-flora-muted">
-                        {visit.siteAddress}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0 text-right">
-                      {visit.scheduledAt ? (
-                        <>
-                          <p className="text-sm font-medium text-flora-primary">
-                            {formatDate(new Date(visit.scheduledAt))}
-                          </p>
-
-                          <p className="mt-1 text-xs text-flora-muted">
-                            {formatTime(new Date(visit.scheduledAt))}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-xs text-flora-muted">TBD</p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Project Status + Activity */}
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        {/* Project Status */}
-        <div className="rounded-xl border border-flora-border bg-white">
-          <div className="border-b border-flora-border px-5 py-4">
-            <h2 className="font-semibold text-flora-foreground">
-              Project Status
-            </h2>
-
-            <p className="mt-1 text-xs text-flora-muted">
-              Current project distribution
-            </p>
-          </div>
-
-          <div className="divide-y divide-flora-surface">
-            {projectPipeline.map((item) => (
-              <Link
-                key={item.status}
-                href="/projects"
-                className="flex items-center justify-between px-5 py-3.5 transition hover:bg-flora-background"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      item.status === "COMPLETED"
-                        ? "bg-green-600"
-                        : item.status === "ON_HOLD"
-                          ? "bg-red-500"
-                          : item.status === "CANCELLED"
-                            ? "bg-stone-400"
-                            : item.status === "INSTALLATION"
-                              ? "bg-amber-500"
-                              : "bg-flora-primary"
-                    }`}
-                  />
-
-                  <span className="text-sm text-flora-foreground">
-                    {statusLabels[item.status]}
-                  </span>
-                </div>
-
-                <span className="text-sm font-semibold text-flora-foreground">
-                  {item.count}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="rounded-xl border border-flora-border bg-white">
-          <div className="flex items-center justify-between border-b border-flora-border px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-flora-foreground">
-                Recent Activity
-              </h2>
-
-              <p className="mt-1 text-xs text-flora-muted">
-                Latest CRM activity
-              </p>
-            </div>
-          </div>
-
-          {recentActivity.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-flora-muted">
-              No activity recorded yet.
-            </div>
-          ) : (
-            <div className="divide-y divide-flora-surface">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="px-5 py-4">
-                  <div className="flex gap-3">
-                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-flora-primary" />
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm font-medium text-flora-foreground">
-                          {activity.summary ||
-                            `${formatActivityAction(activity.action)} ${activity.entityType}`}
-                        </p>
-
-                        <span className="shrink-0 text-[11px] text-flora-muted">
-                          {formatDate(new Date(activity.createdAt))}
-                        </span>
-                      </div>
-
-                      {activity.userName && (
-                        <p className="mt-1 text-xs text-flora-muted">
-                          {activity.userName}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

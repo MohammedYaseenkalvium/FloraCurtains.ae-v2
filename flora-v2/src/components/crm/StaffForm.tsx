@@ -212,7 +212,7 @@ export function StaffForm({
               placeholder="Enter full name"
               autoComplete="name"
               disabled={loading}
-              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
+              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-flora-placeholder focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
             />
           </div>
 
@@ -235,7 +235,7 @@ export function StaffForm({
               placeholder="staff@example.com"
               autoComplete="email"
               disabled={loading}
-              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
+              className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm text-flora-foreground outline-none transition placeholder:text-flora-placeholder focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
             />
           </div>
         </div>
@@ -346,7 +346,7 @@ export function StaffForm({
                     : "new-password"
                 }
                 disabled={loading}
-                className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 pr-11 text-sm text-flora-foreground outline-none transition placeholder:text-[#A69A91] focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
+                className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 pr-11 text-sm text-flora-foreground outline-none transition placeholder:text-flora-placeholder focus:border-flora-primary focus:ring-1 focus:ring-flora-primary disabled:cursor-not-allowed disabled:bg-flora-surface"
               />
 
               <button

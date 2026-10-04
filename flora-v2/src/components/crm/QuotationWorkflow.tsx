@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QuotationStatus } from "@prisma/client";
-import { Check, RotateCcw, Send, X } from "lucide-react";
+import { ArrowRight, Check, RotateCcw, Send, X } from "lucide-react";
+import { statusStyles } from "@/lib/status-styles";
 
 type WorkflowAction = {
   status: QuotationStatus;
@@ -57,45 +58,6 @@ const transitions: Record<QuotationStatus, WorkflowAction[]> = {
   ],
 };
 
-const statusStyles: Record<
-  QuotationStatus,
-  {
-    background: string;
-    text: string;
-    border: string;
-  }
-> = {
-  DRAFT: {
-    background: "#F8F5F2",
-    text: "#6B625A",
-    border: "#D8C9BC",
-  },
-
-  SENT: {
-    background: "#EEF4FA",
-    text: "#185FA5",
-    border: "#B8D0E5",
-  },
-
-  APPROVED: {
-    background: "#EDF7F3",
-    text: "#0F6E56",
-    border: "#B7D8CC",
-  },
-
-  REJECTED: {
-    background: "#FEF2F2",
-    text: "#991B1B",
-    border: "#E8BDBD",
-  },
-
-  REVISED: {
-    background: "#FEF9E7",
-    text: "#854D0E",
-    border: "#E6D19B",
-  },
-};
-
 const statusLabels: Record<QuotationStatus, string> = {
   DRAFT: "Draft",
   SENT: "Sent",
@@ -120,7 +82,7 @@ export function QuotationStatusWorkflow({
   const [error, setError] = useState("");
 
   const actions = transitions[status];
-  const currentStyle = statusStyles[status];
+  const currentStyle = statusStyles.quotation[status];
 
   async function updateStatus(
     newStatus: QuotationStatus
@@ -240,8 +202,8 @@ export function QuotationStatusWorkflow({
 
         {actions.length > 0 && (
           <>
-            <span className="text-[#D8C9BC]">
-              →
+            <span className="text-flora-border">
+              <ArrowRight size={12} aria-hidden="true" />
             </span>
 
             {actions.map((action) => {
@@ -265,9 +227,9 @@ export function QuotationStatusWorkflow({
                     "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
 
                     isReject
-                      ? "border border-[#E8BDBD] bg-[#FEF2F2] text-[#991B1B] hover:bg-[#FDE8E8]"
+                      ? "border border-flora-danger/30 bg-flora-danger-surface text-flora-danger hover:bg-flora-danger-surface"
                       : isRevise
-                        ? "border border-[#E6D19B] bg-[#FEF9E7] text-[#854D0E] hover:bg-[#FDF3CF]"
+                        ? "border border-flora-warning-border bg-flora-warning-surface text-flora-warning hover:bg-flora-warning-hover"
                         : "bg-flora-primary text-white hover:bg-flora-primary-hover",
                   ].join(" ")}
                 >
@@ -287,7 +249,7 @@ export function QuotationStatusWorkflow({
 
       {error && (
         <p
-          className="text-xs text-[#991B1B]"
+          className="text-xs text-flora-danger"
           role="alert"
         >
           {error}

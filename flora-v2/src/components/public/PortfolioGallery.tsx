@@ -7,6 +7,7 @@ interface PortfolioProject {
   title: string;
   category: string;
   image: string;
+  alt: string;
 }
 
 const filters = ["All", "Residential", "Commercial", "Interior"] as const;
@@ -19,13 +20,12 @@ export function PortfolioGallery({ projects }: { projects: PortfolioProject[] })
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by category">
+      <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter projects by category">
         {filters.map((filter) => (
           <button
             key={filter}
             type="button"
-            role="tab"
-            aria-selected={active === filter}
+            aria-pressed={active === filter}
             onClick={() => setActive(filter)}
             className={[
               "rounded-full border px-4 py-2 text-xs font-semibold transition-colors",
@@ -53,8 +53,8 @@ export function PortfolioGallery({ projects }: { projects: PortfolioProject[] })
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-flora-surface">
                 <Image
-                  src={project.image}
-                  alt={project.title}
+                src={project.image}
+                alt={project.alt}
                   fill
                   loading="lazy"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

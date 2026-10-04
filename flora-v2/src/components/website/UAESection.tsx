@@ -16,7 +16,7 @@ const emirates = [
 /** Service-area strip: type-led, no gimmicky map graphic. */
 export function UAESection() {
   return (
-    <section className="bg-white">
+    <section className="bg-flora-background">
       <Container className="py-20 text-center lg:py-24">
         <Reveal>
           <SectionHeading

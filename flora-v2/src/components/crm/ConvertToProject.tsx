@@ -121,7 +121,7 @@ export function ConvertToProject({
           setError("");
           setOpen(true);
         }}
-        className="inline-flex items-center gap-2 rounded-lg bg-[#0F6E56] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0D5A45]"
+        className="inline-flex items-center gap-2 rounded-lg bg-flora-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-flora-success-hover"
       >
         <CheckCircle2 size={15} />
         Convert to Project
@@ -130,7 +130,7 @@ export function ConvertToProject({
   }
 
   return (
-    <div className="rounded-xl border border-[#B7D8CC] bg-white p-5">
+    <div className="rounded-xl border border-flora-success-border bg-white p-5">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h3 className="text-sm font-semibold text-flora-foreground">
@@ -155,7 +155,7 @@ export function ConvertToProject({
 
       {error && (
         <div
-          className="mb-4 rounded-lg border border-[#E8BDBD] bg-[#FEF2F2] px-3 py-2 text-sm text-[#991B1B]"
+          className="mb-4 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger"
           role="alert"
         >
           {error}
@@ -291,7 +291,7 @@ export function ConvertToProject({
           disabled={
             loading || !form.totalContractValue
           }
-          className="rounded-lg bg-[#0F6E56] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D5A45] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-flora-success px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-flora-success-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading
             ? "Creating Project..."
@@ -302,7 +302,7 @@ export function ConvertToProject({
           type="button"
           onClick={() => setOpen(false)}
           disabled={loading}
-          className="rounded-lg bg-flora-surface px-6 py-2.5 text-sm font-medium text-flora-muted transition-colors hover:bg-[#EFE7DF] disabled:opacity-50"
+          className="rounded-lg bg-flora-surface px-6 py-2.5 text-sm font-medium text-flora-muted transition-colors hover:bg-flora-cream disabled:opacity-50"
         >
           Cancel
         </button>

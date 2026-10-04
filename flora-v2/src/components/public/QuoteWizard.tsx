@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -9,6 +9,12 @@ import {
   Loader2,
   Send,
 } from "lucide-react";
+import Link from "next/link";
+import {
+  FIELD_STEPS,
+  isEmailLike,
+  isPlausiblePhone,
+} from "@/lib/validation";
 
 const SERVICES = [
   "Curtains & Blinds",
@@ -51,18 +57,45 @@ const emptyForm: WizardForm = {
 };
 
 const input =
-  "h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary";
+  "h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm";
 const label = "mb-2 block text-xs font-semibold text-flora-foreground";
 
+function WError({ id, message }: { id: string; message: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 text-xs text-flora-danger">
+      {message}
+    </p>
+  );
+}
+
 function validateStep(step: number, form: WizardForm): string {
+  return firstErrorMessage(step, form);
+}
+
+function firstErrorField(step: number, form: WizardForm): string | null {
   if (step === 0) {
-    if (form.name.trim().length < 2) return "Please enter your name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
-      return "Please enter a valid email address.";
-    if (form.phone.trim().length < 5) return "Please enter your phone number.";
+    if (form.name.trim().length < 2) return "name";
+    if (!isEmailLike(form.email)) return "email";
+    if (!isPlausiblePhone(form.phone)) return "phone";
   }
-  if (step === 2 && !form.serviceWanted) return "Please select a service.";
-  return "";
+  if (step === 2 && !form.serviceWanted) return "serviceWanted";
+  return null;
+}
+
+function firstErrorMessage(step: number, form: WizardForm): string {
+  switch (firstErrorField(step, form)) {
+    case "name":
+      return "Please enter your name.";
+    case "email":
+      return "Please enter a valid email address.";
+    case "phone":
+      return "Please enter your phone number.";
+    case "serviceWanted":
+      return "Please select a service.";
+    default:
+      return "";
+  }
 }
 
 export function QuoteWizard() {
@@ -70,36 +103,83 @@ export function QuoteWizard() {
   const [form, setForm] = useState<WizardForm>(emptyForm);
   const [stepError, setStepError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [submitFieldErrors, setSubmitFieldErrors] = useState<Record<string, string>>({});
+  const [showErrors, setShowErrors] = useState(false);
+  const [offline, setOffline] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [reference, setReference] = useState("");
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  // Move keyboard + screen-reader focus to the error summary on failure.
+  useEffect(() => {
+    if (submitError) alertRef.current?.focus();
+  }, [submitError]);
+
+  /** Server field key → wizard input id for summary anchor links. */
+  const FIELD_INPUT_IDS: Record<string, string> = {
+    name: "qw-name",
+    email: "qw-email",
+    phone: "qw-phone",
+    customerType: "qw-type",
+    projectName: "qw-project",
+    siteAddress: "qw-address",
+    serviceWanted: "qw-service",
+    budget: "qw-budget",
+    notes: "qw-notes",
+  };
 
   function set<K extends keyof WizardForm>(key: K, value: WizardForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function fieldMessage(field: "name" | "email" | "phone" | "serviceWanted"): string {
+    if (!showErrors) return "";
+    switch (field) {
+      case "name":
+        return form.name.trim().length < 2 ? "Please enter your name." : "";
+      case "email":
+        return !isEmailLike(form.email) ? "Please enter a valid email address." : "";
+      case "phone":
+        return !isPlausiblePhone(form.phone) ? "Please enter your phone number." : "";
+      case "serviceWanted":
+        return !form.serviceWanted ? "Please select a service." : "";
+    }
+  }
+
   function next() {
     const problem = validateStep(step, form);
     if (problem) {
+      setShowErrors(true);
       setStepError(problem);
       return;
     }
+    setShowErrors(false);
     setStepError("");
+    setSubmitFieldErrors({});
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }
 
   function back() {
     setStepError("");
+    setShowErrors(false);
+    setSubmitFieldErrors({});
     setStep((s) => Math.max(s - 1, 0));
   }
 
   async function submit() {
-    const problem = validateStep(0, form) || validateStep(2, form);
-    if (problem) {
-      setSubmitError(problem);
+    const badField = firstErrorField(0, form) ?? firstErrorField(2, form);
+    if (badField) {
+      setShowErrors(true);
+      setSubmitError(firstErrorMessage(badField === "serviceWanted" ? 2 : 0, form));
+      setStep(FIELD_STEPS[badField] ?? 0);
       return;
     }
     setLoading(true);
     setSubmitError("");
+    setSubmitFieldErrors({});
+    setOffline(false);
     try {
       const response = await fetch("/api/public/enquiries", {
         method: "POST",
@@ -117,10 +197,40 @@ export function QuoteWizard() {
         }),
       });
       const data = await response.json().catch(() => null);
-      if (!response.ok) throw new Error(data?.error ?? "Unable to submit your enquiry.");
+      if (!response.ok) {
+        if (
+          data &&
+          typeof data === "object" &&
+          data.fieldErrors &&
+          typeof data.fieldErrors === "object"
+        ) {
+          const serverFields = data.fieldErrors as Record<string, string>;
+          setSubmitFieldErrors(serverFields);
+          const firstField = Object.keys(serverFields)[0];
+          if (firstField && firstField in FIELD_STEPS) {
+            setStep(FIELD_STEPS[firstField]);
+          }
+        }
+        throw new Error(data?.error ?? "Unable to submit your enquiry.");
+      }
+      setReference(
+        typeof data?.enquiryId === "string"
+          ? data.enquiryId.slice(-6).toUpperCase()
+          : ""
+      );
       setSuccess(true);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      const isOffline =
+        err instanceof TypeError &&
+        /fetch failed|networkerror|load failed/i.test(err.message);
+      setOffline(isOffline);
+      setSubmitError(
+        isOffline
+          ? "No connection. Check your internet connection and try again."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -130,7 +240,7 @@ export function QuoteWizard() {
     return (
       <div className="rounded-xl border border-flora-border bg-white p-8 text-center sm:p-12">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-flora-primary">
-          <CheckCircle2 size={24} />
+          <CheckCircle2 size={24} aria-hidden="true" />
         </div>
         <h2 className="mt-5 font-display text-3xl text-flora-foreground">
           Request received.
@@ -138,7 +248,39 @@ export function QuoteWizard() {
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-flora-muted">
           Thank you, {form.name.trim() || "friend"}. Our team will contact you
           shortly about {form.serviceWanted || "your project"}.
+          {reference ? ` Your reference: ${reference}.` : ""}
         </p>
+
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => {
+              setForm(emptyForm);
+              setStep(0);
+              setReference("");
+              setSuccess(false);
+            }}
+            className="rounded-lg border border-flora-border px-5 py-2.5 text-sm font-semibold text-flora-primary hover:bg-flora-surface"
+          >
+            Submit another
+          </button>
+
+          <Link
+            href="/"
+            className="rounded-lg border border-flora-border px-5 py-2.5 text-sm font-semibold text-flora-primary hover:bg-flora-surface"
+          >
+            Back home
+          </Link>
+
+          <a
+            href="https://wa.me/971557464100"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+          >
+            WhatsApp us
+          </a>
+        </div>
       </div>
     );
   }
@@ -156,7 +298,7 @@ export function QuoteWizard() {
   ];
 
   return (
-    <div className="rounded-xl border border-flora-border bg-white p-6 sm:p-8">
+    <div className="rounded-xl border border-flora-border bg-white p-6 sm:p-8" aria-busy={loading}>
       {/* Progress */}
       <ol aria-label="Quote progress" className="mb-8 flex items-center gap-1.5">
         {STEPS.map((labelText, i) => (
@@ -174,6 +316,9 @@ export function QuoteWizard() {
               ].join(" ")}
             >
               {i + 1}
+              <span className="sr-only">
+                {`, step ${i + 1} of ${STEPS.length}: ${labelText}${i === step ? " (current)" : i < step ? " (done)" : ""}`}
+              </span>
             </span>
             {i < STEPS.length - 1 && (
               <span
@@ -190,24 +335,59 @@ export function QuoteWizard() {
       </p>
 
       {stepError && (
-        <p role="alert" className="mb-5 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="mb-5 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {stepError}
         </p>
+      )}
+
+      {submitError && (
+        <div ref={alertRef} tabIndex={-1} role="alert" aria-labelledby="qw-submit-error-title" className="mb-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger outline-none focus-visible:ring-2 focus-visible:ring-flora-danger">
+          <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+          <div>
+            <p id="qw-submit-error-title" className="font-semibold">
+              {submitError}
+            </p>
+            {Object.keys(submitFieldErrors).length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                {Object.entries(submitFieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    <a href={`#${FIELD_INPUT_IDS[field] ?? field}`} className="underline hover:no-underline">
+                      {field}: {message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={submit}
+                className="mt-2 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {step === 0 && (
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-name" className={label}>Name *</label>
-            <input id="qw-name" autoComplete="name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Your name" className={input} />
+            <input id="qw-name" autoComplete="name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Your name" maxLength={100} aria-invalid={fieldMessage("name") ? true : undefined} aria-describedby={fieldMessage("name") ? "qw-name-error" : undefined} className={input} />
+            <WError id="qw-name-error" message={fieldMessage("name")} />
           </div>
           <div>
             <label htmlFor="qw-email" className={label}>Email *</label>
-            <input id="qw-email" type="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" className={input} />
+            <input id="qw-email" type="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" aria-invalid={fieldMessage("email") ? true : undefined} aria-describedby={fieldMessage("email") ? "qw-email-error" : undefined} className={input} />
+            <WError id="qw-email-error" message={fieldMessage("email")} />
           </div>
           <div>
             <label htmlFor="qw-phone" className={label}>Phone *</label>
-            <input id="qw-phone" type="tel" autoComplete="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="Phone number" className={input} />
+            <input id="qw-phone" type="tel" autoComplete="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="Phone number" maxLength={30} aria-invalid={fieldMessage("phone") ? true : undefined} aria-describedby={fieldMessage("phone") ? "qw-phone-error" : undefined} className={input} />
+            <WError id="qw-phone-error" message={fieldMessage("phone")} />
           </div>
           <div>
             <label htmlFor="qw-type" className={label}>Customer Type</label>
@@ -223,11 +403,11 @@ export function QuoteWizard() {
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-project" className={label}>Project Name</label>
-            <input id="qw-project" value={form.projectName} onChange={(e) => set("projectName", e.target.value)} placeholder="e.g. Villa living room" className={input} />
+            <input id="qw-project" value={form.projectName} onChange={(e) => set("projectName", e.target.value)} placeholder="e.g. Villa living room" maxLength={150} className={input} />
           </div>
           <div>
             <label htmlFor="qw-address" className={label}>Site Address</label>
-            <input id="qw-address" autoComplete="street-address" value={form.siteAddress} onChange={(e) => set("siteAddress", e.target.value)} placeholder="Area, city" className={input} />
+            <textarea id="qw-address" rows={3} autoComplete="street-address" value={form.siteAddress} onChange={(e) => set("siteAddress", e.target.value)} placeholder="Area, city" maxLength={1000} className="w-full resize-none rounded-lg border border-flora-border bg-white px-3 py-2.5 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm" />
           </div>
         </div>
       )}
@@ -236,16 +416,17 @@ export function QuoteWizard() {
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-service" className={label}>Service *</label>
-            <select id="qw-service" value={form.serviceWanted} onChange={(e) => set("serviceWanted", e.target.value)} className={input}>
+            <select id="qw-service" value={form.serviceWanted} onChange={(e) => set("serviceWanted", e.target.value)} aria-invalid={fieldMessage("serviceWanted") ? true : undefined} aria-describedby={fieldMessage("serviceWanted") ? "qw-service-error" : undefined} className={input}>
               <option value="" disabled>Select a service</option>
               {SERVICES.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            <WError id="qw-service-error" message={fieldMessage("serviceWanted")} />
           </div>
           <div>
             <label htmlFor="qw-budget" className={label}>Budget (AED)</label>
-            <input id="qw-budget" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="Optional" className={input} />
+            <input id="qw-budget" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="Optional" maxLength={100} className={input} />
           </div>
         </div>
       )}
@@ -253,7 +434,7 @@ export function QuoteWizard() {
       {step === 3 && (
         <div>
           <label htmlFor="qw-notes" className={label}>Anything we should know?</label>
-          <textarea id="qw-notes" rows={5} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Measurements, timelines, preferences…" className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary" />
+          <textarea id="qw-notes" rows={5} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Measurements, timelines, preferences…" maxLength={3000} className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm" />
         </div>
       )}
 
@@ -268,13 +449,6 @@ export function QuoteWizard() {
         </dl>
       )}
 
-      {submitError && (
-        <p role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-          <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-          {submitError}
-        </p>
-      )}
-
       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         {step > 0 ? (
           <button type="button" onClick={back} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg border border-flora-border px-5 py-3 text-sm font-semibold text-flora-foreground hover:bg-flora-surface disabled:opacity-50">
@@ -284,12 +458,12 @@ export function QuoteWizard() {
           <span />
         )}
         {step < STEPS.length - 1 ? (
-          <button type="button" onClick={next} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover">
-            Next Step <ArrowRight size={15} />
+          <button type="button" onClick={next} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover disabled:opacity-60">
+            Next Step <ArrowRight size={15} aria-hidden="true" />
           </button>
         ) : (
           <button type="button" onClick={submit} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover disabled:opacity-60">
-            {loading ? (<><Loader2 size={16} className="animate-spin" /> Sending…</>) : (<><Send size={15} /> Submit Request</>)}
+            {loading ? (<><Loader2 size={16} aria-hidden="true" className="animate-spin" /> Sending…</>) : (<><Send size={15} aria-hidden="true" /> Submit Request</>)}
           </button>
         )}
       </div>

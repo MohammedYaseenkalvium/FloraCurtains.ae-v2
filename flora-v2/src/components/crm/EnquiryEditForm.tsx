@@ -145,11 +145,11 @@ export function EnquiryEditForm({ enquiry }: { enquiry: Enquiry }) {
         >
           {loading ? "Saving…" : "Save Changes"}
         </button>
-        {saved && <span className="text-sm text-[#0F6E56]">✓ Saved successfully</span>}
+        {saved && <span className="text-sm text-flora-success">✓ Saved successfully</span>}
       </div>
 
       {saveError && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {saveError}
         </p>
       )}

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
+import { statusStyles } from "@/lib/status-styles";
 import { MeasurementManager } from "@/components/crm/MeasurementManager";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
@@ -58,31 +60,6 @@ const field =
 
 const label =
   "text-[10px] uppercase tracking-widest text-flora-muted block mb-1";
-
-const statusStyles: Record<
-  SiteVisit["status"],
-  { bg: string; text: string }
-> = {
-  SCHEDULED: {
-    bg: "#FFF7ED",
-    text: "#9A3412",
-  },
-
-  COMPLETED: {
-    bg: "#ECFDF5",
-    text: "#166534",
-  },
-
-  CANCELLED: {
-    bg: "#FEF2F2",
-    text: "#991B1B",
-  },
-
-  RESCHEDULED: {
-    bg: "#EFF6FF",
-    text: "#185FA5",
-  },
-};
 
 function formatDate(value: Date | string | null) {
   if (!value) return "—";
@@ -379,7 +356,7 @@ export function SiteVisitManager({
       {actionError && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+          className="mb-4 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger"
         >
           {actionError}
         </p>
@@ -405,14 +382,15 @@ export function SiteVisitManager({
             }
             className="bg-flora-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-flora-primary-hover transition-colors"
           >
-            + Schedule Visit
+            <Plus size={16} aria-hidden="true" />
+            Schedule Visit
           </button>
         )}
       </div>
 
       {/* Create Form */}
       {showForm && (
-        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-[#FCFAF8]">
+        <div className="border border-flora-border rounded-xl p-4 mb-5 bg-flora-panel">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h4 className="font-semibold text-sm text-flora-primary">
@@ -537,7 +515,7 @@ export function SiteVisitManager({
                 setShowForm(false)
               }
               disabled={loading}
-              className="bg-[#EFE7DF] text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-[#E7DDD3]"
+              className="bg-flora-cream text-flora-muted rounded-lg px-5 py-2 text-sm hover:bg-flora-cream-hover"
             >
               Cancel
             </button>
@@ -569,7 +547,7 @@ export function SiteVisitManager({
         <div className="space-y-4">
           {visits.map((visit) => {
             const style =
-              statusStyles[
+              statusStyles.siteVisit[
                 visit.status
               ];
 
@@ -582,7 +560,7 @@ export function SiteVisitManager({
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-sm text-[#2E2925]">
+                      <span className="font-semibold text-sm text-flora-heading">
                         Site Visit
                       </span>
 
@@ -590,7 +568,7 @@ export function SiteVisitManager({
                         className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wide"
                         style={{
                           background:
-                            style.bg,
+                            style.background,
                           color:
                             style.text,
                         }}
@@ -622,7 +600,7 @@ export function SiteVisitManager({
                             "COMPLETED"
                           )
                         }
-                        className="text-xs bg-[#ECFDF5] text-[#166534] rounded-lg px-3 py-1.5 hover:bg-[#D1FAE5] disabled:opacity-50"
+                        className="text-xs bg-flora-success-soft text-flora-success-text rounded-lg px-3 py-1.5 hover:bg-flora-success-soft-hover disabled:opacity-50"
                       >
                         ✓ Complete
                       </button>
@@ -644,7 +622,7 @@ export function SiteVisitManager({
                             rescheduleFor === visit.id ? null : visit.id
                           );
                         }}
-                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                        className="text-xs bg-flora-info-soft text-flora-info rounded-lg px-3 py-1.5 hover:bg-flora-info-soft-hover disabled:opacity-50"
                       >
                         Reschedule
                       </button>
@@ -661,7 +639,7 @@ export function SiteVisitManager({
                             "SCHEDULED"
                           )
                         }
-                        className="text-xs bg-[#EFF6FF] text-[#185FA5] rounded-lg px-3 py-1.5 hover:bg-[#DBEAFE] disabled:opacity-50"
+                        className="text-xs bg-flora-info-soft text-flora-info rounded-lg px-3 py-1.5 hover:bg-flora-info-soft-hover disabled:opacity-50"
                       >
                         Re-schedule
                       </button>
@@ -678,7 +656,7 @@ export function SiteVisitManager({
                             "CANCELLED"
                           )
                         }
-                        className="text-xs bg-[#FEF2F2] text-[#991B1B] rounded-lg px-3 py-1.5 hover:bg-[#FEE2E2] disabled:opacity-50"
+                        className="text-xs bg-flora-danger-surface text-flora-danger rounded-lg px-3 py-1.5 hover:bg-flora-danger/10 disabled:opacity-50"
                       >
                         Cancel Visit
                       </button>
@@ -693,14 +671,14 @@ export function SiteVisitManager({
                         )
                       }
                       aria-label={`Delete site visit ${visit.id}`}
-                      className="text-xs text-[#991B1B] border border-[#FECACA] rounded-lg px-3 py-1.5 hover:bg-[#FEF2F2] disabled:opacity-50"
+                      className="text-xs text-flora-danger border border-flora-danger/30 rounded-lg px-3 py-1.5 hover:bg-flora-danger-surface disabled:opacity-50"
                     >
                       Delete
                     </button>
                   </div>
 
                   {rescheduleFor === visit.id && (
-                    <div className="mt-3 flex flex-col sm:flex-row gap-2 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 rounded-lg bg-flora-panel border border-flora-border p-3">
                       <input
                         type="datetime-local"
                         aria-label="New visit date and time"
@@ -821,7 +799,8 @@ export function SiteVisitManager({
                         }}
                         className="text-xs font-medium text-flora-primary hover:underline"
                       >
-                        + Link file
+                        <Plus size={16} aria-hidden="true" />
+                        Link file
                       </button>
                     )}
                   </div>
@@ -847,7 +826,7 @@ export function SiteVisitManager({
                             onClick={() => deleteAttachment(visit.id, attachment.id)}
                             aria-label={`Remove attachment ${attachment.fileName}`}
                             title="Remove attachment (admin only)"
-                            className="text-[#991B1B] hover:underline disabled:opacity-50"
+                            className="text-flora-danger hover:underline disabled:opacity-50"
                           >
                             ×
                           </button>
@@ -857,7 +836,7 @@ export function SiteVisitManager({
                   )}
 
                   {attachFormFor === visit.id && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg bg-[#FCFAF8] border border-flora-border p-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg bg-flora-panel border border-flora-border p-3">
                       <div className="col-span-1">
                         <label className="text-[10px] uppercase tracking-widest text-flora-muted block mb-1">
                           File name *

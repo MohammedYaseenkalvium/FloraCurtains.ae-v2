@@ -1,35 +1,60 @@
 import type { Metadata } from "next";
 import { Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { QuoteForm } from "@/components/public/QuoteForm";
+import { PageHero } from "@/components/website/PageHero";
 
 export const metadata: Metadata = {
   title: "Contact Flora Curtains | Abu Dhabi Showroom",
   description:
     "Visit our Abu Dhabi showroom on Murur Road, call +971 2 586 4545 or WhatsApp +971 55 746 4100. Send your project requirements for a fast response.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact Flora Curtains | Abu Dhabi Showroom",
+    description:
+      "Murur Road showroom, Abu Dhabi — call, WhatsApp or send your project requirements for a fast response.",
+  },
+};
+
+/**
+ * LocalBusiness structured data. Every fact mirrors the visible
+ * contact aside byte-for-byte — no new claims.
+ */
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Flora Curtains LLC",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Murur Road, Opp. Mubadala Tower",
+    addressLocality: "Abu Dhabi",
+    addressCountry: "AE",
+  },
+  telephone: "+97125864545",
+  email: "sayedflora1@gmail.com",
+  url: "https://floracurtains.ae/contact",
+  areaServed: "United Arab Emirates",
 };
 
 export default function ContactPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            Contact Flora
-          </span>
-
-          <h1 className="mt-4 max-w-3xl font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <PageHero
+        eyebrow="Contact Flora"
+        title={
+          <>
             Tell us about
             <br />
             your space.
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
-            Share a few details about your project and
-            requirements. Our team can then understand what
-            you need and follow up with you.
-          </p>
-        </div>
-      </section>
+          </>
+        }
+        description="Share a few details about your project and requirements. Our team can then understand what you need and follow up with you."
+      />
 
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-[0.7fr_1.3fr] lg:px-8">
         <aside>
@@ -46,7 +71,7 @@ export default function ContactPage() {
           <div className="mt-8 space-y-5">
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MapPin size={18} />
+                <MapPin size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -64,7 +89,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <Phone size={18} />
+                <Phone size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -83,7 +108,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MessageSquare size={18} />
+                <MessageSquare size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -104,7 +129,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <Mail size={18} />
+                <Mail size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -123,7 +148,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MessageSquare size={18} />
+                <MessageSquare size={18} aria-hidden="true" />
               </div>
 
               <div>

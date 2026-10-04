@@ -228,7 +228,7 @@ export default async function StaffPage({
 
           <button
             type="submit"
-            className="h-10 rounded-lg border border-flora-border bg-flora-surface px-4 text-sm font-medium text-flora-primary transition-colors hover:bg-[#EFE7DF]"
+            className="h-10 rounded-lg border border-flora-border bg-flora-surface px-4 text-sm font-medium text-flora-primary transition-colors hover:bg-flora-cream"
           >
             Search
           </button>
@@ -261,7 +261,7 @@ export default async function StaffPage({
           <div className="px-6 py-16 text-center">
             <Users
               size={30}
-              className="mx-auto text-[#D8C9BC]"
+              className="mx-auto text-flora-border"
             />
 
             <h3 className="mt-4 text-sm font-semibold text-flora-foreground">
@@ -289,7 +289,7 @@ export default async function StaffPage({
             <div className="overflow-x-auto">
               <table className="min-w-[760px] w-full">
                 <thead>
-                  <tr className="border-b border-flora-border bg-flora-surface text-left">
+                  <tr className="border-b border-flora-border bg-flora-cream text-left">
                     <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-flora-muted">
                       Staff
                     </th>
@@ -391,7 +391,7 @@ export default async function StaffPage({
                     Previous
                   </Link>
                 ) : (
-                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-[#B7ADA5]">
+                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-flora-disabled-text">
                     Previous
                   </span>
                 )}
@@ -406,7 +406,7 @@ export default async function StaffPage({
                     Next
                   </Link>
                 ) : (
-                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-[#B7ADA5]">
+                  <span className="cursor-not-allowed rounded-lg border border-flora-border/60 px-3 py-2 text-xs font-medium text-flora-disabled-text">
                     Next
                   </span>
                 )}

@@ -55,7 +55,7 @@ export function ConfirmDialog({
               type="button"
               disabled={loading}
               onClick={onConfirm}
-              className="rounded-lg bg-[#991B1B] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#7f1d1d] disabled:opacity-50"
+              className="rounded-lg bg-flora-danger px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-flora-danger-hover disabled:opacity-50"
             >
               {loading ? "Deleting…" : confirmLabel}
             </button>

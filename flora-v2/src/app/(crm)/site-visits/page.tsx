@@ -138,7 +138,7 @@ export default async function SiteVisitsPage() {
           <div className="flex items-center gap-2">
             <Clock3
               size={16}
-              className="text-[#9A3412]"
+              className="text-flora-scheduled-accent"
             />
 
             <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
@@ -156,7 +156,7 @@ export default async function SiteVisitsPage() {
           <div className="flex items-center gap-2">
             <CheckCircle2
               size={16}
-              className="text-[#166534]"
+              className="text-flora-success-text"
             />
 
             <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">
@@ -174,7 +174,7 @@ export default async function SiteVisitsPage() {
           <div className="flex items-center gap-2">
             <XCircle
               size={16}
-              className="text-[#991B1B]"
+              className="text-flora-danger"
             />
 
             <p className="text-xs font-medium uppercase tracking-wide text-flora-muted">

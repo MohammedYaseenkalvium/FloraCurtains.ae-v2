@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { calcLifetimeRevenue, calcOutstanding, sumPayments } from "@/lib/finance";
+import { calcLifetimeRevenue, calcOutstanding, calcPortfolioSummary, sumPayments, sumQuotationTotals } from "@/lib/finance";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface CustomerFinancialSummary {
@@ -107,6 +107,50 @@ export interface LedgerEntry {
 // ─── Service ─────────────────────────────────────────────────────────────────
 
 /**
+ * The ONE input-assembly for portfolio money figures.
+ *
+ * Reads the three canonical inputs, hands them to calcPortfolioSummary
+ * (src/lib/finance.ts) and returns the plain summary plus the projects list
+ * the dashboard derives its KPIs from. The dashboard and /dashboard/outstanding
+ * both consume this assembly, so their totals cannot diverge.
+ */
+export async function getPortfolioFinancialSummary() {
+  const [projects, approvedQuotations, payments] = await Promise.all([
+    // Live projects only: the entity gate plus the parent-enquiry gate —
+    // a soft-deleted enquiry retires its projects (the only deletion path).
+    db.project.findMany({
+      where: { deletedAt: null, enquiry: { deletedAt: null } },
+      select: { id: true, status: true, totalContractValue: true, quotationId: true },
+    }),
+
+    // Approved quotations without a project count as outstanding revenue —
+    // canonical lifetime-revenue inputs for src/lib/finance.ts, retired
+    // alongside their parent's projects when the enquiry is soft-deleted.
+    db.quotation.findMany({
+      where: { deletedAt: null, status: "APPROVED", enquiry: { deletedAt: null } },
+      select: { id: true, totalAmount: true },
+    }),
+
+    // Payments follow the same rule as their parents: rows whose project or
+    // quotation is retired by a soft-deleted enquiry drop out, while orphan
+    // rows (both Payment FKs optional in prisma/schema.prisma) keep counting
+    // per the contract's totalPaid.
+    db.payment.findMany({
+      where: {
+        OR: [
+          { projectId: null, quotationId: null },
+          { project: { deletedAt: null, enquiry: { deletedAt: null } } },
+          { quotation: { deletedAt: null, enquiry: { deletedAt: null } } },
+        ],
+      },
+      select: { amount: true },
+    }),
+  ]);
+
+  return { projects, ...calcPortfolioSummary({ projects, approvedQuotations, payments }) };
+}
+
+/**
  * Fetches complete financial picture for a customer (contact).
  * Reusable across dashboards, reports, PDFs, and APIs.
  */
@@ -117,13 +161,16 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
     include: {
       company: true,
       enquiries: {
+        where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
         include: {
           quotations: {
+            where: { deletedAt: null },
             orderBy: { createdAt: "desc" },
             include: { payments: { orderBy: { paidAt: "asc" } } },
           },
           project: {
+            where: { deletedAt: null },
             include: { 
               payments: { orderBy: { paidAt: "asc" } },
               quotation: { select: { quoteNumber: true } },
@@ -233,14 +280,10 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
     ...projects.flatMap(p => p.payments),
   ].sort((a, b) => a.paidAt.getTime() - b.paidAt.getTime());
 
-  // Calculate totals
-  const totalQuoted = quotations.reduce((sum, q) => sum + q.totalAmount, 0);
-  const totalContractValue = projects.reduce((sum, p) => sum + p.totalContractValue, 0);
-  
   // Lifetime revenue = project values + approved quotes WITHOUT a project
   // (avoids double-counting a converted quote -> project).
   // Canonical formula — see src/lib/finance.ts.
-  const { lifetimeRevenue } = calcLifetimeRevenue({
+  const { lifetimeRevenue, projectValues } = calcLifetimeRevenue({
     projects: projects.map((p) => ({
       totalContractValue: p.totalContractValue,
       quotationId: p.quotationId,
@@ -249,6 +292,10 @@ export async function getCustomerFinancialSummary(contactId: string): Promise<Cu
       .filter((q) => q.status === "APPROVED")
       .map((q) => ({ id: q.id, totalAmount: q.totalAmount })),
   });
+
+  // Calculate totals — sourced from the contract, never inline sums.
+  const totalQuoted = sumQuotationTotals(quotations);
+  const totalContractValue = projectValues;
   
   const totalPaid = sumPayments(allPayments);
   const outstanding = calcOutstanding(lifetimeRevenue, totalPaid);
@@ -364,9 +411,16 @@ export async function getAllOutstandingBalances() {
     include: {
       company: true,
       enquiries: {
+        where: { deletedAt: null },
         include: {
-          quotations: { include: { payments: true } },
-          project: { include: { payments: true } },
+          quotations: {
+            where: { deletedAt: null },
+            include: { payments: true },
+          },
+          project: {
+            where: { deletedAt: null },
+            include: { payments: true },
+          },
         },
       },
     },

@@ -2,23 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { WhyFlora } from "@/components/public/WhyFlora";
+import { PageHero } from "@/components/website/PageHero";
+import { SectionHeading } from "@/components/website/SectionHeading";
 
 export const metadata: Metadata = {
   title: "About Flora Curtains | Abu Dhabi Interior Craft Since 1997",
   description:
     "Flora Curtains LLC was established in 2023 in Abu Dhabi; our founder's curtain and interior journey began in 1997. Premium curtains, wallpaper, upholstery and flooring across the UAE.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "About Flora Curtains | Abu Dhabi Interior Craft Since 1997",
+    description:
+      "Established in 2023 in Abu Dhabi; curtain and interior craft since 1997. Premium curtains, wallpaper, upholstery and flooring across the UAE.",
+  },
 };
 
 export default function AboutPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            About Flora
-          </span>
-
-          <h1 className="mt-4 max-w-4xl font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
+      <PageHero
+        eyebrow="About Flora"
+        title={
+          <>
             Creating window
             <br />
             treatments with
@@ -26,9 +33,9 @@ export default function AboutPage() {
             <span className="text-flora-primary">
               purpose and character.
             </span>
-          </h1>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2">
@@ -56,8 +63,9 @@ export default function AboutPage() {
             </p>
 
             <p>
-              Our stitching and upholstery team works with
-              premium curtain fabrics, sheer and blackout
+              Our experienced curtain and upholstery team specializes in
+              premium-quality craftsmanship, elegant finishing, and
+              customized designs, working with premium curtain fabrics, sheer and blackout
               collections, wallpaper, carpets and flooring
               — serving villas, apartments, offices, cafés
               and commercial projects across all Emirates
@@ -67,17 +75,12 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-y border-flora-border bg-flora-surface">
+      <section className="border-y border-flora-border bg-flora-cream">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-          <div className="mb-10">
-            <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-              Why Flora
-            </span>
-
-            <h2 className="mt-3 font-display text-4xl text-flora-foreground sm:text-5xl">
-              A considered process.
-            </h2>
-          </div>
+          <SectionHeading
+            eyebrow="Why Flora"
+            title={<>A considered process.</>}
+          />
 
           <WhyFlora />
         </div>

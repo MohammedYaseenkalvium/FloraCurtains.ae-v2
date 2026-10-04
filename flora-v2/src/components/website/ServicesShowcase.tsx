@@ -29,7 +29,7 @@ export function ServicesShowcase() {
         <div className="grid gap-5 md:grid-cols-2">
           {pair.map((service, i) => (
             <Reveal key={service.slug} delay={i * 0.06}>
-              <ServiceTile index={i} slug={service.slug} title={service.title} description={service.description} image={service.image} />
+              <ServiceTile index={i} slug={service.slug} title={service.title} description={service.description} image={service.image} imageAlt={service.imageAlt} />
             </Reveal>
           ))}
         </div>
@@ -37,20 +37,20 @@ export function ServicesShowcase() {
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           {pair2.map((service, i) => (
             <Reveal key={service.slug} delay={i * 0.06}>
-              <ServiceTile index={i + 2} slug={service.slug} title={service.title} description={service.description} image={service.image} />
+              <ServiceTile index={i + 2} slug={service.slug} title={service.title} description={service.description} image={service.image} imageAlt={service.imageAlt} />
             </Reveal>
           ))}
         </div>
 
         <Reveal className="mt-5">
           <Link
-            href={`/services#${fifth.slug}`}
+            href={`/services/${fifth.slug}`}
             className="group relative block overflow-hidden rounded-flora-lg"
           >
             <div className="relative aspect-[16/8] w-full md:aspect-[21/8]">
               <Image
                 src={fifth.image}
-                alt={fifth.title}
+                alt={fifth.imageAlt}
                 fill
                 loading="lazy"
                 sizes="100vw"
@@ -69,7 +69,7 @@ export function ServicesShowcase() {
                 </p>
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
                   Explore
-                  <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </span>
               </div>
             </div>
@@ -86,22 +86,24 @@ function ServiceTile({
   title,
   description,
   image,
+  imageAlt,
 }: {
   index: number;
   slug: string;
   title: string;
   description: string;
   image: string;
+  imageAlt: string;
 }) {
   return (
     <Link
-      href={`/services#${slug}`}
+      href={`/services/${slug}`}
       className="group relative block overflow-hidden rounded-flora-lg"
     >
       <div className="relative aspect-[4/3] w-full">
-        <Image
-          src={image}
-          alt={title}
+          <Image
+            src={image}
+            alt={imageAlt}
           fill
           loading="lazy"
           sizes="(max-width: 768px) 100vw, 50vw"
@@ -116,7 +118,7 @@ function ServiceTile({
           <p className="mt-2 max-w-md text-sm leading-6 text-white/80">{description}</p>
           <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
             Explore
-            <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
       </div>

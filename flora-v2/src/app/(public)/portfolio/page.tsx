@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
+import { CTASection } from "@/components/website/CTASection";
+import { PageHero } from "@/components/website/PageHero";
 import { PortfolioGallery } from "@/components/public/PortfolioGallery";
 
 export const metadata: Metadata = {
   title: "Selected Work | Flora Curtains Portfolio",
   description:
-    "A selection of residential and commercial curtain and interior projects across the UAE.",
+    "Selected residential and commercial curtain, blinds and interior projects by Flora Curtains LLC in Abu Dhabi and across the UAE.",
+  alternates: {
+    canonical: "/portfolio",
+  },
+  openGraph: {
+    title: "Selected Work | Flora Curtains Portfolio",
+    description:
+      "Curtain, blinds and interior projects in Abu Dhabi and across the UAE.",
+  },
 };
 
 const projects = [
@@ -12,58 +22,61 @@ const projects = [
     title: "Residential Interiors",
     category: "Residential",
     image: "/images/portfolio-1.jpg",
+    alt: "Curtained residential interior with natural daylight in Abu Dhabi",
   },
   {
     title: "Contemporary Window Treatments",
     category: "Interior",
     image: "/images/portfolio-2.jpg",
+    alt: "Contemporary layered window treatments in a modern UAE home",
   },
   {
     title: "Commercial Spaces",
     category: "Commercial",
     image: "/images/portfolio-3.jpg",
+    alt: "Curtains and blinds fitted in a commercial office space",
   },
   {
     title: "Custom Curtain Installation",
     category: "Residential",
     image: "/images/portfolio-4.jpg",
+    alt: "Custom-made curtains installed in a villa bedroom",
   },
   {
     title: "Elegant Living Spaces",
     category: "Residential",
     image: "/images/portfolio-5.jpg",
+    alt: "Elegant sheer curtains in a bright family living room",
   },
   {
     title: "Modern Office Treatments",
     category: "Commercial",
     image: "/images/portfolio-6.jpg",
+    alt: "Modern blinds and drapes in an office meeting room",
   },
 ];
 
 export default function PortfolioPage() {
   return (
     <>
-      <section className="border-b border-flora-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-          <span className="text-xs font-semibold uppercase tracking-wider text-flora-primary">
-            Portfolio
-          </span>
-
-          <h1 className="mt-4 font-display text-5xl leading-tight text-flora-foreground sm:text-6xl">
-            Selected work.
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base leading-7 text-flora-muted">
-            A selection of spaces and window treatments
-            created with attention to proportion, material
-            and function.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Portfolio"
+        title={<>Selected work.</>}
+        description="A selection of spaces and window treatments created with attention to proportion, material and function."
+      />
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <PortfolioGallery projects={projects} />
       </section>
+
+      <CTASection
+        title="Like what you see?"
+        description="Tell us about your space and get a fast, no-obligation quotation."
+        primaryHref="/get-quote"
+        primaryLabel="Get a Quote"
+        secondaryHref="/contact"
+        secondaryLabel="Contact Us"
+      />
     </>
   );
 }

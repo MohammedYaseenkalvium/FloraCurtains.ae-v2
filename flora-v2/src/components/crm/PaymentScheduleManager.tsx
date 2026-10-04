@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PaymentSchedule, PaymentScheduleDueType } from "@prisma/client";
+import { Plus } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 type Props = {
@@ -142,7 +143,7 @@ export function PaymentScheduleManager({ projectId, contractValue, initialSchedu
       </div>
 
       {error && (
-        <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="mb-4 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           {error}
         </p>
       )}
@@ -201,7 +202,7 @@ export function PaymentScheduleManager({ projectId, contractValue, initialSchedu
                       type="button"
                       onClick={() => setPendingDeleteId(s.id)}
                       aria-label={`Delete milestone ${s.description}`}
-                      className="text-xs text-[#991B1B] hover:underline"
+                      className="text-xs text-flora-danger hover:underline"
                     >
                       Delete
                     </button>
@@ -214,7 +215,7 @@ export function PaymentScheduleManager({ projectId, contractValue, initialSchedu
       )}
 
       {editing && (
-        <div className="mt-4 space-y-3 rounded-xl border border-flora-border bg-[#FCFAF8] p-4">
+        <div className="mt-4 space-y-3 rounded-xl border border-flora-border bg-flora-panel p-4">
           {rows.map((row, i) => (
             <div key={i} className="grid grid-cols-2 gap-3 border-b border-flora-border/60 pb-3 last:border-b-0 last:pb-0 md:grid-cols-4">
               <div className="col-span-2">
@@ -244,12 +245,13 @@ export function PaymentScheduleManager({ projectId, contractValue, initialSchedu
                 <input type="date" className={field} value={row.dueDate} onChange={(e) => setRow(i, { dueDate: e.target.value })} />
               </div>
               <div className="col-span-2 flex items-end justify-between gap-2">
-                <button type="button" onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))} disabled={rows.length === 1} className="text-xs text-[#991B1B] hover:underline disabled:opacity-40">
+                <button type="button" onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))} disabled={rows.length === 1} className="text-xs text-flora-danger hover:underline disabled:opacity-40">
                   Remove
                 </button>
                 {i === rows.length - 1 && (
                   <button type="button" onClick={() => setRows((prev) => [...prev, emptyRow])} className="text-xs font-medium text-flora-primary hover:underline">
-                    + Add milestone
+                    <Plus size={16} aria-hidden="true" />
+                    Add milestone
                   </button>
                 )}
               </div>

@@ -5,14 +5,14 @@ import { Reveal } from "@/components/ui/Reveal";
 
 const shots = [
   { src: "/images/craft-fabric.jpg", alt: "Curtain fabric texture" },
-  { src: "/images/craft-detail.jpg", alt: "Stitching and finishing detail" },
+  { src: "/images/craft-detail.jpg", alt: "Tailoring and finishing detail" },
   { src: "/images/showcase-living.jpg", alt: "Finished curtain installation" },
 ];
 
-/** Material close-ups: fabric, stitching, finished installation. */
+/** Material close-ups: fabric, tailoring, finished installation. */
 export function CraftSection() {
   return (
-    <section className="bg-flora-surface">
+    <section className="bg-flora-cream">
       <Container className="py-20 lg:py-28">
         <Reveal>
           <SectionHeading

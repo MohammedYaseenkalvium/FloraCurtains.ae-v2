@@ -2,7 +2,8 @@ import type {
   Contact, Company, Enquiry, Quotation,
   Project, Payment, Task,
   CustomerType, EnquiryStatus, QuotationStatus,
-  ProjectStatus, PaymentType, TaskPriority
+  ProjectStatus, PaymentType, TaskPriority,
+  PaymentScheduleStatus, SiteVisitStatus
 } from "@prisma/client";
 
 // Re-export prisma types so pages never import from @prisma/client directly
@@ -10,7 +11,8 @@ export type {
   Contact, Company, Enquiry, Quotation,
   Project, Payment, Task,
   CustomerType, EnquiryStatus, QuotationStatus,
-  ProjectStatus, PaymentType, TaskPriority
+  ProjectStatus, PaymentType, TaskPriority,
+  PaymentScheduleStatus, SiteVisitStatus
 };
 
 // ─── Enriched types (with relations) ────────────────────────────────────────

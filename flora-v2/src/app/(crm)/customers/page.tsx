@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUpRight,
   Building2,
   Mail,
@@ -476,7 +477,7 @@ export default async function CustomersPage({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1000px] text-sm">
               <thead>
-                <tr className="border-b border-flora-border bg-flora-surface text-left">
+                <tr className="border-b border-flora-border bg-flora-cream text-left">
                   <th className="px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-flora-muted">
                     Customer
                   </th>
@@ -515,7 +516,7 @@ export default async function CustomersPage({
                 {customers.map((customer) => (
                   <tr
                     key={customer.id}
-                    className="border-b border-flora-surface last:border-b-0 transition-colors hover:bg-flora-background"
+                    className="border-b border-flora-border/50 last:border-b-0 transition-colors hover:bg-flora-background"
                   >
                     {/* Customer */}
                     <td className="px-5 py-4">
@@ -617,7 +618,7 @@ export default async function CustomersPage({
 
                     {/* Paid */}
                     <td className="px-5 py-4 text-right">
-                      <span className="font-medium text-emerald-700">
+                      <span className="font-medium text-flora-success">
                         {formatCurrency(customer.totalPaid)}
                       </span>
                     </td>
@@ -627,7 +628,7 @@ export default async function CustomersPage({
                       <span
                         className={
                           customer.outstanding > 0
-                            ? "font-medium text-red-700"
+                            ? "font-medium text-flora-danger"
                             : "text-flora-muted"
                         }
                       >
@@ -690,13 +691,15 @@ export default async function CustomersPage({
             {page < totalPages ? (
               <Link
                 href={pageHref(page + 1)}
-                className="rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface hover:text-flora-foreground"
+                className="inline-flex items-center gap-1 rounded-lg border border-flora-border bg-white px-3.5 py-2 text-xs font-medium text-flora-muted hover:bg-flora-surface hover:text-flora-foreground"
               >
-                Next →
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
-                Next →
+              <span className="inline-flex items-center gap-1 cursor-not-allowed rounded-lg border border-flora-border bg-flora-surface px-3.5 py-2 text-xs font-medium text-flora-muted/50">
+                Next
+                <ArrowRight size={12} aria-hidden="true" />
               </span>
             )}
           </div>
