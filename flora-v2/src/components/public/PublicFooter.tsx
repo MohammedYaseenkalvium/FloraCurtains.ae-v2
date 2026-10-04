@@ -23,11 +23,11 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
         <div className="grid gap-14 md:grid-cols-[1.4fr_1fr_1fr_1.3fr]">
           <div>
-            <FloraLogo width={200} height={50} className="h-12 w-auto object-contain" />
+            <FloraLogo width={200} height={50} inverted className="h-12 w-auto object-contain" />
             <p className="mt-7 max-w-xs font-display text-[1.7rem] leading-snug text-white">
               Transforming Spaces with Style, Comfort &amp; Elegance.
             </p>
-            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-flora-gold">
+            <p className="mt-4 text-xs uppercase tracking-eyebrow text-flora-gold">
               Experience Built Since 1997
             </p>
           </div>
@@ -110,7 +110,7 @@ export function PublicFooter() {
 
         <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-7 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Flora Curtains LLC. All rights reserved.</p>
-          <p className="uppercase tracking-[0.18em]">
+          <p className="uppercase tracking-eyebrow">
             Abu Dhabi | Dubai | Sharjah | All Emirates
           </p>
         </div>

@@ -42,7 +42,7 @@ export const services: ServiceOffering[] = [
       "Feature Wall Concepts",
     ],
     emphasis: "Luxury materials with seamless installation and a premium finish.",
-    image: "/images/portfolio-2.jpg",
+    image: "/images/service-wallpaper.jpg",
   },
   {
     slug: "sofas-upholstery",
@@ -58,7 +58,7 @@ export const services: ServiceOffering[] = [
       "Cushion & Headboard Customization",
     ],
     emphasis: "Comfort, customization and craftsmanship with curated fabric selection.",
-    image: "/images/portfolio-3.jpg",
+    image: "/images/service-sofa.jpg",
   },
   {
     slug: "interior-decoration",
@@ -74,7 +74,7 @@ export const services: ServiceOffering[] = [
       "Color & Material Selection",
     ],
     emphasis: "Personalization, functionality and modern elegance.",
-    image: "/images/portfolio-4.jpg",
+    image: "/images/service-interior.jpg",
   },
   {
     slug: "flooring",
@@ -90,6 +90,6 @@ export const services: ServiceOffering[] = [
       "Custom Carpet Installation",
     ],
     emphasis: "Durable materials, professional installation and a lasting finish.",
-    image: "/images/portfolio-5.jpg",
+    image: "/images/service-flooring.jpg",
   },
 ];

@@ -86,10 +86,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           <div className="overflow-hidden rounded-2xl border border-flora-border">
             <Image
               src={service.image}
-                alt={service.imageAlt}
+              alt={service.imageAlt}
               width={1600}
               height={900}
               className="h-[320px] w-full object-cover sm:h-[440px]"
+              sizes="(max-width: 1280px) 100vw, 1280px"
               priority
             />
           </div>

@@ -9,6 +9,7 @@ interface FloraLogoProps {
   className?: string;
   style?: CSSProperties;
   priority?: boolean;
+  fetchPriority?: "high" | "low" | "auto";
   /** White treatment for dark photographic backdrops (CSS only — file untouched). */
   inverted?: boolean;
 }
@@ -23,6 +24,7 @@ export function FloraLogo({
   className = "h-11 w-auto object-contain",
   style,
   priority = false,
+  fetchPriority,
   inverted = false,
 }: FloraLogoProps) {
   return (
@@ -32,6 +34,7 @@ export function FloraLogo({
       width={width}
       height={height}
       priority={priority}
+      fetchPriority={fetchPriority}
       // No inline dimensions: the width/height props carry the master asset's
       // true ~3:1 aspect (2170x725) so the className utilities govern the
       // rendered box. Inline width/height auto would outrank the classes and

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FloraLogo } from "@/components/public/FloraLogo";
 
 const links = [
@@ -22,6 +22,8 @@ const links = [
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const overHero = pathname === "/";
 
@@ -43,6 +45,39 @@ export function PublicHeader() {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  // Drawer a11y: Escape closes, Tab traps inside, focus returns to hamburger.
+  useEffect(() => {
+    if (!open) return;
+    const drawer = drawerRef.current;
+    const hamburger = hamburgerRef.current;
+    drawer?.querySelector("a")?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !drawer) return;
+      const focusables = drawer.querySelectorAll<HTMLElement>(
+        "a[href], button:not([disabled])"
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      hamburger?.focus();
     };
   }, [open]);
 
@@ -78,6 +113,7 @@ export function PublicHeader() {
           >
             <FloraLogo
               priority
+              fetchPriority="high"
               inverted={transparent}
               className="h-11 w-auto object-contain transition-all duration-300"
             />
@@ -114,6 +150,7 @@ export function PublicHeader() {
 
           <button
             type="button"
+            ref={hamburgerRef}
             onClick={() => setOpen(!open)}
             className={`rounded-lg p-2 transition-colors md:hidden ${
               transparent ? "text-white" : "text-flora-primary"
@@ -122,7 +159,7 @@ export function PublicHeader() {
             aria-expanded={open}
             aria-controls="mobile-nav"
           >
-            {open ? <X size={26} /> : <Menu size={26} />}
+            {open ? <X size={26} aria-hidden="true" /> : <Menu size={26} aria-hidden="true" />}
           </button>
         </div>
 
@@ -130,6 +167,10 @@ export function PublicHeader() {
         {open && (
           <div
             id="mobile-nav"
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
             className="fixed inset-0 top-20 z-40 overflow-y-auto border-t border-flora-border bg-flora-background md:hidden"
           >
             <nav
@@ -162,7 +203,7 @@ export function PublicHeader() {
                 Get a Quote
               </Link>
 
-              <p className="mt-10 text-xs uppercase tracking-[0.18em] text-flora-muted">
+              <p className="mt-10 text-xs uppercase tracking-eyebrow text-flora-muted">
                 Abu Dhabi · United Arab Emirates
               </p>
             </nav>
