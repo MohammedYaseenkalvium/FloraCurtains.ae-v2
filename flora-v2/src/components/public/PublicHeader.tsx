@@ -146,8 +146,11 @@ export function PublicHeader() {
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Navigation drawer (all viewport widths) */}
+      {/* Navigation drawer + backdrop (siblings of <header>, NOT inside it:
+            header's backdrop-blur would become their containing block and
+            collapse fixed positioning — drawer must resolve vs viewport) */}
         {open && (
           <>
             <button
@@ -262,10 +265,9 @@ export function PublicHeader() {
                 Abu Dhabi · United Arab Emirates
               </p>
             </nav>
-            </div>
+          </div>
           </>
         )}
-      </header>
       {/* Flow spacer on non-hero pages (home hero pads itself) */}
       {!overHero && <div aria-hidden="true" className="h-20" />}
     </>
