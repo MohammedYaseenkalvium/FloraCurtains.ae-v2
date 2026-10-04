@@ -17,8 +17,9 @@ const links = [
 
 /**
  * Editorial fixed header: transparent over the hero, ivory glass on scroll.
- * Letterspaced uppercase nav with an active gold hairline; full-screen
- * drawer on mobile. Logo asset is the approved master — never altered.
+ * Hamburger-primary navigation at ALL viewport widths: the button is always
+ * visible and opens a full-screen drawer (plus dim backdrop) with the full
+ * link set. Logo asset is the approved master — never altered.
  */
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
@@ -89,14 +90,10 @@ export function PublicHeader() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  const linkTone = (href: string) => {
-    if (transparent) {
-      return isActive(href) ? "text-white" : "text-white/70 hover:text-white";
-    }
-    return isActive(href)
-      ? "text-flora-primary"
-      : "text-flora-muted hover:text-flora-foreground";
-  };
+  function closeMenu() {
+    setOpen(false);
+    setServicesOpen(false);
+  }
 
   return (
     <>
@@ -108,7 +105,7 @@ export function PublicHeader() {
             : "border-b border-flora-border bg-flora-background/85 shadow-flora-sm backdrop-blur-[16px]",
         ].join(" ")}
       >
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <div className="relative z-[60] mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link
             href="/"
             className="flex items-center"
@@ -123,65 +120,53 @@ export function PublicHeader() {
             />
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-9 md:flex">
-            {links.map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                aria-current={isActive(href) ? "page" : undefined}
-                className={`relative py-1 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors ${linkTone(
-                  href
-                )}`}
-              >
-                {label}
-                <span
-                  aria-hidden="true"
-                  className={[
-                    "absolute -bottom-0.5 left-0 h-px bg-flora-gold transition-all duration-300",
-                    isActive(href) ? "w-full" : "w-0",
-                  ].join(" ")}
-                />
-              </Link>
-            ))}
-
+          <div className="flex items-center gap-3">
             <Link
               href="/get-quote"
-              className="rounded-lg bg-flora-primary px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors duration-200 hover:bg-flora-primary-hover"
+              className="hidden rounded-lg bg-flora-primary px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors duration-200 hover:bg-flora-primary-hover sm:inline-flex"
             >
               Get a Quote
             </Link>
-          </nav>
 
-          <button
-            type="button"
-            ref={hamburgerRef}
-            onClick={() => {
-              setOpen(!open);
-              setServicesOpen(false);
-            }}
-            className={`rounded-lg p-2 transition-colors md:hidden ${
-              transparent ? "text-white" : "text-flora-primary"
-            }`}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-          >
-            {open ? <X size={26} aria-hidden="true" /> : <Menu size={26} aria-hidden="true" />}
-          </button>
+            <button
+              type="button"
+              ref={hamburgerRef}
+              onClick={() => {
+                setOpen(!open);
+                setServicesOpen(false);
+              }}
+              className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors ${
+                transparent ? "text-white" : "text-flora-primary"
+              }`}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-nav"
+            >
+              {open ? <X size={26} aria-hidden="true" /> : <Menu size={26} aria-hidden="true" />}
+            </button>
+          </div>
         </div>
 
-        {/* Full-screen mobile drawer */}
+        {/* Navigation drawer (all viewport widths) */}
         {open && (
-          <div
-            id="mobile-nav"
-            ref={drawerRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menu"
-            className="fixed inset-0 top-20 z-40 overflow-y-auto border-t border-flora-border bg-flora-background md:hidden"
-          >
+          <>
+            <button
+              type="button"
+              aria-label="Close menu"
+              onClick={closeMenu}
+              className="fixed inset-0 z-40 cursor-default bg-black/40"
+            />
+
+            <div
+              id="mobile-nav"
+              ref={drawerRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
+              className="fixed inset-0 top-20 z-50 overflow-y-auto border-t border-flora-border bg-flora-background"
+            >
             <nav
-              aria-label="Mobile"
+              aria-label="Site"
               className="mx-auto flex max-w-7xl flex-col px-5 py-8"
             >
               {links.map(([label, href], index) => {
@@ -277,7 +262,8 @@ export function PublicHeader() {
                 Abu Dhabi · United Arab Emirates
               </p>
             </nav>
-          </div>
+            </div>
+          </>
         )}
       </header>
       {/* Flow spacer on non-hero pages (home hero pads itself) */}
