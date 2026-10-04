@@ -306,15 +306,16 @@ describe("responsive navigation (NAV-02)", () => {
       "className={[",
       'open ? "translate-x-0"'
     );
-    expect(countOccurrences(asideClasses, /lg:sticky/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:fixed/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:left-0/g)).toBe(1);
     expect(countOccurrences(asideClasses, /lg:top-0/g)).toBe(1);
-    expect(countOccurrences(asideClasses, /lg:z-auto/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:z-40/g)).toBe(1);
     expect(countOccurrences(asideClasses, /lg:translate-x-0/g)).toBe(1);
     expect(countOccurrences(asideClasses, /-translate-x-full/g)).toBe(1);
     expect(countOccurrences(asideClasses, /motion-reduce:transition-none/g)).toBe(1);
     expect(countOccurrences(sidebarSource, /translate-x-0/g)).toBe(2);
     expect(countOccurrences(sidebarSource, /transition-transform duration-200/g)).toBe(1);
-    expect(countOccurrences(sidebarSource, /z-40/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /z-40/g)).toBe(2);
     expect(countOccurrences(sidebarSource, /z-30/g)).toBe(2);
     expect(countOccurrences(sidebarSource, /w-64/g)).toBe(1);
     expect(countOccurrences(sidebarSource, /h-screen/g)).toBe(2);
