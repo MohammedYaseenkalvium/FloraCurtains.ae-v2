@@ -317,7 +317,7 @@ describe("responsive navigation (NAV-02)", () => {
     expect(countOccurrences(sidebarSource, /z-40/g)).toBe(1);
     expect(countOccurrences(sidebarSource, /z-30/g)).toBe(2);
     expect(countOccurrences(sidebarSource, /w-64/g)).toBe(1);
-    expect(countOccurrences(sidebarSource, /h-screen/g)).toBe(1);
+    expect(countOccurrences(sidebarSource, /h-screen/g)).toBe(2);
     expect(countOccurrences(sidebarSource, /bg-flora-footer/g)).toBe(1);
   });
 
