@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -48,6 +48,14 @@ export function QuoteForm() {
 
   const formRef =
     useRef<HTMLFormElement>(null);
+
+  const alertRef =
+    useRef<HTMLDivElement>(null);
+
+  // Move keyboard + screen-reader focus to the error summary on failure.
+  useEffect(() => {
+    if (error) alertRef.current?.focus();
+  }, [error]);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -218,6 +226,46 @@ export function QuoteForm() {
       aria-busy={loading}
     >
       <fieldset disabled={loading} className="contents">
+      {error && (
+        <div ref={alertRef} tabIndex={-1} role="alert" aria-labelledby="quote-form-error-title" className="mb-5 flex items-start gap-3 rounded-lg border border-flora-danger/30 bg-flora-danger-surface p-4 outline-none focus-visible:ring-2 focus-visible:ring-flora-danger">
+          <AlertCircle
+            size={17}
+            aria-hidden="true"
+            className="mt-0.5 shrink-0 text-flora-danger"
+          />
+
+          <div>
+            <p id="quote-form-error-title" className="text-sm font-semibold text-flora-danger">
+              {error}
+            </p>
+
+            {Object.keys(fieldErrors).length > 0 && (
+              <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-flora-danger">
+                {Object.entries(fieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    <a href={`#${field}`} className="underline hover:no-underline">
+                      {field}: {message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={() =>
+                  formRef.current?.requestSubmit()
+                }
+                className="mt-3 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-5 md:grid-cols-2">
         {/* Name */}
         <div>
@@ -450,44 +498,6 @@ export function QuoteForm() {
           <FieldError name="notes" errors={fieldErrors} />
         </div>
       </div>
-
-      {error && (
-        <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-flora-danger/30 bg-flora-danger-surface p-4">
-          <AlertCircle
-            size={17}
-            aria-hidden="true"
-            className="mt-0.5 shrink-0 text-flora-danger"
-          />
-
-          <div>
-            <p className="text-sm text-flora-danger">
-              {error}
-            </p>
-
-            {Object.keys(fieldErrors).length > 0 && (
-              <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-flora-danger">
-                {Object.entries(fieldErrors).map(([field, message]) => (
-                  <li key={field}>
-                    {field}: {message}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {offline && (
-              <button
-                type="button"
-                onClick={() =>
-                  formRef.current?.requestSubmit()
-                }
-                className="mt-3 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
-              >
-                Retry
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       <button
         type="submit"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -109,6 +109,26 @@ export function QuoteWizard() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [reference, setReference] = useState("");
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  // Move keyboard + screen-reader focus to the error summary on failure.
+  useEffect(() => {
+    if (submitError) alertRef.current?.focus();
+  }, [submitError]);
+
+  /** Server field key → wizard input id for summary anchor links. */
+  const FIELD_INPUT_IDS: Record<string, string> = {
+    name: "qw-name",
+    email: "qw-email",
+    phone: "qw-phone",
+    customerType: "qw-type",
+    projectName: "qw-project",
+    siteAddress: "qw-address",
+    serviceWanted: "qw-service",
+    budget: "qw-budget",
+    notes: "qw-notes",
+  };
 
   function set<K extends keyof WizardForm>(key: K, value: WizardForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -320,6 +340,38 @@ export function QuoteWizard() {
         </p>
       )}
 
+      {submitError && (
+        <div ref={alertRef} tabIndex={-1} role="alert" aria-labelledby="qw-submit-error-title" className="mb-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger outline-none focus-visible:ring-2 focus-visible:ring-flora-danger">
+          <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+          <div>
+            <p id="qw-submit-error-title" className="font-semibold">
+              {submitError}
+            </p>
+            {Object.keys(submitFieldErrors).length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                {Object.entries(submitFieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    <a href={`#${FIELD_INPUT_IDS[field] ?? field}`} className="underline hover:no-underline">
+                      {field}: {message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={submit}
+                className="mt-2 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {step === 0 && (
         <div className="grid gap-5 md:grid-cols-2">
           <div>
@@ -395,34 +447,6 @@ export function QuoteWizard() {
             </div>
           ))}
         </dl>
-      )}
-
-      {submitError && (
-        <div role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
-          <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-          <div>
-            {submitError}
-            {Object.keys(submitFieldErrors).length > 0 && (
-              <ul className="mt-1 list-disc space-y-0.5 pl-5">
-                {Object.entries(submitFieldErrors).map(([field, message]) => (
-                  <li key={field}>
-                    {field}: {message}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {offline && (
-              <button
-                type="button"
-                onClick={submit}
-                className="mt-2 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
-              >
-                Retry
-              </button>
-            )}
-          </div>
-        </div>
       )}
 
       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
