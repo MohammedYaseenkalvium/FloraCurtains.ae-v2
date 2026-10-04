@@ -157,7 +157,7 @@ export function Sidebar() {
         id="crm-sidebar"
         className={[
           "on-dark fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-flora-footer text-white transition-transform duration-200 motion-reduce:transition-none",
-          "lg:static lg:z-auto lg:translate-x-0",
+          "lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0",
           open ? "translate-x-0" : "",
         ].join(" ")}
       >

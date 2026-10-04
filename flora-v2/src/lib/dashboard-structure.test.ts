@@ -306,7 +306,8 @@ describe("responsive navigation (NAV-02)", () => {
       "className={[",
       'open ? "translate-x-0"'
     );
-    expect(countOccurrences(asideClasses, /lg:static/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:sticky/g)).toBe(1);
+    expect(countOccurrences(asideClasses, /lg:top-0/g)).toBe(1);
     expect(countOccurrences(asideClasses, /lg:z-auto/g)).toBe(1);
     expect(countOccurrences(asideClasses, /lg:translate-x-0/g)).toBe(1);
     expect(countOccurrences(asideClasses, /-translate-x-full/g)).toBe(1);
