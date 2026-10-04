@@ -38,7 +38,7 @@ export default function LoginPage() {
             priority
             className="h-11 w-auto object-contain"
           />
-          <div className="mt-3 text-[10px] text-flora-muted tracking-[0.18em] uppercase">
+          <div className="mt-3 text-[10px] text-flora-muted tracking-eyebrow uppercase">
             Interior Operations
           </div>
         </div>
@@ -59,7 +59,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface"
+              aria-invalid={error ? true : undefined}
+              className="w-full border border-flora-border rounded-lg px-3 py-2 text-base outline-none focus:border-flora-primary bg-flora-surface sm:text-sm"
             />
           </div>
 
@@ -78,12 +79,14 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-flora-border rounded-lg px-3 py-2 text-sm outline-none focus:border-flora-primary bg-flora-surface"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "login-error" : undefined}
+              className="w-full border border-flora-border rounded-lg px-3 py-2 text-base outline-none focus:border-flora-primary bg-flora-surface sm:text-sm"
             />
           </div>
 
           {error && (
-            <p role="alert" className="text-flora-danger text-xs">
+            <p id="login-error" role="alert" className="text-flora-danger text-xs">
               {error}
             </p>
           )}
