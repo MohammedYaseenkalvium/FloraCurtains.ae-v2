@@ -71,7 +71,7 @@ export default function ContactPage() {
           <div className="mt-8 space-y-5">
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MapPin size={18} />
+                <MapPin size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -89,7 +89,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <Phone size={18} />
+                <Phone size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -108,7 +108,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MessageSquare size={18} />
+                <MessageSquare size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -129,7 +129,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <Mail size={18} />
+                <Mail size={18} aria-hidden="true" />
               </div>
 
               <div>
@@ -148,7 +148,7 @@ export default function ContactPage() {
 
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-flora-surface text-flora-primary">
-                <MessageSquare size={18} />
+                <MessageSquare size={18} aria-hidden="true" />
               </div>
 
               <div>

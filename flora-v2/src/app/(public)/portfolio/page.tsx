@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CTASection } from "@/components/website/CTASection";
 import { PageHero } from "@/components/website/PageHero";
 import { PortfolioGallery } from "@/components/public/PortfolioGallery";
 
@@ -67,6 +68,15 @@ export default function PortfolioPage() {
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <PortfolioGallery projects={projects} />
       </section>
+
+      <CTASection
+        title="Like what you see?"
+        description="Tell us about your space and get a fast, no-obligation quotation."
+        primaryHref="/get-quote"
+        primaryLabel="Get a Quote"
+        secondaryHref="/contact"
+        secondaryLabel="Contact Us"
+      />
     </>
   );
 }

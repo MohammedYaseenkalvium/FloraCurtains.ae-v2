@@ -37,15 +37,15 @@ export function CTASection({
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href={primaryHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-flora-primary-hover sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-white transition-colors duration-200 hover:bg-flora-primary-hover sm:w-auto"
           >
             {primaryLabel}
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </Link>
           {secondaryHref && (
             <Link
               href={secondaryHref}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-white/10 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-white transition-colors duration-200 hover:bg-white/10 sm:w-auto"
             >
               {secondaryLabel}
             </Link>

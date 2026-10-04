@@ -78,15 +78,15 @@ export function HeroSection() {
           <div className="hero-rise mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/get-quote"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-flora-lg transition-colors duration-200 hover:bg-flora-primary-hover"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-white shadow-flora-lg transition-colors duration-200 hover:bg-flora-primary-hover"
             >
               Get a Quote
-              <ArrowRight size={15} />
+              <ArrowRight size={15} aria-hidden="true" />
             </Link>
 
             <Link
               href="/portfolio"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-white/10"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-white transition-colors duration-200 hover:bg-white/10"
             >
               Explore Our Work
             </Link>
@@ -109,7 +109,7 @@ export function HeroSection() {
           className="hero-fade absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-white/60 transition-colors hover:text-white md:flex"
         >
           <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">Scroll</span>
-          <ArrowDown size={16} className="animate-bounce" />
+          <ArrowDown size={16} aria-hidden="true" />
         </a>
       </div>
     </section>

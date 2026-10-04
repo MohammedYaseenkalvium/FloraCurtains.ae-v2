@@ -220,7 +220,7 @@ export function QuoteWizard() {
     return (
       <div className="rounded-xl border border-flora-border bg-white p-8 text-center sm:p-12">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-flora-primary">
-          <CheckCircle2 size={24} />
+          <CheckCircle2 size={24} aria-hidden="true" />
         </div>
         <h2 className="mt-5 font-display text-3xl text-flora-foreground">
           Request received.
@@ -435,11 +435,11 @@ export function QuoteWizard() {
         )}
         {step < STEPS.length - 1 ? (
           <button type="button" onClick={next} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover disabled:opacity-60">
-            Next Step <ArrowRight size={15} />
+            Next Step <ArrowRight size={15} aria-hidden="true" />
           </button>
         ) : (
           <button type="button" onClick={submit} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover disabled:opacity-60">
-            {loading ? (<><Loader2 size={16} className="animate-spin" /> Sending…</>) : (<><Send size={15} /> Submit Request</>)}
+            {loading ? (<><Loader2 size={16} aria-hidden="true" className="animate-spin" /> Sending…</>) : (<><Send size={15} aria-hidden="true" /> Submit Request</>)}
           </button>
         )}
       </div>

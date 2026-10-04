@@ -20,13 +20,12 @@ export function PortfolioGallery({ projects }: { projects: PortfolioProject[] })
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by category">
+      <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter projects by category">
         {filters.map((filter) => (
           <button
             key={filter}
             type="button"
-            role="tab"
-            aria-selected={active === filter}
+            aria-pressed={active === filter}
             onClick={() => setActive(filter)}
             className={[
               "rounded-full border px-4 py-2 text-xs font-semibold transition-colors",

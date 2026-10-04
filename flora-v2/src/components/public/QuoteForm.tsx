@@ -183,7 +183,7 @@ export function QuoteForm() {
     return (
       <div className="rounded-xl border border-flora-border bg-white p-8 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-flora-surface text-flora-primary">
-          <CheckCircle2 size={24} />
+          <CheckCircle2 size={24} aria-hidden="true" />
         </div>
 
         <h2 className="mt-5 font-display text-3xl text-flora-foreground">
@@ -498,13 +498,14 @@ export function QuoteForm() {
           <>
             <Loader2
               size={16}
+              aria-hidden="true"
               className="animate-spin"
             />
             Sending...
           </>
         ) : (
           <>
-            <Send size={16} />
+            <Send size={16} aria-hidden="true" />
             Send Enquiry
           </>
         )}

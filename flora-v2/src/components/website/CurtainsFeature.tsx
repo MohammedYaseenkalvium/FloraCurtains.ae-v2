@@ -68,10 +68,10 @@ export function CurtainsFeature() {
           </p>
           <Link
             href="/services/curtains-blinds"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-flora-primary transition-colors duration-200 hover:bg-flora-surface"
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-xs font-semibold uppercase tracking-eyebrow text-flora-primary transition-colors duration-200 hover:bg-flora-surface"
           >
             Explore
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Reveal>
       </Container>

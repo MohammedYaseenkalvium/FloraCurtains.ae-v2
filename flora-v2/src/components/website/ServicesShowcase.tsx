@@ -69,7 +69,7 @@ export function ServicesShowcase() {
                 </p>
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
                   Explore
-                  <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </span>
               </div>
             </div>
@@ -118,7 +118,7 @@ function ServiceTile({
           <p className="mt-2 max-w-md text-sm leading-6 text-white/80">{description}</p>
           <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
             Explore
-            <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
       </div>
