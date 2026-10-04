@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -8,6 +8,24 @@ import {
   Send,
 } from "lucide-react";
 import { PHONE_PATTERN_SOURCE } from "@/lib/validation";
+
+function FieldError({
+  name,
+  errors,
+}: {
+  name: string;
+  errors: Record<string, string>;
+}) {
+  if (!errors[name]) return null;
+  return (
+    <p
+      id={`${name}-error`}
+      className="mt-1.5 text-xs text-flora-danger"
+    >
+      {errors[name]}
+    </p>
+  );
+}
 
 export function QuoteForm() {
   const [loading, setLoading] =
@@ -25,6 +43,12 @@ export function QuoteForm() {
   const [reference, setReference] =
     useState("");
 
+  const [offline, setOffline] =
+    useState(false);
+
+  const formRef =
+    useRef<HTMLFormElement>(null);
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -35,6 +59,7 @@ export function QuoteForm() {
     setFieldErrors({});
     setSuccess(false);
     setReference("");
+    setOffline(false);
 
     const form =
       event.currentTarget;
@@ -136,10 +161,18 @@ export function QuoteForm() {
       );
       setSuccess(true);
     } catch (err) {
+      const isOffline =
+        err instanceof TypeError &&
+        /fetch failed|networkerror|load failed/i.test(
+          err.message
+        );
+      setOffline(isOffline);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again."
+        isOffline
+          ? "No connection. Check your internet connection and try again."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -179,9 +212,12 @@ export function QuoteForm() {
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleSubmit}
       className="rounded-xl border border-flora-border bg-white p-6 sm:p-8"
+      aria-busy={loading}
     >
+      <fieldset disabled={loading} className="contents">
       <div className="grid gap-5 md:grid-cols-2">
         {/* Name */}
         <div>
@@ -197,9 +233,13 @@ export function QuoteForm() {
             name="name"
             required
             autoComplete="name"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={100}
+            aria-invalid={fieldErrors.name ? true : undefined}
+            aria-describedby={fieldErrors.name ? "name-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Your name"
           />
+          <FieldError name="name" errors={fieldErrors} />
         </div>
 
         {/* Email */}
@@ -217,9 +257,12 @@ export function QuoteForm() {
             type="email"
             required
             autoComplete="email"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? "email-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="you@example.com"
           />
+          <FieldError name="email" errors={fieldErrors} />
         </div>
 
         {/* Phone */}
@@ -239,9 +282,13 @@ export function QuoteForm() {
             autoComplete="tel"
             pattern={PHONE_PATTERN_SOURCE}
             title="Enter a valid phone number with at least 7 digits."
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={30}
+            aria-invalid={fieldErrors.phone ? true : undefined}
+            aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Phone number"
           />
+          <FieldError name="phone" errors={fieldErrors} />
         </div>
 
         {/* Customer Type */}
@@ -257,7 +304,9 @@ export function QuoteForm() {
             id="customerType"
             name="customerType"
             defaultValue="B2C"
-            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.customerType ? true : undefined}
+            aria-describedby={fieldErrors.customerType ? "customerType-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
           >
             <option value="B2C">
               Residential
@@ -267,6 +316,7 @@ export function QuoteForm() {
               Business
             </option>
           </select>
+          <FieldError name="customerType" errors={fieldErrors} />
         </div>
 
         {/* Service */}
@@ -283,7 +333,9 @@ export function QuoteForm() {
             name="serviceWanted"
             required
             defaultValue=""
-            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            aria-invalid={fieldErrors.serviceWanted ? true : undefined}
+            aria-describedby={fieldErrors.serviceWanted ? "serviceWanted-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
           >
             <option value="" disabled>
               Select a service
@@ -309,6 +361,7 @@ export function QuoteForm() {
               Carpet &amp; Wooden Flooring
             </option>
           </select>
+          <FieldError name="serviceWanted" errors={fieldErrors} />
         </div>
 
         {/* Project */}
@@ -323,9 +376,13 @@ export function QuoteForm() {
           <input
             id="projectName"
             name="projectName"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={150}
+            aria-invalid={fieldErrors.projectName ? true : undefined}
+            aria-describedby={fieldErrors.projectName ? "projectName-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Optional"
           />
+          <FieldError name="projectName" errors={fieldErrors} />
         </div>
 
         {/* Address */}
@@ -341,9 +398,13 @@ export function QuoteForm() {
             id="siteAddress"
             name="siteAddress"
             rows={3}
-            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={1000}
+            aria-invalid={fieldErrors.siteAddress ? true : undefined}
+            aria-describedby={fieldErrors.siteAddress ? "siteAddress-error" : undefined}
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Where is the project located?"
           />
+          <FieldError name="siteAddress" errors={fieldErrors} />
         </div>
 
         {/* Budget */}
@@ -352,15 +413,19 @@ export function QuoteForm() {
             htmlFor="budget"
             className="mb-2 block text-xs font-semibold text-flora-foreground"
           >
-            Budget
+            Budget (AED)
           </label>
 
           <input
             id="budget"
             name="budget"
-            className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={100}
+            aria-invalid={fieldErrors.budget ? true : undefined}
+            aria-describedby={fieldErrors.budget ? "budget-error" : undefined}
+            className="h-11 w-full rounded-lg border border-flora-border px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Optional"
           />
+          <FieldError name="budget" errors={fieldErrors} />
         </div>
 
         {/* Notes */}
@@ -376,9 +441,13 @@ export function QuoteForm() {
             id="notes"
             name="notes"
             rows={5}
-            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
+            maxLength={3000}
+            aria-invalid={fieldErrors.notes ? true : undefined}
+            aria-describedby={fieldErrors.notes ? "notes-error" : undefined}
+            className="w-full resize-none rounded-lg border border-flora-border px-3 py-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm"
             placeholder="Tell us about your requirements, preferred style, number of windows, timeline, etc."
           />
+          <FieldError name="notes" errors={fieldErrors} />
         </div>
       </div>
 
@@ -404,6 +473,18 @@ export function QuoteForm() {
                 ))}
               </ul>
             )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={() =>
+                  formRef.current?.requestSubmit()
+                }
+                className="mt-3 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -428,6 +509,7 @@ export function QuoteForm() {
           </>
         )}
       </button>
+      </fieldset>
     </form>
   );
 }

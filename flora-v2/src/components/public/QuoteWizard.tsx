@@ -57,8 +57,17 @@ const emptyForm: WizardForm = {
 };
 
 const input =
-  "h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary";
+  "h-11 w-full rounded-lg border border-flora-border bg-white px-3 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm";
 const label = "mb-2 block text-xs font-semibold text-flora-foreground";
+
+function WError({ id, message }: { id: string; message: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 text-xs text-flora-danger">
+      {message}
+    </p>
+  );
+}
 
 function validateStep(step: number, form: WizardForm): string {
   return firstErrorMessage(step, form);
@@ -95,6 +104,8 @@ export function QuoteWizard() {
   const [stepError, setStepError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitFieldErrors, setSubmitFieldErrors] = useState<Record<string, string>>({});
+  const [showErrors, setShowErrors] = useState(false);
+  const [offline, setOffline] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [reference, setReference] = useState("");
@@ -103,12 +114,28 @@ export function QuoteWizard() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function fieldMessage(field: "name" | "email" | "phone" | "serviceWanted"): string {
+    if (!showErrors) return "";
+    switch (field) {
+      case "name":
+        return form.name.trim().length < 2 ? "Please enter your name." : "";
+      case "email":
+        return !isEmailLike(form.email) ? "Please enter a valid email address." : "";
+      case "phone":
+        return !isPlausiblePhone(form.phone) ? "Please enter your phone number." : "";
+      case "serviceWanted":
+        return !form.serviceWanted ? "Please select a service." : "";
+    }
+  }
+
   function next() {
     const problem = validateStep(step, form);
     if (problem) {
+      setShowErrors(true);
       setStepError(problem);
       return;
     }
+    setShowErrors(false);
     setStepError("");
     setSubmitFieldErrors({});
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -116,6 +143,7 @@ export function QuoteWizard() {
 
   function back() {
     setStepError("");
+    setShowErrors(false);
     setSubmitFieldErrors({});
     setStep((s) => Math.max(s - 1, 0));
   }
@@ -123,6 +151,7 @@ export function QuoteWizard() {
   async function submit() {
     const badField = firstErrorField(0, form) ?? firstErrorField(2, form);
     if (badField) {
+      setShowErrors(true);
       setSubmitError(firstErrorMessage(badField === "serviceWanted" ? 2 : 0, form));
       setStep(FIELD_STEPS[badField] ?? 0);
       return;
@@ -130,6 +159,7 @@ export function QuoteWizard() {
     setLoading(true);
     setSubmitError("");
     setSubmitFieldErrors({});
+    setOffline(false);
     try {
       const response = await fetch("/api/public/enquiries", {
         method: "POST",
@@ -170,7 +200,17 @@ export function QuoteWizard() {
       );
       setSuccess(true);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      const isOffline =
+        err instanceof TypeError &&
+        /fetch failed|networkerror|load failed/i.test(err.message);
+      setOffline(isOffline);
+      setSubmitError(
+        isOffline
+          ? "No connection. Check your internet connection and try again."
+          : err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -238,7 +278,7 @@ export function QuoteWizard() {
   ];
 
   return (
-    <div className="rounded-xl border border-flora-border bg-white p-6 sm:p-8">
+    <div className="rounded-xl border border-flora-border bg-white p-6 sm:p-8" aria-busy={loading}>
       {/* Progress */}
       <ol aria-label="Quote progress" className="mb-8 flex items-center gap-1.5">
         {STEPS.map((labelText, i) => (
@@ -256,6 +296,9 @@ export function QuoteWizard() {
               ].join(" ")}
             >
               {i + 1}
+              <span className="sr-only">
+                {`, step ${i + 1} of ${STEPS.length}: ${labelText}${i === step ? " (current)" : i < step ? " (done)" : ""}`}
+              </span>
             </span>
             {i < STEPS.length - 1 && (
               <span
@@ -281,15 +324,18 @@ export function QuoteWizard() {
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-name" className={label}>Name *</label>
-            <input id="qw-name" autoComplete="name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Your name" className={input} />
+            <input id="qw-name" autoComplete="name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Your name" maxLength={100} aria-invalid={fieldMessage("name") ? true : undefined} aria-describedby={fieldMessage("name") ? "qw-name-error" : undefined} className={input} />
+            <WError id="qw-name-error" message={fieldMessage("name")} />
           </div>
           <div>
             <label htmlFor="qw-email" className={label}>Email *</label>
-            <input id="qw-email" type="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" className={input} />
+            <input id="qw-email" type="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" aria-invalid={fieldMessage("email") ? true : undefined} aria-describedby={fieldMessage("email") ? "qw-email-error" : undefined} className={input} />
+            <WError id="qw-email-error" message={fieldMessage("email")} />
           </div>
           <div>
             <label htmlFor="qw-phone" className={label}>Phone *</label>
-            <input id="qw-phone" type="tel" autoComplete="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="Phone number" className={input} />
+            <input id="qw-phone" type="tel" autoComplete="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="Phone number" maxLength={30} aria-invalid={fieldMessage("phone") ? true : undefined} aria-describedby={fieldMessage("phone") ? "qw-phone-error" : undefined} className={input} />
+            <WError id="qw-phone-error" message={fieldMessage("phone")} />
           </div>
           <div>
             <label htmlFor="qw-type" className={label}>Customer Type</label>
@@ -305,11 +351,11 @@ export function QuoteWizard() {
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-project" className={label}>Project Name</label>
-            <input id="qw-project" value={form.projectName} onChange={(e) => set("projectName", e.target.value)} placeholder="e.g. Villa living room" className={input} />
+            <input id="qw-project" value={form.projectName} onChange={(e) => set("projectName", e.target.value)} placeholder="e.g. Villa living room" maxLength={150} className={input} />
           </div>
           <div>
             <label htmlFor="qw-address" className={label}>Site Address</label>
-            <input id="qw-address" autoComplete="street-address" value={form.siteAddress} onChange={(e) => set("siteAddress", e.target.value)} placeholder="Area, city" className={input} />
+            <textarea id="qw-address" rows={3} autoComplete="street-address" value={form.siteAddress} onChange={(e) => set("siteAddress", e.target.value)} placeholder="Area, city" maxLength={1000} className="w-full resize-none rounded-lg border border-flora-border bg-white px-3 py-2.5 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm" />
           </div>
         </div>
       )}
@@ -318,16 +364,17 @@ export function QuoteWizard() {
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label htmlFor="qw-service" className={label}>Service *</label>
-            <select id="qw-service" value={form.serviceWanted} onChange={(e) => set("serviceWanted", e.target.value)} className={input}>
+            <select id="qw-service" value={form.serviceWanted} onChange={(e) => set("serviceWanted", e.target.value)} aria-invalid={fieldMessage("serviceWanted") ? true : undefined} aria-describedby={fieldMessage("serviceWanted") ? "qw-service-error" : undefined} className={input}>
               <option value="" disabled>Select a service</option>
               {SERVICES.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            <WError id="qw-service-error" message={fieldMessage("serviceWanted")} />
           </div>
           <div>
             <label htmlFor="qw-budget" className={label}>Budget (AED)</label>
-            <input id="qw-budget" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="Optional" className={input} />
+            <input id="qw-budget" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="Optional" maxLength={100} className={input} />
           </div>
         </div>
       )}
@@ -335,7 +382,7 @@ export function QuoteWizard() {
       {step === 3 && (
         <div>
           <label htmlFor="qw-notes" className={label}>Anything we should know?</label>
-          <textarea id="qw-notes" rows={5} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Measurements, timelines, preferences…" className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary" />
+          <textarea id="qw-notes" rows={5} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Measurements, timelines, preferences…" maxLength={3000} className="w-full rounded-lg border border-flora-border bg-white px-3 py-2.5 text-base outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary sm:text-sm" />
         </div>
       )}
 
@@ -364,6 +411,16 @@ export function QuoteWizard() {
                 ))}
               </ul>
             )}
+
+            {offline && (
+              <button
+                type="button"
+                onClick={submit}
+                className="mt-2 rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+              >
+                Retry
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -377,7 +434,7 @@ export function QuoteWizard() {
           <span />
         )}
         {step < STEPS.length - 1 ? (
-          <button type="button" onClick={next} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover">
+          <button type="button" onClick={next} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-flora-primary px-6 py-3 text-sm font-semibold text-white hover:bg-flora-primary-hover disabled:opacity-60">
             Next Step <ArrowRight size={15} />
           </button>
         ) : (
