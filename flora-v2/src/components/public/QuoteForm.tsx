@@ -7,6 +7,7 @@ import {
   Loader2,
   Send,
 } from "lucide-react";
+import { PHONE_PATTERN_SOURCE } from "@/lib/validation";
 
 export function QuoteForm() {
   const [loading, setLoading] =
@@ -18,6 +19,12 @@ export function QuoteForm() {
   const [error, setError] =
     useState("");
 
+  const [fieldErrors, setFieldErrors] =
+    useState<Record<string, string>>({});
+
+  const [reference, setReference] =
+    useState("");
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -25,7 +32,9 @@ export function QuoteForm() {
 
     setLoading(true);
     setError("");
+    setFieldErrors({});
     setSuccess(false);
+    setReference("");
 
     const form =
       event.currentTarget;
@@ -103,6 +112,16 @@ export function QuoteForm() {
           .catch(() => null);
 
       if (!response.ok) {
+        if (
+          data &&
+          typeof data === "object" &&
+          data.fieldErrors &&
+          typeof data.fieldErrors === "object"
+        ) {
+          setFieldErrors(
+            data.fieldErrors as Record<string, string>
+          );
+        }
         throw new Error(
           data?.error ??
             "Unable to submit your enquiry."
@@ -110,6 +129,11 @@ export function QuoteForm() {
       }
 
       form.reset();
+      setReference(
+        typeof data?.enquiryId === "string"
+          ? data.enquiryId.slice(-6).toUpperCase()
+          : ""
+      );
       setSuccess(true);
     } catch (err) {
       setError(
@@ -137,6 +161,7 @@ export function QuoteForm() {
           Thank you for contacting Flora Curtains.
           Your enquiry has been received and our team
           will get back to you.
+          {reference ? ` Your reference: ${reference}.` : ""}
         </p>
 
         <button
@@ -212,6 +237,8 @@ export function QuoteForm() {
             type="tel"
             required
             autoComplete="tel"
+            pattern={PHONE_PATTERN_SOURCE}
+            title="Enter a valid phone number with at least 7 digits."
             className="h-11 w-full rounded-lg border border-flora-border px-3 text-sm outline-none focus:border-flora-primary focus:ring-1 focus:ring-flora-primary"
             placeholder="Phone number"
           />
@@ -363,9 +390,21 @@ export function QuoteForm() {
             className="mt-0.5 shrink-0 text-flora-danger"
           />
 
-          <p className="text-sm text-flora-danger">
-            {error}
-          </p>
+          <div>
+            <p className="text-sm text-flora-danger">
+              {error}
+            </p>
+
+            {Object.keys(fieldErrors).length > 0 && (
+              <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-flora-danger">
+                {Object.entries(fieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    {field}: {message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       )}
 

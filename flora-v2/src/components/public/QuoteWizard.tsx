@@ -9,6 +9,12 @@ import {
   Loader2,
   Send,
 } from "lucide-react";
+import Link from "next/link";
+import {
+  FIELD_STEPS,
+  isEmailLike,
+  isPlausiblePhone,
+} from "@/lib/validation";
 
 const SERVICES = [
   "Curtains & Blinds",
@@ -55,14 +61,32 @@ const input =
 const label = "mb-2 block text-xs font-semibold text-flora-foreground";
 
 function validateStep(step: number, form: WizardForm): string {
+  return firstErrorMessage(step, form);
+}
+
+function firstErrorField(step: number, form: WizardForm): string | null {
   if (step === 0) {
-    if (form.name.trim().length < 2) return "Please enter your name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
-      return "Please enter a valid email address.";
-    if (form.phone.trim().length < 5) return "Please enter your phone number.";
+    if (form.name.trim().length < 2) return "name";
+    if (!isEmailLike(form.email)) return "email";
+    if (!isPlausiblePhone(form.phone)) return "phone";
   }
-  if (step === 2 && !form.serviceWanted) return "Please select a service.";
-  return "";
+  if (step === 2 && !form.serviceWanted) return "serviceWanted";
+  return null;
+}
+
+function firstErrorMessage(step: number, form: WizardForm): string {
+  switch (firstErrorField(step, form)) {
+    case "name":
+      return "Please enter your name.";
+    case "email":
+      return "Please enter a valid email address.";
+    case "phone":
+      return "Please enter your phone number.";
+    case "serviceWanted":
+      return "Please select a service.";
+    default:
+      return "";
+  }
 }
 
 export function QuoteWizard() {
@@ -70,8 +94,10 @@ export function QuoteWizard() {
   const [form, setForm] = useState<WizardForm>(emptyForm);
   const [stepError, setStepError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [submitFieldErrors, setSubmitFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [reference, setReference] = useState("");
 
   function set<K extends keyof WizardForm>(key: K, value: WizardForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -84,22 +110,26 @@ export function QuoteWizard() {
       return;
     }
     setStepError("");
+    setSubmitFieldErrors({});
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }
 
   function back() {
     setStepError("");
+    setSubmitFieldErrors({});
     setStep((s) => Math.max(s - 1, 0));
   }
 
   async function submit() {
-    const problem = validateStep(0, form) || validateStep(2, form);
-    if (problem) {
-      setSubmitError(problem);
+    const badField = firstErrorField(0, form) ?? firstErrorField(2, form);
+    if (badField) {
+      setSubmitError(firstErrorMessage(badField === "serviceWanted" ? 2 : 0, form));
+      setStep(FIELD_STEPS[badField] ?? 0);
       return;
     }
     setLoading(true);
     setSubmitError("");
+    setSubmitFieldErrors({});
     try {
       const response = await fetch("/api/public/enquiries", {
         method: "POST",
@@ -117,7 +147,27 @@ export function QuoteWizard() {
         }),
       });
       const data = await response.json().catch(() => null);
-      if (!response.ok) throw new Error(data?.error ?? "Unable to submit your enquiry.");
+      if (!response.ok) {
+        if (
+          data &&
+          typeof data === "object" &&
+          data.fieldErrors &&
+          typeof data.fieldErrors === "object"
+        ) {
+          const serverFields = data.fieldErrors as Record<string, string>;
+          setSubmitFieldErrors(serverFields);
+          const firstField = Object.keys(serverFields)[0];
+          if (firstField && firstField in FIELD_STEPS) {
+            setStep(FIELD_STEPS[firstField]);
+          }
+        }
+        throw new Error(data?.error ?? "Unable to submit your enquiry.");
+      }
+      setReference(
+        typeof data?.enquiryId === "string"
+          ? data.enquiryId.slice(-6).toUpperCase()
+          : ""
+      );
       setSuccess(true);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -138,7 +188,39 @@ export function QuoteWizard() {
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-flora-muted">
           Thank you, {form.name.trim() || "friend"}. Our team will contact you
           shortly about {form.serviceWanted || "your project"}.
+          {reference ? ` Your reference: ${reference}.` : ""}
         </p>
+
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => {
+              setForm(emptyForm);
+              setStep(0);
+              setReference("");
+              setSuccess(false);
+            }}
+            className="rounded-lg border border-flora-border px-5 py-2.5 text-sm font-semibold text-flora-primary hover:bg-flora-surface"
+          >
+            Submit another
+          </button>
+
+          <Link
+            href="/"
+            className="rounded-lg border border-flora-border px-5 py-2.5 text-sm font-semibold text-flora-primary hover:bg-flora-surface"
+          >
+            Back home
+          </Link>
+
+          <a
+            href="https://wa.me/971557464100"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-flora-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-flora-primary-hover"
+          >
+            WhatsApp us
+          </a>
+        </div>
       </div>
     );
   }
@@ -269,10 +351,21 @@ export function QuoteWizard() {
       )}
 
       {submitError && (
-        <p role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
+        <div role="alert" className="mt-5 flex items-start gap-2 rounded-lg border border-flora-danger/30 bg-flora-danger-surface px-3 py-2 text-sm text-flora-danger">
           <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-          {submitError}
-        </p>
+          <div>
+            {submitError}
+            {Object.keys(submitFieldErrors).length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                {Object.entries(submitFieldErrors).map(([field, message]) => (
+                  <li key={field}>
+                    {field}: {message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
