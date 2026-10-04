@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { HeroSection } from "@/components/public/HeroSection";
 import { WhyFlora } from "@/components/public/WhyFlora";
 import { Container } from "@/components/website/Container";
@@ -10,6 +11,20 @@ import { ServicesShowcase } from "@/components/website/ServicesShowcase";
 import { ShowcaseSection } from "@/components/website/ShowcaseSection";
 import { UAESection } from "@/components/website/UAESection";
 import { Reveal } from "@/components/ui/Reveal";
+
+export const metadata: Metadata = {
+  title: "Custom Curtains, Blinds & Interiors in Abu Dhabi",
+  description:
+    "Flora Curtains LLC crafts custom curtains, blinds, wallpaper, sofas and flooring across the UAE — measured, made and installed with premium finishing. Get a free quote.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Flora Curtains LLC | Curtains & Interior Solutions in Abu Dhabi",
+    description:
+      "Custom curtains, blinds, wallpaper, sofas and flooring across the UAE — measured, made and installed with premium finishing.",
+  },
+};
 
 export default function HomePage() {
   return (

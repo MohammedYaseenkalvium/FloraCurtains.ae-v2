@@ -7,11 +7,43 @@ export const metadata: Metadata = {
   title: "Contact Flora Curtains | Abu Dhabi Showroom",
   description:
     "Visit our Abu Dhabi showroom on Murur Road, call +971 2 586 4545 or WhatsApp +971 55 746 4100. Send your project requirements for a fast response.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact Flora Curtains | Abu Dhabi Showroom",
+    description:
+      "Murur Road showroom, Abu Dhabi — call, WhatsApp or send your project requirements for a fast response.",
+  },
+};
+
+/**
+ * LocalBusiness structured data. Every fact mirrors the visible
+ * contact aside byte-for-byte — no new claims.
+ */
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Flora Curtains LLC",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Murur Road, Opp. Mubadala Tower",
+    addressLocality: "Abu Dhabi",
+    addressCountry: "AE",
+  },
+  telephone: "+97125864545",
+  email: "sayedflora1@gmail.com",
+  url: "https://floracurtains.ae/contact",
+  areaServed: "United Arab Emirates",
 };
 
 export default function ContactPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       <PageHero
         eyebrow="Contact Flora"
         title={

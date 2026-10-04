@@ -35,7 +35,7 @@ export function ServiceCards() {
             <div className="relative aspect-[16/10] overflow-hidden bg-flora-surface">
               <Image
                 src={service.image}
-                alt={service.title}
+                alt={service.imageAlt}
                 fill
                 loading="lazy"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

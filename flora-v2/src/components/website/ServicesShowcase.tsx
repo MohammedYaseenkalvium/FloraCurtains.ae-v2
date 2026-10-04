@@ -29,7 +29,7 @@ export function ServicesShowcase() {
         <div className="grid gap-5 md:grid-cols-2">
           {pair.map((service, i) => (
             <Reveal key={service.slug} delay={i * 0.06}>
-              <ServiceTile index={i} slug={service.slug} title={service.title} description={service.description} image={service.image} />
+              <ServiceTile index={i} slug={service.slug} title={service.title} description={service.description} image={service.image} imageAlt={service.imageAlt} />
             </Reveal>
           ))}
         </div>
@@ -37,7 +37,7 @@ export function ServicesShowcase() {
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           {pair2.map((service, i) => (
             <Reveal key={service.slug} delay={i * 0.06}>
-              <ServiceTile index={i + 2} slug={service.slug} title={service.title} description={service.description} image={service.image} />
+              <ServiceTile index={i + 2} slug={service.slug} title={service.title} description={service.description} image={service.image} imageAlt={service.imageAlt} />
             </Reveal>
           ))}
         </div>
@@ -50,7 +50,7 @@ export function ServicesShowcase() {
             <div className="relative aspect-[16/8] w-full md:aspect-[21/8]">
               <Image
                 src={fifth.image}
-                alt={fifth.title}
+                alt={fifth.imageAlt}
                 fill
                 loading="lazy"
                 sizes="100vw"
@@ -86,12 +86,14 @@ function ServiceTile({
   title,
   description,
   image,
+  imageAlt,
 }: {
   index: number;
   slug: string;
   title: string;
   description: string;
   image: string;
+  imageAlt: string;
 }) {
   return (
     <Link
@@ -99,9 +101,9 @@ function ServiceTile({
       className="group relative block overflow-hidden rounded-flora-lg"
     >
       <div className="relative aspect-[4/3] w-full">
-        <Image
-          src={image}
-          alt={title}
+          <Image
+            src={image}
+            alt={imageAlt}
           fill
           loading="lazy"
           sizes="(max-width: 768px) 100vw, 50vw"

@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   title: "Get a Quote | Flora Curtains Abu Dhabi",
   description:
     "Request a quotation in a few steps: tell us about your space, choose a service and get a fast, no-obligation response from Flora Curtains.",
+  alternates: {
+    canonical: "/get-quote",
+  },
+  openGraph: {
+    title: "Get a Quote | Flora Curtains Abu Dhabi",
+    description:
+      "Tell us about your space in a few steps and get a fast, no-obligation quotation.",
+  },
 };
 
 export default function GetQuotePage() {

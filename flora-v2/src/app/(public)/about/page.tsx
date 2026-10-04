@@ -9,6 +9,14 @@ export const metadata: Metadata = {
   title: "About Flora Curtains | Abu Dhabi Interior Craft Since 1997",
   description:
     "Flora Curtains LLC was established in 2023 in Abu Dhabi; our founder's curtain and interior journey began in 1997. Premium curtains, wallpaper, upholstery and flooring across the UAE.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "About Flora Curtains | Abu Dhabi Interior Craft Since 1997",
+    description:
+      "Established in 2023 in Abu Dhabi; curtain and interior craft since 1997. Premium curtains, wallpaper, upholstery and flooring across the UAE.",
+  },
 };
 
 export default function AboutPage() {
@@ -55,8 +63,9 @@ export default function AboutPage() {
             </p>
 
             <p>
-              Our stitching and upholstery team works with
-              premium curtain fabrics, sheer and blackout
+              Our experienced curtain and upholstery team specializes in
+              premium-quality craftsmanship, elegant finishing, and
+              customized designs, working with premium curtain fabrics, sheer and blackout
               collections, wallpaper, carpets and flooring
               — serving villas, apartments, offices, cafés
               and commercial projects across all Emirates

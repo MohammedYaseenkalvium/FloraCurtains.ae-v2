@@ -22,6 +22,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${service.title} | Flora Curtains LLC`,
     description: service.description,
+    alternates: {
+      canonical: `/services/${service.slug}`,
+    },
+    openGraph: {
+      title: `${service.title} | Flora Curtains LLC`,
+      description: service.description,
+    },
   };
 }
 
@@ -79,7 +86,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           <div className="overflow-hidden rounded-2xl border border-flora-border">
             <Image
               src={service.image}
-              alt={service.title}
+                alt={service.imageAlt}
               width={1600}
               height={900}
               className="h-[320px] w-full object-cover sm:h-[440px]"

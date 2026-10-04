@@ -34,7 +34,7 @@ export function CTASection({
         <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/70">
           {description}
         </p>
-        <div className="mt-9 flex flex-col items-center justify-between gap-3 sm:flex-row">
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href={primaryHref}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-flora-primary px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-flora-primary-hover sm:w-auto"

@@ -7,6 +7,7 @@ interface PortfolioProject {
   title: string;
   category: string;
   image: string;
+  alt: string;
 }
 
 const filters = ["All", "Residential", "Commercial", "Interior"] as const;
@@ -53,8 +54,8 @@ export function PortfolioGallery({ projects }: { projects: PortfolioProject[] })
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-flora-surface">
                 <Image
-                  src={project.image}
-                  alt={project.title}
+                src={project.image}
+                alt={project.alt}
                   fill
                   loading="lazy"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

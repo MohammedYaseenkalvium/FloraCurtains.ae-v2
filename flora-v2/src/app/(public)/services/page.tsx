@@ -9,6 +9,14 @@ export const metadata: Metadata = {
   title: "Services | Curtains, Wallpaper, Sofas, Interiors, Flooring",
   description:
     "Curtains & blinds, wallpaper, customized sofas & upholstery, interior decoration, carpet & wooden flooring — complete interior solutions across the UAE.",
+  alternates: {
+    canonical: "/services",
+  },
+  openGraph: {
+    title: "Services | Curtains, Wallpaper, Sofas, Interiors, Flooring",
+    description:
+      "Curtains, blinds, wallpaper, sofas, flooring and interior decoration across the UAE.",
+  },
 };
 
 export default function ServicesPage() {
