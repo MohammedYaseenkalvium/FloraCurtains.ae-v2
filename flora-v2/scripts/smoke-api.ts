@@ -568,7 +568,7 @@ async function main(): Promise<void> {
 
   // ================= route: auth/[...nextauth] =================
   const authBad = await loginRejected(base, adminEmail, `${staffPassword}-wrong`);
-  recordLeg("auth/[...nextauth]", "happy", "POST", "/api/auth/callback/credentials", "session-cookie", authBad.rejected ? "session-cookie" : "no-cookie", true, "n/a", "credential login mints session (setup)");
+  recordLeg("auth/[...nextauth]", "happy", "POST", "/api/auth/callback/credentials", "session-cookie", authBad.rejected ? "session-cookie" : "no-cookie", authBad.rejected, "n/a", "credential login mints session (setup)");
   recordLeg("auth/[...nextauth]", "401", "POST", "/api/auth/callback/credentials", "rejected", authBad.rejected ? "rejected" : "accepted", authBad.rejected, "n/a", `bad password -> ${authBad.location}`);
   const authNa = na("403-N/A", "credential callback has no requireRole gate");
   const authMissing = await loginRejected(base, adminEmail, "");
